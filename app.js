@@ -41,7 +41,13 @@ let practiceIndex = 0;
 let activeQuiz = null;
 let quizTimerHandle = null;
 
-document.addEventListener("DOMContentLoaded", init);
+window.MCQ_MASTERY_APP_STARTED = true;
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init);
+} else {
+  init();
+}
 
 function init() {
   cacheElements();
@@ -75,6 +81,9 @@ function bindEvents() {
     els.chunkName.value = "Sample Medical Mastery Chunk";
     els.chunkFolder.value = "Samples/Foundation";
   });
+  els.questionPromptBtn.addEventListener("click", () => setImportPrompt("questions"));
+  els.keyPromptBtn.addEventListener("click", () => setImportPrompt("key"));
+  els.copyImportPromptBtn.addEventListener("click", () => copyPrompt(els.importPromptOutput, "Import prompt copied."));
   els.validateImportBtn.addEventListener("click", validateImport);
   els.saveImportBtn.addEventListener("click", saveImport);
   els.jsonFile.addEventListener("change", readJsonFile);
@@ -92,6 +101,11 @@ function bindEvents() {
   els.backupBtn.addEventListener("click", manualBackup);
   els.restoreBtn.addEventListener("click", restoreLatestBackup);
   els.clearLocalBtn.addEventListener("click", clearLocalData);
+  els.refreshProgressPromptBtn.addEventListener("click", renderProgressPrompt);
+  els.copyProgressPromptBtn.addEventListener("click", () => copyPrompt(els.progressPromptOutput, "Progress prompt copied."));
+  els.exportProgressBtn.addEventListener("click", exportProgress);
+  els.progressFromDate.addEventListener("change", renderProgressPrompt);
+  els.progressToDate.addEventListener("change", renderProgressPrompt);
   els.newFolderBtn.addEventListener("click", addFolder);
   els.googleSignInBtn.addEventListener("click", () => alert("Deploy Code.gs as a web app and connect Google Identity Services here."));
 }
@@ -162,6 +176,7 @@ function renderAll() {
   renderPractice();
   renderReview();
   renderHistory();
+  renderProgressPrompt();
 }
 
 function renderProfiles() {
@@ -219,6 +234,65 @@ function onDrop(event) {
     els.jsonInput.value = reader.result;
   };
   reader.readAsText(file);
+}
+
+function setImportPrompt(kind) {
+  const rawInput = els.jsonInput.value.trim();
+  const sharedSchema = `Return only valid JSON. Use this exact shape:
+{
+  "questions": [
+    {
+      "id": "SOURCE-CHAPTER-001",
+      "source": "Book or exam source",
+      "edition": "",
+      "chapter": "Chapter or topic",
+      "page": "",
+      "questionNumber": "1",
+      "correctAnswer": "A",
+      "explanation": "Concise explanation in 1-3 sentences.",
+      "difficulty": "Easy",
+      "tags": ["Subject", "System", "Topic"],
+      "imageUrl": ""
+    }
+  ]
+}
+
+Rules:
+- Do not include question stems or answer options in the JSON.
+- correctAnswer must be one of A, B, C, D, or E.
+- Generate concise, high-yield explanations.
+- Add useful tags for subject, system, chapter, and tested concept.
+- If a field is unknown, use an empty string except difficulty, which must be Easy, Medium, or Hard.
+- Keep ids unique and stable.`;
+
+  const questionsPrompt = `I will provide MCQ question stems with options. Create an import-ready answer key for MCQ Mastery OS.
+
+Task:
+- Determine the correct answer for each question.
+- Write a concise explanation for why the answer is correct.
+- Add clinically/usefully searchable tags.
+- Preserve source, chapter, page, and question number when present.
+
+${sharedSchema}
+
+Input questions:
+${rawInput || "[Paste the questions here]"}`;
+
+  const keyPrompt = `I will provide an answer key, with or without explanations. Convert it into import-ready JSON for MCQ Mastery OS.
+
+Task:
+- Use the provided correct answer directly.
+- If explanations are missing, write concise high-yield explanations.
+- If explanations are present, improve them only for clarity and brevity.
+- Add clinically/usefully searchable tags.
+- Preserve source, chapter, page, and question number when present.
+
+${sharedSchema}
+
+Input key:
+${rawInput || "[Paste the answer key here]"}`;
+
+  els.importPromptOutput.value = kind === "questions" ? questionsPrompt : keyPrompt;
 }
 
 function parseImportPayload() {
@@ -762,6 +836,117 @@ function clearLocalData() {
   renderAll();
 }
 
+function getProgressDateRange() {
+  const from = els.progressFromDate.value ? new Date(`${els.progressFromDate.value}T00:00:00`) : null;
+  const to = els.progressToDate.value ? new Date(`${els.progressToDate.value}T23:59:59`) : null;
+  return { from, to };
+}
+
+function isWithinProgressRange(value, range) {
+  const time = new Date(value).getTime();
+  if (!Number.isFinite(time)) return false;
+  if (range.from && time < range.from.getTime()) return false;
+  if (range.to && time > range.to.getTime()) return false;
+  return true;
+}
+
+function buildProgressExportPayload() {
+  const range = getProgressDateRange();
+  const currentProfile = profile();
+  const attempts = currentProfile.attempts.filter((attempt) => isWithinProgressRange(attempt.createdAt, range));
+  const history = currentProfile.history.filter((item) => isWithinProgressRange(item.createdAt, range));
+  const questionIds = [...new Set(attempts.map((attempt) => attempt.questionId))];
+  const questions = questionIds.reduce((acc, id) => {
+    const question = state.questions[id];
+    if (!question) return acc;
+    acc[id] = {
+      id: question.id,
+      source: question.source,
+      chapter: question.chapter,
+      questionNumber: question.questionNumber,
+      correctAnswer: question.correctAnswer,
+      difficulty: question.difficulty,
+      tags: question.tags,
+      status: getStatus(id),
+      explanation: question.explanation
+    };
+    return acc;
+  }, {});
+  const correct = attempts.filter((attempt) => attempt.correct).length;
+  const skipped = attempts.filter((attempt) => !attempt.answer).length;
+  const totalTime = attempts.reduce((sum, attempt) => sum + (attempt.timeSpent || 0), 0);
+
+  return {
+    exportedAt: new Date().toISOString(),
+    profile: {
+      id: currentProfile.id,
+      name: currentProfile.name
+    },
+    dateRange: {
+      from: els.progressFromDate.value || "",
+      to: els.progressToDate.value || ""
+    },
+    summary: {
+      attempts: attempts.length,
+      correct,
+      incorrect: attempts.length - correct - skipped,
+      skipped,
+      accuracy: attempts.length ? Math.round((correct / attempts.length) * 100) : 0,
+      totalStudySeconds: totalTime,
+      averageSecondsPerAttempt: attempts.length ? Math.round(totalTime / attempts.length) : 0,
+      dueReviews: getDueReviews().length
+    },
+    topicStats: topicStatsFromAttempts(attempts),
+    attempts,
+    history,
+    questions
+  };
+}
+
+function topicStatsFromAttempts(attempts) {
+  const byTag = {};
+  attempts.forEach((attempt) => {
+    const question = state.questions[attempt.questionId];
+    if (!question) return;
+    question.tags.forEach((tag) => {
+      byTag[tag] ||= { tag, total: 0, correct: 0, accuracy: 0 };
+      byTag[tag].total += 1;
+      if (attempt.correct) byTag[tag].correct += 1;
+    });
+  });
+  return Object.values(byTag)
+    .map((item) => ({ ...item, accuracy: Math.round((item.correct / item.total) * 100) }))
+    .sort((a, b) => a.accuracy - b.accuracy || b.total - a.total);
+}
+
+function buildProgressPrompt() {
+  const payload = buildProgressExportPayload();
+  return `Analyze this MCQ Mastery OS progress export.
+
+Task:
+- Summarize performance for the selected date range.
+- Identify strongest and weakest topics.
+- Point out repeated mistakes, skipped-question patterns, and slow areas.
+- Recommend a focused study plan for the next 7 days.
+- Keep the response practical, concise, and exam-oriented.
+
+Progress export JSON:
+${JSON.stringify(payload, null, 2)}`;
+}
+
+function renderProgressPrompt() {
+  if (!els.progressPromptOutput) return;
+  els.progressPromptOutput.value = buildProgressPrompt();
+}
+
+function exportProgress() {
+  const payload = {
+    ...buildProgressExportPayload(),
+    aiPrompt: buildProgressPrompt()
+  };
+  downloadJson(payload, `${profile().name.replace(/\W+/g, "-").toLowerCase()}-progress-export.json`);
+}
+
 function exportProfile() {
   const payload = {
     exportedAt: new Date().toISOString(),
@@ -775,13 +960,25 @@ function exportProfile() {
       }, {})
     }
   };
+  downloadJson(payload, `${profile().name.replace(/\W+/g, "-").toLowerCase()}-mcq-mastery-export.json`);
+}
+
+function downloadJson(payload, filename) {
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `${profile().name.replace(/\W+/g, "-").toLowerCase()}-mcq-mastery-export.json`;
+  link.download = filename;
   link.click();
   URL.revokeObjectURL(url);
+}
+
+function copyPrompt(textarea, message) {
+  if (!textarea.value.trim()) return;
+  textarea.select();
+  const copied = document.execCommand("copy");
+  if (copied) alert(message);
+  else alert("Select the prompt text and copy it manually.");
 }
 
 function tagPill(tag) {
