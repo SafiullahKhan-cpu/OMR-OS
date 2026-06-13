@@ -4,18 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>MCQ Mastery OS</title>
+    <link rel="stylesheet" href="styles.css">
     <style id="gasStyles"><?!= include('styles'); ?></style>
-    <script>
-      (() => {
-        const gasStyles = document.getElementById("gasStyles");
-        if (gasStyles && gasStyles.textContent.trim().startsWith("<?")) {
-          const localStyles = document.createElement("link");
-          localStyles.rel = "stylesheet";
-          localStyles.href = "styles.css";
-          document.head.appendChild(localStyles);
-        }
-      })();
-    </script>
   </head>
   <body>
     <div class="app-shell">
@@ -109,6 +99,17 @@
               <input id="jsonFile" type="file" accept="application/json">
             </div>
             <textarea id="jsonInput" spellcheck="false" placeholder='Paste JSON array or {"questions":[...]}'></textarea>
+            <div class="prompt-tools">
+              <div class="panel-head">
+                <h2>AI Import Prompts</h2>
+                <button id="copyImportPromptBtn" class="secondary" type="button">Copy Prompt</button>
+              </div>
+              <div class="actions-row">
+                <button id="questionPromptBtn" class="secondary" type="button">Questions to Key</button>
+                <button id="keyPromptBtn" class="secondary" type="button">Key to Import JSON</button>
+              </div>
+              <textarea id="importPromptOutput" class="prompt-output" readonly spellcheck="false" placeholder="Choose a prompt, then paste it into your AI chat."></textarea>
+            </div>
             <div class="form-grid">
               <label>Chunk Name<input id="chunkName" type="text" placeholder="Lippincott Biochemistry Chapter 3"></label>
               <label>Folder<input id="chunkFolder" type="text" placeholder="Biochemistry/Glycolysis"></label>
@@ -199,6 +200,21 @@
             </div>
             <p class="muted">Google Apps Script backend hooks are included in <code>Code.gs</code>. Local storage keeps Guest Mode offline-ready.</p>
           </div>
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Progress Export</h2>
+              <button id="copyProgressPromptBtn" class="secondary" type="button">Copy Prompt</button>
+            </div>
+            <div class="form-grid compact-grid">
+              <label>From Date<input id="progressFromDate" type="date"></label>
+              <label>To Date<input id="progressToDate" type="date"></label>
+            </div>
+            <textarea id="progressPromptOutput" class="prompt-output" readonly spellcheck="false"></textarea>
+            <div class="actions-row">
+              <button id="refreshProgressPromptBtn" class="secondary" type="button">Refresh Prompt</button>
+              <button id="exportProgressBtn" type="button">Export Progress JSON</button>
+            </div>
+          </div>
         </section>
       </main>
     </div>
@@ -212,16 +228,13 @@
       (() => {
         const gasApp = document.getElementById("gasApp");
         const source = gasApp ? gasApp.textContent.trim() : "";
-        if (source && !source.startsWith("<?")) {
+        if (source && !source.includes("include('app')") && !window.MCQ_MASTERY_APP_STARTED) {
           const inlineApp = document.createElement("script");
           inlineApp.textContent = source;
           document.body.appendChild(inlineApp);
-          return;
+        } else if (!window.MCQ_MASTERY_APP_STARTED) {
+          document.write('<script src="app.js"><' + '/script>');
         }
-
-        const localApp = document.createElement("script");
-        localApp.src = "app.js";
-        document.body.appendChild(localApp);
       })();
     </script>
   </body>
