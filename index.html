@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MCQ Mastery OS</title>
+    <style id="gasStyles"><?!= include('styles'); ?></style>
+    <script>
+      (() => {
+        const gasStyles = document.getElementById("gasStyles");
+        if (gasStyles && gasStyles.textContent.trim().startsWith("<?")) {
+          const localStyles = document.createElement("link");
+          localStyles.rel = "stylesheet";
+          localStyles.href = "styles.css";
+          document.head.appendChild(localStyles);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Primary">
+        <div class="brand">
+          <span class="brand-mark">OMR</span>
+          <div>
+            <strong>MCQ Mastery OS</strong>
+            <small>Study operating system</small>
+          </div>
+        </div>
+
+        <div class="profile-card">
+          <label for="profileSelect">Profile</label>
+          <div class="profile-row">
+            <select id="profileSelect"></select>
+            <button id="addProfileBtn" class="icon-btn" title="Add profile" aria-label="Add profile">+</button>
+          </div>
+          <button id="googleSignInBtn" class="wide secondary">Google Sign-In Ready</button>
+        </div>
+
+        <nav class="nav-list">
+          <button class="nav-item active" data-view="dashboard">Dashboard</button>
+          <button class="nav-item" data-view="import">Import</button>
+          <button class="nav-item" data-view="library">Library</button>
+          <button class="nav-item" data-view="practice">Practice</button>
+          <button class="nav-item" data-view="quiz">Quiz Builder</button>
+          <button class="nav-item" data-view="review">Review</button>
+          <button class="nav-item" data-view="history">History</button>
+          <button class="nav-item" data-view="settings">Settings</button>
+        </nav>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div class="search-wrap">
+            <input id="globalSearch" type="search" placeholder="Search source, chapter, tag, notes, status...">
+          </div>
+          <div class="topbar-actions">
+            <button id="themeToggle" class="secondary">Toggle Theme</button>
+            <button id="exportProfileBtn">Export Profile</button>
+          </div>
+        </header>
+
+        <section id="dashboard" class="view active">
+          <div class="metrics-grid">
+            <article class="metric"><span>Daily Streak</span><strong id="dailyStreak">0</strong></article>
+            <article class="metric"><span>Questions Solved</span><strong id="questionsSolved">0</strong></article>
+            <article class="metric"><span>Accuracy</span><strong id="accuracyMetric">0%</strong></article>
+            <article class="metric"><span>Due Reviews</span><strong id="dueReviews">0</strong></article>
+          </div>
+
+          <div class="two-column">
+            <section class="panel">
+              <div class="panel-head">
+                <h2>Activity Heatmap</h2>
+                <span id="studyHours">0h study</span>
+              </div>
+              <div id="heatmap" class="heatmap" aria-label="Activity heatmap"></div>
+            </section>
+            <section class="panel">
+              <div class="panel-head">
+                <h2>AI Study Planner</h2>
+                <button id="buildPlanBtn" class="secondary">Refresh</button>
+              </div>
+              <div id="studyPlan" class="recommendations"></div>
+            </section>
+          </div>
+
+          <div class="two-column">
+            <section class="panel">
+              <h2>Topic Analytics</h2>
+              <div id="topicAnalytics" class="topic-list"></div>
+            </section>
+            <section class="panel">
+              <h2>Knowledge Graph</h2>
+              <div id="knowledgeGraph" class="graph"></div>
+            </section>
+          </div>
+        </section>
+
+        <section id="import" class="view">
+          <div class="panel import-panel">
+            <div class="panel-head">
+              <h2>Import Questions</h2>
+              <button id="sampleImportBtn" class="secondary">Load Sample</button>
+            </div>
+            <div id="dropZone" class="drop-zone">
+              <strong>Drop JSON here</strong>
+              <span>or choose a file / paste raw JSON below</span>
+              <input id="jsonFile" type="file" accept="application/json">
+            </div>
+            <textarea id="jsonInput" spellcheck="false" placeholder='Paste JSON array or {"questions":[...]}'></textarea>
+            <div class="form-grid">
+              <label>Chunk Name<input id="chunkName" type="text" placeholder="Lippincott Biochemistry Chapter 3"></label>
+              <label>Folder<input id="chunkFolder" type="text" placeholder="Biochemistry/Glycolysis"></label>
+              <label>Version<input id="chunkVersion" type="text" value="1.0.0"></label>
+              <label>Description<input id="chunkDescription" type="text" placeholder="Short description"></label>
+            </div>
+            <div class="actions-row">
+              <button id="validateImportBtn">Validate Import</button>
+              <button id="saveImportBtn" disabled>Save Chunk</button>
+            </div>
+            <div id="importReport" class="report"></div>
+          </div>
+        </section>
+
+        <section id="library" class="view">
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Notion-Style Library</h2>
+              <button id="newFolderBtn" class="secondary">New Folder</button>
+            </div>
+            <div id="libraryTree" class="library-tree"></div>
+          </div>
+          <div class="panel">
+            <h2>Global Results</h2>
+            <div id="questionResults" class="question-table"></div>
+          </div>
+        </section>
+
+        <section id="practice" class="view">
+          <div class="panel">
+            <div class="panel-head">
+              <h2>OMR Practice</h2>
+              <select id="practiceChunk"></select>
+            </div>
+            <div id="practiceCard" class="omr-card"></div>
+          </div>
+        </section>
+
+        <section id="quiz" class="view">
+          <div class="panel">
+            <h2>Custom Quiz Builder</h2>
+            <div class="form-grid">
+              <label>Source<input id="quizSource" type="text"></label>
+              <label>Chapter<input id="quizChapter" type="text"></label>
+              <label>Tag<input id="quizTag" type="text"></label>
+              <label>Difficulty<select id="quizDifficulty"><option value="">Any</option><option>Easy</option><option>Medium</option><option>Hard</option></select></label>
+              <label>Questions<input id="quizCount" type="number" min="1" value="10"></label>
+              <label>Minutes<input id="quizMinutes" type="number" min="0" value="15"></label>
+            </div>
+            <label class="check-row"><input id="quizRandom" type="checkbox" checked> Random order</label>
+            <div class="actions-row">
+              <button id="startQuizBtn">Start Quiz</button>
+              <button id="submitQuizBtn" class="secondary" disabled>Submit</button>
+              <span id="quizTimer" class="timer"></span>
+            </div>
+          </div>
+          <div id="quizSurface" class="quiz-surface"></div>
+          <div id="quizResult" class="panel hidden"></div>
+        </section>
+
+        <section id="review" class="view">
+          <div class="two-column">
+            <section class="panel">
+              <h2>Mistake Diary</h2>
+              <div id="mistakeDiary" class="review-list"></div>
+            </section>
+            <section class="panel">
+              <h2>Spaced Repetition Queue</h2>
+              <div id="srsQueue" class="review-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section id="history" class="view">
+          <div class="panel">
+            <h2>History</h2>
+            <div id="historyList" class="history-list"></div>
+          </div>
+        </section>
+
+        <section id="settings" class="view">
+          <div class="panel">
+            <h2>Backup & Settings</h2>
+            <div class="actions-row">
+              <button id="backupBtn">Manual Backup</button>
+              <button id="restoreBtn" class="secondary">Restore Latest</button>
+              <button id="clearLocalBtn" class="danger">Clear Local Data</button>
+            </div>
+            <p class="muted">Google Apps Script backend hooks are included in <code>Code.gs</code>. Local storage keeps Guest Mode offline-ready.</p>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <template id="choiceTemplate">
+      <button class="choice" type="button"></button>
+    </template>
+
+    <script type="text/plain" id="gasApp"><?!= include('app'); ?></script>
+    <script>
+      (() => {
+        const gasApp = document.getElementById("gasApp");
+        const source = gasApp ? gasApp.textContent.trim() : "";
+        if (source && !source.startsWith("<?")) {
+          const inlineApp = document.createElement("script");
+          inlineApp.textContent = source;
+          document.body.appendChild(inlineApp);
+          return;
+        }
+
+        const localApp = document.createElement("script");
+        localApp.src = "app.js";
+        document.body.appendChild(localApp);
+      })();
+    </script>
+  </body>
+</html>
