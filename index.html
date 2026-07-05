@@ -734,7 +734,7 @@ let currentStorageKey = null; // set once we know who's signed in: `${STORAGE_PR
 // only allows a row to be read/written by the signed-in Google user who
 // owns it (auth.uid() = user_id), so there is no shared/anonymous access
 // at all - each Google account only ever sees its own data.
-const SUPABASE_URL = "https://fskctubmjdsgefnyynzz.supabase.co/rest/v1/";
+const SUPABASE_URL = "https://fskctubmjdsgefnyynzz.supabase.co/";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZza2N0dWJtamRzZ2Vmbnl5bnp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxNjkwMTEsImV4cCI6MjA5ODc0NTAxMX0.GNX5yeAeNYdTvJ8J-0a2QkC2SK4Y_UgNBF1ZDHHSYC8";
 let cloudSyncing = false;
 let supabaseClient = null;
