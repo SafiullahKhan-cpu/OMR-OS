@@ -13,7 +13,7 @@ in the background (no "Enable Cloud Sync" button, no manual push/pull required d
 - `index.html` - the entire app: markup, styles, and logic, in one file.
 - `schema.sql` - run this once in your Supabase project to create the tables and security rules.
 
-## Important: this needs to run over http(s), not by double-clicking the file
+## Important: this needs to run over http(s), not by double-clicking the file  
 
 Google Sign-In works by redirecting your browser to Google, then back to your app's URL. Google and
 Supabase both require that return address to be a real `http://` or `https://` URL - browsers and
