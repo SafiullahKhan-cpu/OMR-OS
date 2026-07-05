@@ -1,0 +1,2384 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MCQ Mastery OS</title>
+    <style>
+:root {
+  color-scheme: light;
+  --bg: #f5f7fb;
+  --surface: #ffffff;
+  --surface-2: #eef3f8;
+  --text: #17202a;
+  --muted: #66758a;
+  --border: #d9e1ea;
+  --primary: #116d6e;
+  --primary-2: #0d5253;
+  --accent: #b53d2a;
+  --good: #16834a;
+  --warn: #b7791f;
+  --bad: #c53030;
+  --shadow: 0 10px 30px rgba(24, 39, 75, 0.08);
+}
+
+body.dark {
+  color-scheme: dark;
+  --bg: #101418;
+  --surface: #171d23;
+  --surface-2: #202832;
+  --text: #eef4f8;
+  --muted: #aab7c4;
+  --border: #2c3946;
+  --primary: #56b6b7;
+  --primary-2: #7ed0d1;
+  --accent: #e0715d;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.24);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing: 0;
+}
+
+button, input, select, textarea {
+  font: inherit;
+}
+
+button {
+  border: 1px solid var(--primary);
+  background: var(--primary);
+  color: white;
+  min-height: 40px;
+  border-radius: 6px;
+  padding: 0 14px;
+  cursor: pointer;
+}
+
+button:hover { background: var(--primary-2); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.secondary {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.secondary:hover { background: var(--surface-2); }
+.danger { background: var(--bad); border-color: var(--bad); }
+.wide { width: 100%; }
+
+.app-shell {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.auth-gate {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  z-index: 50;
+  padding: 18px;
+}
+
+.auth-card {
+  width: min(420px, 100%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 16px;
+  text-align: center;
+}
+
+.auth-card .brand {
+  justify-content: center;
+}
+
+.auth-status {
+  min-height: 1.2em;
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 18px;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  overflow-y: auto;
+}
+
+.brand {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: var(--primary);
+  color: white;
+  font-weight: 800;
+}
+
+.brand strong, .brand small { display: block; }
+.brand small, .muted { color: var(--muted); }
+
+.profile-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.profile-card label {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.profile-row {
+  display: grid;
+  grid-template-columns: 1fr 40px;
+  gap: 8px;
+}
+
+.icon-btn { min-width: 40px; padding: 0; }
+
+.nav-list {
+  display: grid;
+  gap: 8px;
+}
+
+.nav-item {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  color: var(--text);
+  border-color: transparent;
+}
+
+.nav-item.active, .nav-item:hover {
+  background: var(--surface-2);
+  border-color: var(--border);
+}
+
+.workspace {
+  min-width: 0;
+  padding: 18px;
+}
+
+.topbar {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.topbar-actions, .actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+input, select, textarea {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  padding: 9px 10px;
+}
+
+textarea {
+  min-height: 190px;
+  resize: vertical;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.view { display: none; }
+.view.active { display: grid; gap: 18px; }
+.hidden { display: none !important; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+
+.panel h2 {
+  font-size: 1.05rem;
+  margin: 0 0 12px;
+}
+
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.panel-head h2 { margin: 0; }
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.metric {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.metric span {
+  color: var(--muted);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.metric strong { font-size: 1.8rem; }
+
+.two-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.heatmap {
+  display: grid;
+  grid-template-columns: repeat(26, minmax(8px, 1fr));
+  gap: 4px;
+}
+
+.heat-cell {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  background: var(--surface-2);
+}
+
+.heat-cell[data-level="1"] { background: #b7dfc7; }
+.heat-cell[data-level="2"] { background: #62b982; }
+.heat-cell[data-level="3"] { background: #16834a; }
+
+.drop-zone {
+  display: grid;
+  place-items: center;
+  gap: 6px;
+  min-height: 150px;
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  background: var(--surface-2);
+  margin-bottom: 12px;
+  text-align: center;
+  padding: 18px;
+}
+
+.drop-zone.dragover { border-color: var(--primary); }
+.drop-zone span { color: var(--muted); }
+.drop-zone input { max-width: 320px; }
+
+.prompt-tools {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  margin: 12px 0;
+  background: var(--bg);
+}
+
+.prompt-output {
+  min-height: 150px;
+  margin-top: 12px;
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.compact-grid {
+  grid-template-columns: repeat(2, minmax(160px, 240px));
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(160px, 1fr));
+  gap: 12px;
+  margin: 12px 0;
+}
+
+.form-grid label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.report {
+  margin-top: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.report-item {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.ok { color: var(--good); }
+.warn { color: var(--warn); }
+.bad { color: var(--bad); }
+
+.library-tree, .question-table, .review-list, .history-list, .topic-list, .recommendations {
+  display: grid;
+  gap: 10px;
+}
+
+.folder-node, .question-row, .review-row, .history-row, .topic-row, .plan-row {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  background: var(--surface);
+}
+
+.folder-node strong, .question-row strong, .review-row strong { display: block; }
+.tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag { border: 1px solid var(--border); border-radius: 999px; padding: 3px 8px; color: var(--muted); font-size: 0.78rem; }
+
+.chunk-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.resource-link { font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
+.chunk-picker-list { display: grid; gap: 6px; max-height: 360px; overflow-y: auto; padding: 4px; border: 1px solid var(--border); border-radius: 8px; }
+.chunk-picker-list .check-row { border-bottom: 1px solid var(--border); padding: 6px 4px; margin: 0; }
+.chunk-picker-list .check-row:last-child { border-bottom: none; }
+.session-banner { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); margin-bottom: 10px; }
+.progress-line { color: var(--muted); font-size: 0.85rem; }
+
+.omr-card {
+  display: grid;
+  gap: 14px;
+}
+
+.source-line {
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.choices {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(64px, 1fr));
+  gap: 10px;
+}
+
+.choice {
+  min-height: 58px;
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+  font-weight: 700;
+}
+
+.choice.selected { border-color: var(--primary); background: var(--surface-2); }
+.choice.correct { border-color: var(--good); background: rgba(22, 131, 74, 0.12); }
+.choice.incorrect { border-color: var(--bad); background: rgba(197, 48, 48, 0.12); }
+
+.explanation {
+  border-left: 4px solid var(--primary);
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border-radius: 0 8px 8px 0;
+}
+
+.notes-box {
+  display: grid;
+  gap: 8px;
+}
+
+.quiz-surface {
+  display: grid;
+  gap: 12px;
+}
+
+.quiz-question {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.quiz-options {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(54px, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.quiz-options label, .check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quiz-options input, .check-row input { width: auto; min-height: auto; }
+.timer { font-weight: 800; color: var(--accent); }
+
+.graph {
+  display: grid;
+  gap: 8px;
+}
+
+.graph-node {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  padding: 8px 0;
+}
+
+@media (max-width: 980px) {
+  .app-shell { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; }
+  .topbar, .two-column, .metrics-grid { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 560px) {
+  .workspace, .sidebar { padding: 12px; }
+  .form-grid, .choices, .quiz-options { grid-template-columns: 1fr; }
+  .topbar-actions { width: 100%; }
+  .topbar-actions button { flex: 1; }
+}
+
+    </style>
+  </head>
+  <body>
+    <div id="authGate" class="auth-gate">
+      <div class="auth-card">
+        <div class="brand">
+          <span class="brand-mark">OMR</span>
+          <div>
+            <strong>MCQ Mastery OS</strong>
+            <small>Study operating system</small>
+          </div>
+        </div>
+        <p class="muted">Sign in with Google to load your questions and progress. There is no guest
+          mode - everything is tied to your Google account and synced automatically.</p>
+        <button id="googleLoginBtn" class="wide">Continue with Google</button>
+        <p id="authGateStatus" class="muted auth-status"></p>
+      </div>
+    </div>
+
+    <div class="app-shell hidden" id="appShell">
+      <aside class="sidebar" aria-label="Primary">
+        <div class="brand">
+          <span class="brand-mark">OMR</span>
+          <div>
+            <strong>MCQ Mastery OS</strong>
+            <small>Study operating system</small>
+          </div>
+        </div>
+
+        <div class="profile-card">
+          <div id="accountInfo" class="muted">Not signed in</div>
+          <button id="signOutBtn" class="wide secondary">Sign Out</button>
+        </div>
+
+        <nav class="nav-list">
+          <button class="nav-item active" data-view="dashboard">Dashboard</button>
+          <button class="nav-item" data-view="import">Import</button>
+          <button class="nav-item" data-view="library">Library</button>
+          <button class="nav-item" data-view="practice">Practice</button>
+          <button class="nav-item" data-view="quiz">Quiz Builder</button>
+          <button class="nav-item" data-view="review">Review</button>
+          <button class="nav-item" data-view="history">History</button>
+          <button class="nav-item" data-view="settings">Settings</button>
+        </nav>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div class="search-wrap">
+            <input id="globalSearch" type="search" placeholder="Search source, chapter, tag, notes, status...">
+          </div>
+          <div class="topbar-actions">
+            <button id="themeToggle" class="secondary">Toggle Theme</button>
+            <button id="exportProfileBtn">Export Profile</button>
+          </div>
+        </header>
+
+        <section id="dashboard" class="view active">
+          <div class="metrics-grid">
+            <article class="metric"><span>Daily Streak</span><strong id="dailyStreak">0</strong></article>
+            <article class="metric"><span>Questions Solved</span><strong id="questionsSolved">0</strong></article>
+            <article class="metric"><span>Accuracy</span><strong id="accuracyMetric">0%</strong></article>
+            <article class="metric"><span>Due Reviews</span><strong id="dueReviews">0</strong></article>
+          </div>
+
+          <div class="two-column">
+            <section class="panel">
+              <div class="panel-head">
+                <h2>Activity Heatmap</h2>
+                <span id="studyHours">0h study</span>
+              </div>
+              <div id="heatmap" class="heatmap" aria-label="Activity heatmap"></div>
+            </section>
+            <section class="panel">
+              <div class="panel-head">
+                <h2>AI Study Planner</h2>
+                <button id="buildPlanBtn" class="secondary">Refresh</button>
+              </div>
+              <div id="studyPlan" class="recommendations"></div>
+            </section>
+          </div>
+
+          <div class="two-column">
+            <section class="panel">
+              <h2>Topic Analytics</h2>
+              <div id="topicAnalytics" class="topic-list"></div>
+            </section>
+            <section class="panel">
+              <h2>Knowledge Graph</h2>
+              <div id="knowledgeGraph" class="graph"></div>
+            </section>
+          </div>
+        </section>
+
+        <section id="import" class="view">
+          <div class="panel import-panel">
+            <div class="panel-head">
+              <h2>Import Questions</h2>
+              <button id="sampleImportBtn" class="secondary">Load Sample</button>
+            </div>
+            <div id="dropZone" class="drop-zone">
+              <strong>Drop JSON here</strong>
+              <span>or choose a file / paste raw JSON below</span>
+              <input id="jsonFile" type="file" accept="application/json">
+            </div>
+            <textarea id="jsonInput" spellcheck="false" placeholder='Paste JSON array or {"questions":[...]}'></textarea>
+            <div class="prompt-tools">
+              <div class="panel-head">
+                <h2>AI Import Prompts</h2>
+                <button id="copyImportPromptBtn" class="secondary" type="button">Copy Prompt</button>
+              </div>
+              <div class="actions-row">
+                <button id="questionPromptBtn" class="secondary" type="button">Questions to Key</button>
+                <button id="keyPromptBtn" class="secondary" type="button">Key to Import JSON</button>
+              </div>
+              <textarea id="importPromptOutput" class="prompt-output" readonly spellcheck="false" placeholder="Choose a prompt, then paste it into your AI chat."></textarea>
+            </div>
+            <div class="form-grid">
+              <label>Chunk Name<input id="chunkName" type="text" placeholder="Lippincott Biochemistry Chapter 3"></label>
+              <label>Folder<input id="chunkFolder" type="text" placeholder="Biochemistry/Glycolysis"></label>
+              <label>Version<input id="chunkVersion" type="text" value="1.0.0"></label>
+              <label>Description<input id="chunkDescription" type="text" placeholder="Short description"></label>
+              <label>Resource Link (optional)<input id="chunkResourceLink" type="url" placeholder="https://drive.google.com/... or a book/PDF link"></label>
+            </div>
+            <div class="actions-row">
+              <button id="validateImportBtn">Validate Import</button>
+              <button id="saveImportBtn" disabled>Save Chunk</button>
+            </div>
+            <div id="importReport" class="report"></div>
+          </div>
+        </section>
+
+        <section id="library" class="view">
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Notion-Style Library</h2>
+              <button id="newFolderBtn" class="secondary">New Folder</button>
+            </div>
+            <div id="libraryTree" class="library-tree"></div>
+          </div>
+          <div class="panel">
+            <h2>Global Results</h2>
+            <div id="questionResults" class="question-table"></div>
+          </div>
+          <div id="chunkPickerPanel" class="panel hidden"></div>
+        </section>
+
+        <section id="practice" class="view">
+          <div class="panel">
+            <div class="panel-head">
+              <h2>OMR Practice</h2>
+              <select id="practiceChunk"></select>
+            </div>
+            <div id="practiceCard" class="omr-card"></div>
+          </div>
+        </section>
+
+        <section id="quiz" class="view">
+          <div class="panel">
+            <h2>Custom Quiz Builder</h2>
+            <div class="form-grid">
+              <label>Chunk (optional)<select id="quizChunk"><option value="">Any chunk</option></select></label>
+              <label>Source<input id="quizSource" type="text"></label>
+              <label>Chapter<input id="quizChapter" type="text"></label>
+              <label>Tag<input id="quizTag" type="text"></label>
+              <label>Difficulty<select id="quizDifficulty"><option value="">Any</option><option>Easy</option><option>Medium</option><option>Hard</option></select></label>
+              <label>Questions<input id="quizCount" type="number" min="1" value="10"></label>
+              <label>Minutes<input id="quizMinutes" type="number" min="0" value="15"></label>
+            </div>
+            <label class="check-row"><input id="quizRandom" type="checkbox" checked> Random order</label>
+            <div class="actions-row">
+              <button id="startQuizBtn">Start Quiz</button>
+              <button id="submitQuizBtn" class="secondary" disabled>Submit</button>
+              <span id="quizTimer" class="timer"></span>
+            </div>
+          </div>
+          <div id="quizSurface" class="quiz-surface"></div>
+          <div id="quizResult" class="panel hidden"></div>
+        </section>
+
+        <section id="review" class="view">
+          <div class="two-column">
+            <section class="panel">
+              <h2>Mistake Diary</h2>
+              <div id="mistakeDiary" class="review-list"></div>
+            </section>
+            <section class="panel">
+              <h2>Spaced Repetition Queue</h2>
+              <div id="srsQueue" class="review-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section id="history" class="view">
+          <div class="panel">
+            <h2>History</h2>
+            <div id="historyList" class="history-list"></div>
+          </div>
+        </section>
+
+        <section id="settings" class="view">
+          <div class="panel">
+            <h2>Backup & Settings</h2>
+            <div class="actions-row">
+              <button id="backupBtn">Manual Backup</button>
+              <button id="restoreBtn" class="secondary">Restore Latest</button>
+              <button id="clearLocalBtn" class="danger">Clear Local Data</button>
+            </div>
+            <p class="muted">Manual backups are saved inside local storage on this device, as a local cache of your signed-in Google account's data. The cloud copy in Supabase is the source of truth.</p>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Cloud Sync (Supabase)</h2>
+            </div>
+            <p class="muted">Your chunks, questions, and attempts sync to Supabase automatically in the background after every import, practice answer, and quiz - there's nothing to turn on. Use the buttons below only if you want to force a sync or pull right now (for example, right after using another device).</p>
+            <div class="actions-row">
+              <button id="cloudSyncNowBtn" class="secondary">Sync Now</button>
+              <button id="cloudPullBtn" class="secondary">Pull from Cloud</button>
+            </div>
+            <p id="cloudSyncStatus" class="muted"></p>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Progress Export</h2>
+              <button id="copyProgressPromptBtn" class="secondary" type="button">Copy Prompt</button>
+            </div>
+            <div class="form-grid compact-grid">
+              <label>From Date<input id="progressFromDate" type="date"></label>
+              <label>To Date<input id="progressToDate" type="date"></label>
+            </div>
+            <textarea id="progressPromptOutput" class="prompt-output" readonly spellcheck="false"></textarea>
+            <div class="actions-row">
+              <button id="refreshProgressPromptBtn" class="secondary" type="button">Refresh Prompt</button>
+              <button id="exportProgressBtn" type="button">Export Progress JSON</button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <template id="choiceTemplate">
+      <button class="choice" type="button"></button>
+    </template>
+
+    <!-- Supabase client (only used if you turn on Cloud Sync in Settings) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script>
+const STORAGE_PREFIX = "mcqMasteryOs.v2";
+const ANSWERS = ["A", "B", "C", "D", "E"];
+const DIFFICULTIES = new Set(["Easy", "Medium", "Hard"]);
+let currentStorageKey = null; // set once we know who's signed in: `${STORAGE_PREFIX}:${uid}`
+
+// ---- Auth + Cloud Sync (Supabase, Google sign-in required) ----
+// EDIT THE TWO LINES BELOW with your own Supabase project's values, found
+// on your project's Settings -> API page. The anon key is *meant* to be
+// public/shipped in frontend code like this - it does not grant access to
+// data by itself. Every table's Row Level Security policy (see schema.sql)
+// only allows a row to be read/written by the signed-in Google user who
+// owns it (auth.uid() = user_id), so there is no shared/anonymous access
+// at all - each Google account only ever sees its own data.
+const SUPABASE_URL = "https://fskctubmjdsgefnyynzz.supabase.co/rest/v1/";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZza2N0dWJtamRzZ2Vmbnl5bnp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxNjkwMTEsImV4cCI6MjA5ODc0NTAxMX0.GNX5yeAeNYdTvJ8J-0a2QkC2SK4Y_UgNBF1ZDHHSYC8";
+let cloudSyncing = false;
+let supabaseClient = null;
+let currentSession = null;
+let autoSyncHandle = null;
+
+function getSupabaseClient() {
+  if (supabaseClient) return supabaseClient;
+  if (SUPABASE_URL.includes("YOUR-PROJECT-REF") || SUPABASE_ANON_KEY === "replace-with-your-anon-public-key") {
+    throw new Error("Set real SUPABASE_URL and SUPABASE_ANON_KEY values near the top of the <script> block in index.html first.");
+  }
+  if (!window.supabase) {
+    throw new Error("Supabase client script did not load - check the <script> tag in index.html and your internet connection.");
+  }
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  return supabaseClient;
+}
+
+const sampleQuestions = [
+  {
+    id: "BIO-GLY-125",
+    source: "Lippincott Biochemistry",
+    edition: "8th Edition",
+    chapter: "Glycolysis",
+    page: 32,
+    questionNumber: 125,
+    correctAnswer: "D",
+    explanation: "Phosphofructokinase-1 is the rate-limiting enzyme of glycolysis.",
+    difficulty: "Medium",
+    tags: ["Biochemistry", "Metabolism", "Glycolysis"],
+    imageUrl: "",
+    createdAt: ""
+  },
+  {
+    id: "PHY-CVS-042",
+    source: "Guyton Physiology",
+    edition: "14th Edition",
+    chapter: "Cardiac Output",
+    page: 244,
+    questionNumber: 42,
+    correctAnswer: "B",
+    explanation: "Venous return is the primary determinant of cardiac output under steady-state conditions.",
+    difficulty: "Hard",
+    tags: ["Physiology", "CVS", "Cardiac Output"],
+    imageUrl: "",
+    createdAt: ""
+  }
+];
+
+const els = {};
+let state = null;
+let activeProfileId = null;
+let validatedImport = null;
+let practiceIndex = 0;
+let practiceSession = null; // { chunkId, ids } when practicing a curated subset of a chunk
+let activeQuiz = null;
+let quizTimerHandle = null;
+let chunkPickerChunkId = null;
+let chunkPickerSelected = new Set();
+
+window.MCQ_MASTERY_APP_STARTED = true;
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}
+
+async function boot() {
+  cacheElements();
+  bindAuthEvents();
+  let sb;
+  try {
+    sb = getSupabaseClient();
+  } catch (error) {
+    showAuthGate(error.message);
+    if (els.googleLoginBtn) els.googleLoginBtn.disabled = true;
+    return;
+  }
+
+  sb.auth.onAuthStateChange((event, session) => {
+    if (session && session.user.id !== activeProfileId) {
+      handleAuthenticated(session);
+    } else if (!session && activeProfileId) {
+      handleSignedOut();
+    }
+  });
+
+  const { data, error } = await sb.auth.getSession();
+  if (error) {
+    showAuthGate(`Could not check your sign-in status: ${error.message}`);
+    return;
+  }
+  if (data.session) {
+    await handleAuthenticated(data.session);
+  } else {
+    showAuthGate();
+  }
+}
+
+function showAuthGate(message) {
+  if (els.authGate) els.authGate.classList.remove("hidden");
+  if (els.appShell) els.appShell.classList.add("hidden");
+  if (els.authGateStatus) els.authGateStatus.textContent = message || "";
+}
+
+function bindAuthEvents() {
+  if (els.googleLoginBtn) {
+    els.googleLoginBtn.addEventListener("click", async () => {
+      try {
+        const sb = getSupabaseClient();
+        els.googleLoginBtn.disabled = true;
+        showAuthGate("Redirecting to Google\u2026");
+        const { error } = await sb.auth.signInWithOAuth({
+          provider: "google",
+          options: { redirectTo: window.location.href.split("#")[0] }
+        });
+        if (error) throw error;
+      } catch (error) {
+        showAuthGate(`Sign-in failed: ${error.message || error}`);
+        els.googleLoginBtn.disabled = false;
+      }
+    });
+  }
+}
+
+async function handleAuthenticated(session) {
+  currentSession = session;
+  activeProfileId = session.user.id;
+  currentStorageKey = `${STORAGE_PREFIX}:${activeProfileId}`;
+  state = loadState();
+  ensureProfile(session);
+
+  if (els.authGate) els.authGate.classList.add("hidden");
+  if (els.appShell) els.appShell.classList.remove("hidden");
+  renderAccountInfo(session);
+
+  if (!window.MCQ_MASTERY_APP_INITED) {
+    window.MCQ_MASTERY_APP_INITED = true;
+    cacheElements();
+    bindEvents();
+  }
+  applyTheme();
+  renderAll();
+  restoreActiveQuiz();
+
+  // Pull anything already synced from another device, then push anything
+  // created locally (e.g. while briefly offline) before this login resolved.
+  await pullProfileFromCloud();
+  await syncProfileToCloud();
+  startAutoSync();
+}
+
+function handleSignedOut() {
+  stopAutoSync();
+  currentSession = null;
+  activeProfileId = null;
+  currentStorageKey = null;
+  state = null;
+  activeQuiz = null;
+  practiceSession = null;
+  practiceIndex = 0;
+  clearInterval(quizTimerHandle);
+  showAuthGate();
+  if (els.googleLoginBtn) els.googleLoginBtn.disabled = false;
+}
+
+function startAutoSync() {
+  stopAutoSync();
+  // Automatic background sync: every mutating action already pushes
+  // immediately (see the syncProfileToCloud() calls throughout this file),
+  // so this interval's job is just to pull in anything saved from a
+  // *different* signed-in device/tab without requiring a manual click.
+  autoSyncHandle = setInterval(() => {
+    if (document.visibilityState === "visible") pullProfileFromCloud();
+  }, 60000);
+}
+
+function stopAutoSync() {
+  if (autoSyncHandle) clearInterval(autoSyncHandle);
+  autoSyncHandle = null;
+}
+
+function renderAccountInfo(session) {
+  if (!els.accountInfo) return;
+  const label = session?.user?.user_metadata?.full_name || session?.user?.email || "your account";
+  els.accountInfo.textContent = `Signed in as ${label}`;
+}
+
+function cacheElements() {
+  document.querySelectorAll("[id]").forEach((el) => {
+    els[el.id] = el;
+  });
+}
+
+function bindEvents() {
+  document.querySelectorAll(".nav-item").forEach((button) => {
+    button.addEventListener("click", () => showView(button.dataset.view));
+  });
+  if (els.signOutBtn) {
+    els.signOutBtn.addEventListener("click", async () => {
+      try {
+        await getSupabaseClient().auth.signOut();
+      } catch (error) {
+        alert(`Sign-out failed: ${error.message || error}`);
+      }
+    });
+  }
+  els.themeToggle.addEventListener("click", toggleTheme);
+  els.exportProfileBtn.addEventListener("click", exportProfile);
+  els.sampleImportBtn.addEventListener("click", () => {
+    els.jsonInput.value = JSON.stringify(sampleQuestions, null, 2);
+    els.chunkName.value = "Sample Medical Mastery Chunk";
+    els.chunkFolder.value = "Samples/Foundation";
+    els.chunkResourceLink.value = "";
+  });
+  els.questionPromptBtn.addEventListener("click", () => setImportPrompt("questions"));
+  els.keyPromptBtn.addEventListener("click", () => setImportPrompt("key"));
+  els.copyImportPromptBtn.addEventListener("click", () => copyPrompt(els.importPromptOutput, "Import prompt copied."));
+  els.validateImportBtn.addEventListener("click", validateImport);
+  els.saveImportBtn.addEventListener("click", saveImport);
+  els.jsonFile.addEventListener("change", readJsonFile);
+  els.dropZone.addEventListener("dragover", onDragOver);
+  els.dropZone.addEventListener("dragleave", () => els.dropZone.classList.remove("dragover"));
+  els.dropZone.addEventListener("drop", onDrop);
+  els.globalSearch.addEventListener("input", renderSearchResults);
+  els.practiceChunk.addEventListener("change", () => {
+    practiceSession = null;
+    practiceIndex = 0;
+    renderPractice();
+  });
+  els.startQuizBtn.addEventListener("click", startQuiz);
+  els.submitQuizBtn.addEventListener("click", submitQuiz);
+  els.buildPlanBtn.addEventListener("click", renderStudyPlan);
+  els.backupBtn.addEventListener("click", manualBackup);
+  els.restoreBtn.addEventListener("click", restoreLatestBackup);
+  els.clearLocalBtn.addEventListener("click", clearLocalData);
+  els.refreshProgressPromptBtn.addEventListener("click", renderProgressPrompt);
+  els.copyProgressPromptBtn.addEventListener("click", () => copyPrompt(els.progressPromptOutput, "Progress prompt copied."));
+  els.exportProgressBtn.addEventListener("click", exportProgress);
+  els.progressFromDate.addEventListener("change", renderProgressPrompt);
+  els.progressToDate.addEventListener("change", renderProgressPrompt);
+  els.newFolderBtn.addEventListener("click", addFolder);
+  els.libraryTree.addEventListener("click", (event) => {
+    const button = event.target.closest(".chunk-solve-btn");
+    if (button) openChunkPicker(button.dataset.chunkId);
+  });
+  if (els.quizChunk) {
+    els.quizChunk.addEventListener("change", () => {
+      if (els.quizChunk.value) { els.quizSource.value = ""; els.quizChapter.value = ""; }
+    });
+  }
+  if (els.cloudSyncNowBtn) els.cloudSyncNowBtn.addEventListener("click", () => syncProfileToCloud());
+  if (els.cloudPullBtn) els.cloudPullBtn.addEventListener("click", () => pullProfileFromCloud());
+}
+
+function loadState() {
+  const fallback = {
+    activeProfileId,
+    theme: "light",
+    profiles: {},
+    chunks: [],
+    folders: [],
+    questions: {},
+    backups: []
+  };
+  try {
+    return { ...fallback, ...JSON.parse(localStorage.getItem(currentStorageKey) || "{}") };
+  } catch {
+    return fallback;
+  }
+}
+
+function saveState() {
+  localStorage.setItem(currentStorageKey, JSON.stringify(state));
+}
+
+function setCloudStatus(text) {
+  if (els.cloudSyncStatus) els.cloudSyncStatus.textContent = text;
+}
+
+async function syncProfileToCloud() {
+  if (!currentSession || cloudSyncing) return;
+  cloudSyncing = true;
+  setCloudStatus("Syncing\u2026");
+  try {
+    const sb = getSupabaseClient();
+    const current = profile();
+    const uid = currentSession.user.id;
+
+    const { error: profileError } = await sb.from("profiles").upsert({
+      user_id: uid,
+      name: current.name || currentSession.user.email || "Student",
+      email: currentSession.user.email || null,
+      updated_at: new Date().toISOString()
+    }, { onConflict: "user_id" });
+    if (profileError) throw profileError;
+
+    current.syncedChunkIds ||= [];
+    const pendingChunks = state.chunks.filter((chunk) => !current.syncedChunkIds.includes(chunk.id));
+    for (const chunk of pendingChunks) {
+      const questions = chunk.questionIds.map((id) => state.questions[id]).filter(Boolean);
+      if (!questions.length) continue;
+
+      const resourceLink = String(chunk.resourceLink || "").trim();
+      if (resourceLink && !/^https?:\/\//i.test(resourceLink)) {
+        throw new Error(`Chunk "${chunk.name}" has an invalid resource link.`);
+      }
+
+      const { error: chunkError } = await sb.from("chunks").upsert({
+        chunk_id: chunk.id,
+        user_id: uid,
+        folder_path: chunk.folderPath || "Unfiled",
+        name: chunk.name || "Untitled Chunk",
+        description: chunk.description || "",
+        tags: uniqueTags(questions),
+        source: chunk.source || questions[0].source,
+        version: chunk.version || "1.0.0",
+        resource_link: resourceLink,
+        question_ids: chunk.questionIds,
+        archived: !!chunk.archived,
+        updated_at: new Date().toISOString()
+      }, { onConflict: "chunk_id" });
+      if (chunkError) throw chunkError;
+
+      const { error: questionsError } = await sb.from("questions").upsert(questions.map((question) => ({
+        question_id: question.id,
+        chunk_id: chunk.id,
+        source: question.source,
+        edition: question.edition || "",
+        chapter: question.chapter,
+        page: question.page || "",
+        question_number: question.questionNumber,
+        correct_answer: question.correctAnswer,
+        explanation: question.explanation,
+        difficulty: question.difficulty || "Medium",
+        tags: question.tags || [],
+        image_url: question.imageUrl || "",
+        updated_at: new Date().toISOString()
+      })), { onConflict: "question_id" });
+      if (questionsError) throw questionsError;
+
+      current.syncedChunkIds.push(chunk.id);
+    }
+
+    current.syncedAttemptIds ||= [];
+    const pendingAttempts = current.attempts.filter((attempt) => !current.syncedAttemptIds.includes(attempt.id));
+    if (pendingAttempts.length) {
+      const { error: attemptsError } = await sb.from("attempts").upsert(pendingAttempts.map((attempt) => ({
+        attempt_id: attempt.id,
+        user_id: uid,
+        question_id: attempt.questionId,
+        answer: attempt.answer,
+        correct: !!attempt.correct,
+        time_spent: Number(attempt.timeSpent || 0),
+        created_at: attempt.createdAt || new Date().toISOString()
+      })), { onConflict: "attempt_id" });
+      if (attemptsError) throw attemptsError;
+      pendingAttempts.forEach((attempt) => current.syncedAttemptIds.push(attempt.id));
+    }
+
+    saveState();
+    setCloudStatus(`Synced ${new Date().toLocaleTimeString()}.`);
+  } catch (error) {
+    setCloudStatus(`Sync failed: ${error.message || error}`);
+  } finally {
+    cloudSyncing = false;
+  }
+}
+
+function uniqueTags(questions) {
+  const seen = new Set();
+  const tags = [];
+  questions.forEach((question) => (question.tags || []).forEach((tag) => {
+    if (!seen.has(tag)) { seen.add(tag); tags.push(tag); }
+  }));
+  return tags;
+}
+
+async function pullProfileFromCloud() {
+  if (!currentSession || cloudSyncing) return;
+  cloudSyncing = true;
+  setCloudStatus("Pulling from cloud\u2026");
+  try {
+    const sb = getSupabaseClient();
+    const uid = currentSession.user.id;
+
+    const { data: chunks, error: chunksError } = await sb
+      .from("chunks").select("*").eq("user_id", uid).eq("archived", false);
+    if (chunksError) throw chunksError;
+
+    const chunkIds = (chunks || []).map((chunk) => chunk.chunk_id);
+    let questions = [];
+    if (chunkIds.length) {
+      const { data: questionRows, error: questionsError } = await sb
+        .from("questions").select("*").in("chunk_id", chunkIds);
+      if (questionsError) throw questionsError;
+      questions = questionRows || [];
+    }
+
+    const { data: attempts, error: attemptsError } = await sb
+      .from("attempts").select("*").eq("user_id", uid);
+    if (attemptsError) throw attemptsError;
+
+    mergeBootstrapIntoState({ chunks, questions, attempts });
+    saveState();
+    renderAll();
+    setCloudStatus(`Pulled ${new Date().toLocaleTimeString()}.`);
+  } catch (error) {
+    setCloudStatus(`Pull failed: ${error.message || error}`);
+  } finally {
+    cloudSyncing = false;
+  }
+}
+
+function mergeBootstrapIntoState(bootstrap) {
+  if (!bootstrap) return;
+  const current = profile();
+  current.syncedChunkIds ||= [];
+  current.syncedAttemptIds ||= [];
+
+  // Supabase's jsonb columns (tags, question_ids) already come back as real
+  // JS arrays via supabase-js, unlike the JSON-string columns the old Sheets
+  // backend used, so no JSON.parse step is needed here anymore.
+  (bootstrap.chunks || []).forEach((cloudChunk) => {
+    const id = cloudChunk.chunk_id;
+    if (!current.syncedChunkIds.includes(id)) current.syncedChunkIds.push(id);
+    if (state.chunks.some((chunk) => chunk.id === id)) return;
+    state.chunks.push({
+      id,
+      name: cloudChunk.name,
+      description: cloudChunk.description,
+      folderPath: cloudChunk.folder_path,
+      tags: cloudChunk.tags || [],
+      source: cloudChunk.source,
+      version: cloudChunk.version,
+      resourceLink: cloudChunk.resource_link || "",
+      questionIds: cloudChunk.question_ids || [],
+      archived: !!cloudChunk.archived,
+      createdAt: cloudChunk.created_at,
+      versions: []
+    });
+    upsertFolderPath(cloudChunk.folder_path);
+  });
+
+  (bootstrap.questions || []).forEach((cloudQuestion) => {
+    const id = cloudQuestion.question_id;
+    if (state.questions[id]) return;
+    state.questions[id] = {
+      id,
+      source: cloudQuestion.source,
+      edition: cloudQuestion.edition,
+      chapter: cloudQuestion.chapter,
+      page: cloudQuestion.page,
+      questionNumber: cloudQuestion.question_number,
+      correctAnswer: cloudQuestion.correct_answer,
+      explanation: cloudQuestion.explanation,
+      difficulty: cloudQuestion.difficulty,
+      tags: cloudQuestion.tags || [],
+      imageUrl: cloudQuestion.image_url,
+      createdAt: cloudQuestion.created_at,
+      chunkId: cloudQuestion.chunk_id
+    };
+  });
+
+  const localAttemptIds = new Set(current.attempts.map((attempt) => attempt.id));
+  (bootstrap.attempts || []).forEach((cloudAttempt) => {
+    const id = cloudAttempt.attempt_id;
+    if (!current.syncedAttemptIds.includes(id)) current.syncedAttemptIds.push(id);
+    if (localAttemptIds.has(id)) return;
+    current.attempts.push({
+      id,
+      questionId: cloudAttempt.question_id,
+      answer: cloudAttempt.answer,
+      correct: !!cloudAttempt.correct,
+      timeSpent: Number(cloudAttempt.time_spent || 0),
+      createdAt: cloudAttempt.created_at
+    });
+  });
+}
+
+function createProfile(id, name) {
+  return {
+    id,
+    name,
+    createdAt: new Date().toISOString(),
+    attempts: [],
+    notes: {},
+    bookmarks: {},
+    srs: {},
+    history: [],
+    settings: {}
+  };
+}
+
+function ensureProfile(session) {
+  if (!state.profiles) state.profiles = {};
+  if (!state.profiles[activeProfileId]) {
+    const displayName = session?.user?.user_metadata?.full_name || session?.user?.email || "Student";
+    state.profiles[activeProfileId] = createProfile(activeProfileId, displayName);
+    state.activeProfileId = activeProfileId;
+    saveState();
+  }
+}
+
+function profile() {
+  return state.profiles[activeProfileId];
+}
+
+function showView(viewId) {
+  document.querySelectorAll(".nav-item").forEach((button) => button.classList.toggle("active", button.dataset.view === viewId));
+  document.querySelectorAll(".view").forEach((view) => view.classList.toggle("active", view.id === viewId));
+  if (viewId === "practice") renderPractice();
+  if (viewId === "review") renderReview();
+}
+
+function renderAll() {
+  renderDashboard();
+  renderLibrary();
+  renderSearchResults();
+  renderPracticeOptions();
+  renderPractice();
+  renderReview();
+  renderHistory();
+  renderProgressPrompt();
+}
+
+function toggleTheme() {
+  state.theme = state.theme === "dark" ? "light" : "dark";
+  addHistory("settings.theme", state.theme);
+  saveState();
+  applyTheme();
+}
+
+function applyTheme() {
+  document.body.classList.toggle("dark", state.theme === "dark");
+}
+
+function readJsonFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    els.jsonInput.value = reader.result;
+  };
+  reader.readAsText(file);
+}
+
+function onDragOver(event) {
+  event.preventDefault();
+  els.dropZone.classList.add("dragover");
+}
+
+function onDrop(event) {
+  event.preventDefault();
+  els.dropZone.classList.remove("dragover");
+  const file = event.dataTransfer.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    els.jsonInput.value = reader.result;
+  };
+  reader.readAsText(file);
+}
+
+function setImportPrompt(kind) {
+  const rawInput = els.jsonInput.value.trim();
+  const sharedSchema = `Return only valid JSON. Use this exact shape:
+{
+  "questions": [
+    {
+      "id": "SOURCE-CHAPTER-001",
+      "source": "Book or exam source",
+      "edition": "",
+      "chapter": "Chapter or topic",
+      "page": "",
+      "questionNumber": "1",
+      "correctAnswer": "A",
+      "explanation": "Concise explanation in 1-3 sentences.",
+      "difficulty": "Easy",
+      "tags": ["Subject", "System", "Topic"],
+      "imageUrl": ""
+    }
+  ]
+}
+
+Rules:
+- Do not include question stems or answer options in the JSON.
+- correctAnswer must be one of A, B, C, D, or E.
+- Generate concise, high-yield explanations.
+- Add useful tags for subject, system, chapter, and tested concept.
+- If a field is unknown, use an empty string except difficulty, which must be Easy, Medium, or Hard.
+- Keep ids unique and stable.`;
+
+  const questionsPrompt = `I will provide MCQ question stems with options. Create an import-ready answer key for MCQ Mastery OS.
+
+Task:
+- Determine the correct answer for each question.
+- Write a concise explanation for why the answer is correct.
+- Add clinically/usefully searchable tags.
+- Preserve source, chapter, page, and question number when present.
+
+${sharedSchema}
+
+Input questions:
+${rawInput || "[Paste the questions here]"}`;
+
+  const keyPrompt = `I will provide an answer key, with or without explanations. Convert it into import-ready JSON for MCQ Mastery OS.
+
+Task:
+- Use the provided correct answer directly.
+- If explanations are missing, write concise high-yield explanations.
+- If explanations are present, improve them only for clarity and brevity.
+- Add clinically/usefully searchable tags.
+- Preserve source, chapter, page, and question number when present.
+
+${sharedSchema}
+
+Input key:
+${rawInput || "[Paste the answer key here]"}`;
+
+  els.importPromptOutput.value = kind === "questions" ? questionsPrompt : keyPrompt;
+}
+
+function parseImportPayload() {
+  const raw = els.jsonInput.value.trim();
+  if (!raw) throw new Error("Paste or upload JSON first.");
+  const parsed = JSON.parse(raw);
+  if (Array.isArray(parsed)) return parsed;
+  if (Array.isArray(parsed.questions)) return parsed.questions;
+  throw new Error("JSON must be an array or an object with a questions array.");
+}
+
+function validateImport() {
+  let questions = [];
+  const report = { errors: [], warnings: [], valid: [] };
+  try {
+    questions = parseImportPayload();
+  } catch (error) {
+    report.errors.push(error.message);
+  }
+
+  const seen = new Set();
+  questions.forEach((question, index) => {
+    const label = question.id || `Row ${index + 1}`;
+    const required = ["id", "source", "chapter", "questionNumber", "correctAnswer", "explanation", "tags"];
+    required.forEach((field) => {
+      if (question[field] === undefined || question[field] === "" || question[field] === null) {
+        report.errors.push(`${label}: missing ${field}`);
+      }
+    });
+    if (question.id && (seen.has(question.id) || state.questions[question.id])) {
+      report.errors.push(`${label}: duplicate ID`);
+    }
+    if (question.id) seen.add(question.id);
+    if (question.correctAnswer && !ANSWERS.includes(String(question.correctAnswer).toUpperCase())) {
+      report.errors.push(`${label}: correctAnswer must be A-E`);
+    }
+    if (!Array.isArray(question.tags) || !question.tags.length) {
+      report.errors.push(`${label}: tags must be a non-empty array`);
+    }
+    if (question.difficulty && !DIFFICULTIES.has(question.difficulty)) {
+      report.errors.push(`${label}: invalid difficulty`);
+    }
+    if (!String(question.explanation || "").trim()) {
+      report.warnings.push(`${label}: empty explanation`);
+    }
+  });
+
+  if (!questions.length && !report.errors.length) report.errors.push("No questions found.");
+  if (!report.errors.length) report.valid.push(`${questions.length} questions ready to import.`);
+
+  validatedImport = report.errors.length ? null : questions.map(normalizeQuestion);
+  els.saveImportBtn.disabled = !validatedImport;
+  renderImportReport(report);
+}
+
+function normalizeQuestion(question) {
+  return {
+    id: String(question.id).trim(),
+    source: String(question.source).trim(),
+    edition: question.edition || "",
+    chapter: String(question.chapter).trim(),
+    page: question.page || "",
+    questionNumber: question.questionNumber,
+    correctAnswer: String(question.correctAnswer).toUpperCase(),
+    explanation: String(question.explanation || "").trim(),
+    difficulty: question.difficulty || "Medium",
+    tags: question.tags.map((tag) => String(tag).trim()).filter(Boolean),
+    imageUrl: question.imageUrl || "",
+    createdAt: question.createdAt || new Date().toISOString()
+  };
+}
+
+function renderImportReport(report) {
+  const rows = [
+    ...report.valid.map((text) => `<div class="report-item ok">${escapeHtml(text)}</div>`),
+    ...report.warnings.map((text) => `<div class="report-item warn">${escapeHtml(text)}</div>`),
+    ...report.errors.map((text) => `<div class="report-item bad">${escapeHtml(text)}</div>`)
+  ];
+  els.importReport.innerHTML = rows.join("") || "";
+}
+
+function sanitizeResourceLink(raw) {
+  const value = String(raw || "").trim();
+  if (!value) return "";
+  if (!/^https?:\/\//i.test(value)) {
+    alert('Resource link ignored: it must start with "http://" or "https://".');
+    return "";
+  }
+  return value;
+}
+
+function saveImport() {
+  if (!validatedImport) return;
+  const chunkId = `chunk-${Date.now()}`;
+  const folderPath = els.chunkFolder.value.trim() || "Unfiled";
+  const chunk = {
+    id: chunkId,
+    name: els.chunkName.value.trim() || `Chunk ${state.chunks.length + 1}`,
+    description: els.chunkDescription.value.trim(),
+    folderPath,
+    tags: [...new Set(validatedImport.flatMap((question) => question.tags))],
+    source: validatedImport[0]?.source || "",
+    version: els.chunkVersion.value.trim() || "1.0.0",
+    resourceLink: sanitizeResourceLink(els.chunkResourceLink.value),
+    questionIds: validatedImport.map((question) => question.id),
+    archived: false,
+    createdAt: new Date().toISOString(),
+    versions: []
+  };
+  validatedImport.forEach((question) => {
+    state.questions[question.id] = { ...question, chunkId };
+  });
+  state.chunks.push(chunk);
+  upsertFolderPath(folderPath);
+  addHistory("import.chunk", `${chunk.name}: ${validatedImport.length} questions`);
+  validatedImport = null;
+  els.saveImportBtn.disabled = true;
+  els.jsonInput.value = "";
+  els.chunkResourceLink.value = "";
+  saveState();
+  renderAll();
+  showView("library");
+  syncProfileToCloud();
+}
+
+function upsertFolderPath(path) {
+  const parts = path.split("/").map((part) => part.trim()).filter(Boolean);
+  let current = "";
+  parts.forEach((part) => {
+    current = current ? `${current}/${part}` : part;
+    if (!state.folders.some((folder) => folder.path === current)) {
+      state.folders.push({ id: `folder-${Date.now()}-${current}`, path: current, name: part, icon: "[]", archived: false });
+    }
+  });
+}
+
+function addFolder() {
+  const path = prompt("Folder path, for example Biochemistry/Glycolysis");
+  if (!path) return;
+  upsertFolderPath(path);
+  addHistory("folder.created", path);
+  saveState();
+  renderLibrary();
+}
+
+function renderDashboard() {
+  const attempts = profile().attempts;
+  const solved = attempts.length;
+  const correct = attempts.filter((attempt) => attempt.correct).length;
+  els.questionsSolved.textContent = solved;
+  els.accuracyMetric.textContent = solved ? `${Math.round((correct / solved) * 100)}%` : "0%";
+  els.dailyStreak.textContent = calculateStreak();
+  els.dueReviews.textContent = getDueReviews().length;
+  els.studyHours.textContent = `${Math.round((attempts.reduce((sum, item) => sum + (item.timeSpent || 0), 0) / 3600) * 10) / 10}h study`;
+  renderHeatmap();
+  renderTopicAnalytics();
+  renderKnowledgeGraph();
+  renderStudyPlan();
+}
+
+function renderHeatmap() {
+  const counts = new Map();
+  profile().attempts.forEach((attempt) => {
+    const day = attempt.createdAt.slice(0, 10);
+    counts.set(day, (counts.get(day) || 0) + 1);
+  });
+  const today = new Date();
+  const cells = [];
+  for (let i = 181; i >= 0; i -= 1) {
+    const date = new Date(today);
+    date.setDate(today.getDate() - i);
+    const key = date.toISOString().slice(0, 10);
+    const count = counts.get(key) || 0;
+    const level = count >= 20 ? 3 : count >= 8 ? 2 : count > 0 ? 1 : 0;
+    cells.push(`<span class="heat-cell" data-level="${level}" title="${key}: ${count} attempts"></span>`);
+  }
+  els.heatmap.innerHTML = cells.join("");
+}
+
+function renderTopicAnalytics() {
+  const stats = topicStats();
+  els.topicAnalytics.innerHTML = stats.length
+    ? stats.map((item) => `<div class="topic-row"><strong>${escapeHtml(item.tag)}</strong><span>${item.correct}/${item.total} correct · ${item.accuracy}% accuracy</span></div>`).join("")
+    : `<p class="muted">Import and solve questions to build topic analytics.</p>`;
+}
+
+function renderKnowledgeGraph() {
+  const chapters = {};
+  Object.values(state.questions).forEach((question) => {
+    const root = question.tags[0] || "General";
+    chapters[root] ||= new Set();
+    chapters[root].add(question.chapter);
+  });
+  els.knowledgeGraph.innerHTML = Object.entries(chapters).map(([root, items]) => {
+    return `<div class="graph-node"><strong>${escapeHtml(root)}</strong><span>${[...items].map(escapeHtml).join(" · ")}</span></div>`;
+  }).join("") || `<p class="muted">No graph nodes yet.</p>`;
+}
+
+function renderStudyPlan() {
+  const weak = topicStats().filter((item) => item.total >= 1).sort((a, b) => a.accuracy - b.accuracy).slice(0, 3);
+  const due = getDueReviews().slice(0, 5);
+  const plans = [];
+  if (due.length) plans.push(`Review ${due.length} due spaced-repetition questions before new practice.`);
+  weak.forEach((item) => plans.push(`Target ${item.tag}: attempt 15 questions and revisit explanations for missed items.`));
+  if (!plans.length) plans.push("Import a chunk, solve a short quiz, then this planner will use your weak topics and due reviews.");
+  els.studyPlan.innerHTML = plans.map((plan) => `<div class="plan-row">${escapeHtml(plan)}</div>`).join("");
+}
+
+function topicStats() {
+  const byTag = {};
+  profile().attempts.forEach((attempt) => {
+    const question = state.questions[attempt.questionId];
+    if (!question) return;
+    question.tags.forEach((tag) => {
+      byTag[tag] ||= { tag, total: 0, correct: 0 };
+      byTag[tag].total += 1;
+      if (attempt.correct) byTag[tag].correct += 1;
+    });
+  });
+  return Object.values(byTag).map((item) => ({
+    ...item,
+    accuracy: Math.round((item.correct / item.total) * 100)
+  }));
+}
+
+function renderLibrary() {
+  const chunksByFolder = state.chunks.reduce((acc, chunk) => {
+    if (chunk.archived) return acc;
+    acc[chunk.folderPath] ||= [];
+    acc[chunk.folderPath].push(chunk);
+    return acc;
+  }, {});
+  els.libraryTree.innerHTML = Object.keys(chunksByFolder).length
+    ? Object.entries(chunksByFolder).map(([folder, chunks]) => {
+      const chunkRows = chunks.map((chunk) => `
+        <div class="question-row">
+          <div class="chunk-card-head">
+            <strong>${escapeHtml(chunk.name)}</strong>
+            ${chunk.resourceLink ? `<a class="resource-link" href="${escapeHtml(chunk.resourceLink)}" target="_blank" rel="noopener noreferrer">Resource &#8599;</a>` : ""}
+          </div>
+          <span>${chunk.questionIds.length} questions &middot; ${escapeHtml(chunk.source)} &middot; v${escapeHtml(chunk.version)}</span>
+          <div class="tag-list">${chunk.tags.map(tagPill).join("")}</div>
+          <div class="actions-row">
+            <button class="secondary chunk-solve-btn" type="button" data-chunk-id="${escapeHtml(chunk.id)}">Solve Chunk</button>
+          </div>
+        </div>`).join("");
+      return `<section class="folder-node"><strong>${escapeHtml(folder)}</strong>${chunkRows}</section>`;
+    }).join("")
+    : `<p class="muted">No chunks imported yet.</p>`;
+}
+
+function openChunkPicker(chunkId) {
+  const chunk = state.chunks.find((item) => item.id === chunkId);
+  if (!chunk) return;
+  chunkPickerChunkId = chunkId;
+  chunkPickerSelected = new Set(chunk.questionIds);
+  renderChunkPicker();
+  els.chunkPickerPanel.classList.remove("hidden");
+  els.chunkPickerPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function closeChunkPicker() {
+  chunkPickerChunkId = null;
+  chunkPickerSelected = new Set();
+  els.chunkPickerPanel.classList.add("hidden");
+  els.chunkPickerPanel.innerHTML = "";
+}
+
+function renderChunkPicker() {
+  const chunk = state.chunks.find((item) => item.id === chunkPickerChunkId);
+  if (!chunk) {
+    closeChunkPicker();
+    return;
+  }
+  const rows = chunk.questionIds.map((id) => {
+    const question = state.questions[id];
+    if (!question) return "";
+    const checked = chunkPickerSelected.has(id) ? "checked" : "";
+    return `<label class="check-row"><input type="checkbox" class="chunk-picker-check" data-question-id="${escapeHtml(id)}" ${checked}> ${escapeHtml(id)} &middot; Q${escapeHtml(question.questionNumber)} &middot; ${escapeHtml(question.chapter)} &middot; ${escapeHtml(question.difficulty)}</label>`;
+  }).join("");
+  els.chunkPickerPanel.innerHTML = `
+    <div class="panel-head">
+      <h2>Solve &ldquo;${escapeHtml(chunk.name)}&rdquo;</h2>
+      <button id="closeChunkPickerBtn" class="secondary" type="button">Close</button>
+    </div>
+    ${chunk.resourceLink ? `<p><a href="${escapeHtml(chunk.resourceLink)}" target="_blank" rel="noopener noreferrer">Open resource &#8599;</a></p>` : ""}
+    <p class="muted">Uncheck any questions you want to skip this round. <span id="chunkPickerCount">${chunkPickerSelected.size}/${chunk.questionIds.length} selected</span>.</p>
+    <div class="actions-row">
+      <button id="chunkPickerAllBtn" class="secondary" type="button">Select All</button>
+      <button id="chunkPickerNoneBtn" class="secondary" type="button">Select None</button>
+    </div>
+    <div class="chunk-picker-list">${rows || `<p class="muted">This chunk has no importable questions.</p>`}</div>
+    <div class="actions-row">
+      <button id="chunkPickerPracticeBtn" type="button">Practice Selected</button>
+      <button id="chunkPickerQuizBtn" type="button">Quiz Selected</button>
+    </div>`;
+  bindChunkPickerEvents();
+}
+
+function bindChunkPickerEvents() {
+  els.chunkPickerPanel.querySelector("#closeChunkPickerBtn").addEventListener("click", closeChunkPicker);
+  els.chunkPickerPanel.querySelectorAll(".chunk-picker-check").forEach((checkbox) => {
+    checkbox.addEventListener("change", () => {
+      const id = checkbox.dataset.questionId;
+      if (checkbox.checked) chunkPickerSelected.add(id); else chunkPickerSelected.delete(id);
+      updateChunkPickerCount();
+    });
+  });
+  els.chunkPickerPanel.querySelector("#chunkPickerAllBtn").addEventListener("click", () => {
+    const chunk = state.chunks.find((item) => item.id === chunkPickerChunkId);
+    if (!chunk) return;
+    chunkPickerSelected = new Set(chunk.questionIds);
+    els.chunkPickerPanel.querySelectorAll(".chunk-picker-check").forEach((checkbox) => { checkbox.checked = true; });
+    updateChunkPickerCount();
+  });
+  els.chunkPickerPanel.querySelector("#chunkPickerNoneBtn").addEventListener("click", () => {
+    chunkPickerSelected = new Set();
+    els.chunkPickerPanel.querySelectorAll(".chunk-picker-check").forEach((checkbox) => { checkbox.checked = false; });
+    updateChunkPickerCount();
+  });
+  els.chunkPickerPanel.querySelector("#chunkPickerPracticeBtn").addEventListener("click", startPracticeFromSelection);
+  els.chunkPickerPanel.querySelector("#chunkPickerQuizBtn").addEventListener("click", startQuizFromSelection);
+}
+
+function updateChunkPickerCount() {
+  const chunk = state.chunks.find((item) => item.id === chunkPickerChunkId);
+  const span = els.chunkPickerPanel.querySelector("#chunkPickerCount");
+  if (chunk && span) span.textContent = `${chunkPickerSelected.size}/${chunk.questionIds.length} selected`;
+}
+
+function startPracticeFromSelection() {
+  const chunk = state.chunks.find((item) => item.id === chunkPickerChunkId);
+  if (!chunk) return;
+  const ids = chunk.questionIds.filter((id) => chunkPickerSelected.has(id) && state.questions[id]);
+  if (!ids.length) {
+    alert("Select at least one question to practice.");
+    return;
+  }
+  practiceSession = { chunkId: chunk.id, chunkName: chunk.name, ids };
+  practiceIndex = 0;
+  closeChunkPicker();
+  showView("practice");
+  renderPractice();
+}
+
+function startQuizFromSelection() {
+  const chunk = state.chunks.find((item) => item.id === chunkPickerChunkId);
+  if (!chunk) return;
+  const ids = chunk.questionIds.filter((id) => chunkPickerSelected.has(id) && state.questions[id]);
+  if (!ids.length) {
+    alert("Select at least one question to quiz.");
+    return;
+  }
+  if (activeQuiz && Object.keys(activeQuiz.answers).length
+      && !confirm("A quiz is already in progress. Starting a new one will discard your unsubmitted answers. Continue?")) {
+    return;
+  }
+  const selected = ids.map((id) => state.questions[id]).filter(Boolean);
+  const pool = els.quizRandom?.checked ? shuffle(selected) : selected;
+  const minutes = Number(els.quizMinutes?.value);
+  closeChunkPicker();
+  beginQuiz(pool, Number.isFinite(minutes) && minutes > 0 ? minutes : 0, `Selected questions from "${chunk.name}"`);
+}
+function renderSearchResults() {
+  const query = (els.globalSearch?.value || "").trim().toLowerCase();
+  const rows = Object.values(state.questions).filter((question) => matchesQuestion(question, query)).slice(0, 200);
+  els.questionResults.innerHTML = rows.length
+    ? rows.map(questionRow).join("")
+    : `<p class="muted">No matching questions.</p>`;
+}
+
+function matchesQuestion(question, query) {
+  if (!query) return true;
+  const userNote = profile().notes[question.id] || "";
+  const bookmark = profile().bookmarks[question.id] ? "bookmarked starred flagged revisit" : "";
+  const haystack = [question.id, question.source, question.chapter, question.questionNumber, question.difficulty, question.tags.join(" "), userNote, bookmark, getStatus(question.id)].join(" ").toLowerCase();
+  return haystack.includes(query);
+}
+
+function questionRow(question) {
+  return `<div class="question-row">
+    <strong>${escapeHtml(question.id)} · Q${escapeHtml(question.questionNumber)}</strong>
+    <span>${escapeHtml(question.source)} · ${escapeHtml(question.chapter)} · ${escapeHtml(question.difficulty)} · ${escapeHtml(getStatus(question.id))}</span>
+    <div class="tag-list">${question.tags.map(tagPill).join("")}</div>
+  </div>`;
+}
+
+function renderPracticeOptions() {
+  els.practiceChunk.innerHTML = state.chunks.map((chunk) => `<option value="${escapeHtml(chunk.id)}">${escapeHtml(chunk.name)}</option>`).join("");
+  if (els.quizChunk) {
+    const previous = els.quizChunk.value;
+    els.quizChunk.innerHTML = `<option value="">Any chunk</option>` + state.chunks.map((chunk) => `<option value="${escapeHtml(chunk.id)}">${escapeHtml(chunk.name)}</option>`).join("");
+    if (state.chunks.some((chunk) => chunk.id === previous)) els.quizChunk.value = previous;
+  }
+}
+
+function renderPractice() {
+  if (practiceSession) {
+    renderPracticeSession();
+    return;
+  }
+  const chunk = state.chunks.find((item) => item.id === els.practiceChunk.value) || state.chunks[0];
+  if (!chunk || !chunk.questionIds.length) {
+    els.practiceCard.innerHTML = `<p class="muted">Import a chunk to start OMR practice.</p>`;
+    return;
+  }
+  els.practiceChunk.value = chunk.id;
+  const total = chunk.questionIds.length;
+  const position = (practiceIndex % total) + 1;
+  const question = state.questions[chunk.questionIds[practiceIndex % total]];
+  if (!question) {
+    els.practiceCard.innerHTML = `<p class="muted">This chunk has no importable questions left.</p>`;
+    return;
+  }
+  renderPracticeCard(question, `Question ${position} of ${total}`);
+}
+
+function renderPracticeSession() {
+  const chunk = state.chunks.find((item) => item.id === practiceSession.chunkId);
+  if (!chunk) {
+    practiceSession = null;
+    renderPractice();
+    return;
+  }
+  const total = practiceSession.ids.length;
+  if (practiceIndex >= total) {
+    renderPracticeSessionSummary(chunk);
+    return;
+  }
+  const question = state.questions[practiceSession.ids[practiceIndex]];
+  if (!question) {
+    practiceIndex += 1;
+    renderPractice();
+    return;
+  }
+  renderPracticeCard(question, `Selected from "${chunk.name}" &middot; Question ${practiceIndex + 1} of ${total}`, true);
+}
+
+function renderPracticeSessionSummary(chunk) {
+  const seen = practiceSession.ids
+    .map((id) => profile().attempts.filter((attempt) => attempt.questionId === id).slice(-1)[0])
+    .filter(Boolean);
+  const correct = seen.filter((attempt) => attempt.correct).length;
+  const answered = seen.length;
+  const skipped = practiceSession.ids.length - answered;
+  els.practiceCard.innerHTML = `
+    <div class="session-banner"><span>Session complete: ${escapeHtml(chunk.name)}</span></div>
+    <div class="metrics-grid">
+      <article class="metric"><span>Answered</span><strong>${answered}/${practiceSession.ids.length}</strong></article>
+      <article class="metric"><span>Correct</span><strong>${correct}</strong></article>
+      <article class="metric"><span>Skipped</span><strong>${skipped}</strong></article>
+    </div>
+    <div class="actions-row">
+      <button id="restartSessionBtn" class="secondary" type="button">Restart Selection</button>
+      <button id="exitSessionBtn" type="button">Exit to Library</button>
+    </div>`;
+  els.practiceCard.querySelector("#restartSessionBtn").addEventListener("click", () => {
+    practiceIndex = 0;
+    renderPractice();
+  });
+  els.practiceCard.querySelector("#exitSessionBtn").addEventListener("click", () => {
+    practiceSession = null;
+    practiceIndex = 0;
+    showView("library");
+  });
+}
+
+function renderPracticeCard(question, positionLabel, inSession) {
+  els.practiceCard.innerHTML = `
+    <div>
+      <div class="progress-line">${positionLabel}</div>
+      <h3>Question ${escapeHtml(question.questionNumber)}</h3>
+      <div class="source-line">
+        <span>${escapeHtml(question.source)}</span>
+        <span>${escapeHtml(question.chapter)}</span>
+        <span>Page ${escapeHtml(question.page || "N/A")}</span>
+        <span>${escapeHtml(getStatus(question.id))}</span>
+      </div>
+    </div>
+    <div class="choices">${ANSWERS.map((answer) => `<button class="choice" data-answer="${answer}">${answer}</button>`).join("")}</div>
+    <div id="practiceFeedback"></div>
+    <div class="notes-box">
+      <label>Personal Notes<textarea id="practiceNote">${escapeHtml(profile().notes[question.id] || "")}</textarea></label>
+      <div class="actions-row">
+        <button id="saveNoteBtn" class="secondary">Save Note</button>
+        <button id="bookmarkBtn" class="secondary">${profile().bookmarks[question.id] ? "Remove Bookmark" : "Bookmark"}</button>
+        <button id="skipPracticeBtn" class="secondary">Skip</button>
+        <button id="nextPracticeBtn" disabled>Next</button>
+      </div>
+    </div>`;
+  els.practiceCard.querySelectorAll(".choice").forEach((button) => button.addEventListener("click", () => answerPractice(question, button.dataset.answer)));
+  els.practiceCard.querySelector("#saveNoteBtn").addEventListener("click", () => saveNote(question.id, els.practiceCard.querySelector("#practiceNote").value));
+  els.practiceCard.querySelector("#bookmarkBtn").addEventListener("click", () => toggleBookmark(question.id));
+  els.practiceCard.querySelector("#skipPracticeBtn").addEventListener("click", () => {
+    addHistory("practice.skipped", question.id);
+    saveState();
+    practiceIndex += 1;
+    renderPractice();
+  });
+  els.practiceCard.querySelector("#nextPracticeBtn").addEventListener("click", () => {
+    practiceIndex += 1;
+    renderPractice();
+  });
+}
+
+function answerPractice(question, answer) {
+  // Bug fix: lock the choices after the first answer so re-clicking a
+  // different option can't log a second attempt/SRS update for the same question.
+  const choiceButtons = els.practiceCard.querySelectorAll(".choice");
+  choiceButtons.forEach((button) => { button.disabled = true; });
+  const skipBtn = els.practiceCard.querySelector("#skipPracticeBtn");
+  if (skipBtn) skipBtn.disabled = true;
+  const correct = answer === question.correctAnswer;
+  recordAttempt(question, answer, correct, 30);
+  choiceButtons.forEach((button) => {
+    button.classList.toggle("correct", button.dataset.answer === question.correctAnswer);
+    button.classList.toggle("incorrect", button.dataset.answer === answer && !correct);
+  });
+  els.practiceCard.querySelector("#practiceFeedback").innerHTML = `
+    <div class="explanation">
+      <strong class="${correct ? "ok" : "bad"}">${correct ? "Correct" : "Incorrect"}</strong>
+      <p>Correct Answer: ${escapeHtml(question.correctAnswer)}</p>
+      <p>${escapeHtml(question.explanation)}</p>
+      ${question.imageUrl ? `<img src="${escapeHtml(question.imageUrl)}" alt="Explanation image">` : ""}
+      <p class="muted">Previous attempts: ${profile().attempts.filter((attempt) => attempt.questionId === question.id).length}</p>
+    </div>`;
+  const nextBtn = els.practiceCard.querySelector("#nextPracticeBtn");
+  if (nextBtn) nextBtn.disabled = false;
+  renderDashboard();
+}
+
+function startQuiz() {
+  if (activeQuiz && Object.keys(activeQuiz.answers).length
+      && !confirm("A quiz is already in progress. Starting a new one will discard your unsubmitted answers. Continue?")) {
+    return;
+  }
+  const questions = Object.values(state.questions).filter((question) => {
+    return (!els.quizChunk?.value || question.chunkId === els.quizChunk.value)
+      && (!els.quizSource.value || question.source.toLowerCase().includes(els.quizSource.value.toLowerCase()))
+      && (!els.quizChapter.value || question.chapter.toLowerCase().includes(els.quizChapter.value.toLowerCase()))
+      && (!els.quizTag.value || question.tags.some((tag) => tag.toLowerCase().includes(els.quizTag.value.toLowerCase())))
+      && (!els.quizDifficulty.value || question.difficulty === els.quizDifficulty.value);
+  });
+  const pool = els.quizRandom.checked ? shuffle(questions) : questions;
+  const rawCount = Number(els.quizCount.value);
+  const count = Number.isFinite(rawCount) && rawCount > 0 ? Math.floor(rawCount) : 10;
+  const selected = pool.slice(0, count);
+  if (!selected.length) {
+    alert("No questions match this quiz.");
+    return;
+  }
+  const minutes = Number(els.quizMinutes.value);
+  beginQuiz(selected, Number.isFinite(minutes) && minutes > 0 ? minutes : 0, "");
+}
+
+function beginQuiz(questions, minutes, label) {
+  activeQuiz = {
+    startedAt: Date.now(),
+    endsAt: minutes > 0 ? Date.now() + minutes * 60000 : null,
+    questions,
+    answers: {},
+    label: label || "",
+    profileId: activeProfileId
+  };
+  persistActiveQuiz();
+  els.submitQuizBtn.disabled = false;
+  els.quizResult.classList.add("hidden");
+  showView("quiz");
+  renderQuizSurface();
+  startQuizTimer();
+}
+
+function renderQuizSurface() {
+  const banner = activeQuiz.label
+    ? `<div class="session-banner"><span>${escapeHtml(activeQuiz.label)}</span></div>`
+    : "";
+  els.quizSurface.innerHTML = banner + activeQuiz.questions.map((question, index) => `
+    <article class="quiz-question">
+      <strong>Question ${index + 1}</strong>
+      <div class="source-line"><span>${escapeHtml(question.source)}</span><span>${escapeHtml(question.chapter)}</span><span>Q${escapeHtml(question.questionNumber)}</span></div>
+      <div class="quiz-options">${ANSWERS.map((answer) => `
+        <label><input type="radio" name="${escapeHtml(question.id)}" value="${answer}"> ${answer}</label>
+      `).join("")}</div>
+    </article>`).join("");
+  els.quizSurface.querySelectorAll("input[type=radio]").forEach((input) => {
+    input.checked = activeQuiz.answers[input.name] === input.value;
+    input.addEventListener("change", () => {
+      activeQuiz.answers[input.name] = input.value;
+      persistActiveQuiz();
+    });
+  });
+}
+
+function persistActiveQuiz() {
+  if (activeQuiz) {
+    localStorage.setItem(`${currentStorageKey}.activeQuiz`, JSON.stringify(activeQuiz));
+  } else {
+    localStorage.removeItem(`${currentStorageKey}.activeQuiz`);
+  }
+}
+
+function restoreActiveQuiz() {
+  let raw;
+  try {
+    raw = localStorage.getItem(`${currentStorageKey}.activeQuiz`);
+  } catch {
+    return;
+  }
+  if (!raw) return;
+  try {
+    const saved = JSON.parse(raw);
+    const stillValid = saved && Array.isArray(saved.questions) && saved.questions.length
+      && saved.questions.every((question) => state.questions[question.id])
+      && (!saved.profileId || saved.profileId === activeProfileId);
+    if (!stillValid) {
+      localStorage.removeItem(`${currentStorageKey}.activeQuiz`);
+      return;
+    }
+    activeQuiz = saved;
+    els.submitQuizBtn.disabled = false;
+    showView("quiz");
+    renderQuizSurface();
+    startQuizTimer();
+  } catch {
+    localStorage.removeItem(`${currentStorageKey}.activeQuiz`);
+  }
+}
+
+function startQuizTimer() {
+  clearInterval(quizTimerHandle);
+  const tick = () => {
+    if (!activeQuiz?.endsAt) {
+      els.quizTimer.textContent = "Untimed";
+      return;
+    }
+    const remaining = Math.max(0, activeQuiz.endsAt - Date.now());
+    const minutes = Math.floor(remaining / 60000);
+    const seconds = Math.floor((remaining % 60000) / 1000);
+    els.quizTimer.textContent = `${minutes}:${String(seconds).padStart(2, "0")}`;
+    if (remaining <= 0) submitQuiz();
+  };
+  tick();
+  quizTimerHandle = setInterval(tick, 1000);
+}
+
+function submitQuiz() {
+  if (!activeQuiz) return;
+  clearInterval(quizTimerHandle);
+  const elapsed = Math.max(1, Math.round((Date.now() - activeQuiz.startedAt) / 1000));
+  let correct = 0;
+  let skipped = 0;
+  activeQuiz.questions.forEach((question) => {
+    const answer = activeQuiz.answers[question.id] || "";
+    if (!answer) skipped += 1;
+    const isCorrect = answer === question.correctAnswer;
+    if (isCorrect) correct += 1;
+    recordAttempt(question, answer, isCorrect, Math.round(elapsed / activeQuiz.questions.length));
+  });
+  const total = activeQuiz.questions.length;
+  const incorrect = total - correct - skipped;
+  els.quizResult.classList.remove("hidden");
+  els.quizResult.innerHTML = `
+    <h2>Result Analytics</h2>
+    <div class="metrics-grid">
+      <article class="metric"><span>Score</span><strong>${correct}/${total}</strong></article>
+      <article class="metric"><span>Percentage</span><strong>${Math.round((correct / total) * 100)}%</strong></article>
+      <article class="metric"><span>Incorrect</span><strong>${incorrect}</strong></article>
+      <article class="metric"><span>Skipped</span><strong>${skipped}</strong></article>
+    </div>
+    <p>Average Time Per Question: ${Math.round(elapsed / total)} seconds</p>
+    <div class="review-list">${activeQuiz.questions.map((question) => explanationRow(question, activeQuiz.answers[question.id])).join("")}</div>`;
+  addHistory("quiz.completed", `${correct}/${total} correct`);
+  activeQuiz = null;
+  persistActiveQuiz();
+  els.submitQuizBtn.disabled = true;
+  saveState();
+  renderAll();
+  syncProfileToCloud();
+}
+
+function explanationRow(question, answer) {
+  return `<div class="review-row">
+    <strong>${escapeHtml(question.id)} · Your answer: ${escapeHtml(answer || "Skipped")} · Correct: ${escapeHtml(question.correctAnswer)}</strong>
+    <span>${escapeHtml(question.explanation)}</span>
+  </div>`;
+}
+
+function recordAttempt(question, answer, correct, timeSpent) {
+  profile().attempts.push({
+    id: `attempt-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    questionId: question.id,
+    answer,
+    correct,
+    timeSpent,
+    createdAt: new Date().toISOString()
+  });
+  updateSrs(question.id, correct);
+  addHistory(correct ? "attempt.correct" : "attempt.incorrect", question.id);
+  saveState();
+  syncProfileToCloud();
+}
+
+function updateSrs(questionId, correct) {
+  const item = profile().srs[questionId] || { easeFactor: 2.5, interval: 0, repetitions: 0, nextReviewDate: new Date().toISOString() };
+  if (correct) {
+    item.repetitions += 1;
+    item.interval = item.repetitions === 1 ? 1 : item.repetitions === 2 ? 6 : Math.round(item.interval * item.easeFactor);
+    item.easeFactor = Math.max(1.3, item.easeFactor + 0.1);
+  } else {
+    item.repetitions = 0;
+    item.interval = 1;
+    item.easeFactor = Math.max(1.3, item.easeFactor - 0.2);
+  }
+  const next = new Date();
+  next.setDate(next.getDate() + item.interval);
+  item.nextReviewDate = next.toISOString();
+  profile().srs[questionId] = item;
+}
+
+function getDueReviews() {
+  const now = Date.now();
+  return Object.entries(profile().srs)
+    .filter(([, item]) => new Date(item.nextReviewDate).getTime() <= now)
+    .map(([questionId, item]) => ({ questionId, ...item }));
+}
+
+function renderReview() {
+  const attempts = profile().attempts;
+  const mistakes = {};
+  attempts.filter((attempt) => !attempt.correct).forEach((attempt) => {
+    const question = state.questions[attempt.questionId];
+    if (!question) return;
+    mistakes[attempt.questionId] ||= { question, count: 0, lastAttempt: attempt.createdAt };
+    mistakes[attempt.questionId].count += 1;
+    mistakes[attempt.questionId].lastAttempt = attempt.createdAt;
+  });
+  els.mistakeDiary.innerHTML = Object.values(mistakes).sort((a, b) => b.count - a.count).map(({ question, count, lastAttempt }) => `
+    <div class="review-row"><strong>${escapeHtml(question.id)} · ${count} mistakes</strong><span>${escapeHtml(question.source)} · ${escapeHtml(question.chapter)} · last ${formatDate(lastAttempt)}</span><p>${escapeHtml(question.explanation)}</p></div>
+  `).join("") || `<p class="muted">No mistakes recorded.</p>`;
+  const due = getDueReviews();
+  els.srsQueue.innerHTML = due.map((item) => {
+    const question = state.questions[item.questionId];
+    return `<div class="review-row"><strong>${escapeHtml(item.questionId)}</strong><span>${escapeHtml(question?.source || "")} · interval ${item.interval}d · ease ${item.easeFactor.toFixed(1)}</span></div>`;
+  }).join("") || `<p class="muted">No reviews due today.</p>`;
+}
+
+function saveNote(questionId, note) {
+  profile().notes[questionId] = note.trim();
+  addHistory("note.saved", questionId);
+  saveState();
+  renderSearchResults();
+}
+
+function toggleBookmark(questionId) {
+  if (profile().bookmarks[questionId]) delete profile().bookmarks[questionId];
+  else profile().bookmarks[questionId] = { createdAt: new Date().toISOString(), kind: "bookmark" };
+  addHistory("bookmark.toggled", questionId);
+  saveState();
+  renderPractice();
+}
+
+function getStatus(questionId) {
+  const attempts = profile().attempts.filter((attempt) => attempt.questionId === questionId);
+  if (!attempts.length) return "Never Seen";
+  const correct = attempts.filter((attempt) => attempt.correct).length;
+  const accuracy = correct / attempts.length;
+  const recentMistake = attempts.slice(-2).some((attempt) => !attempt.correct);
+  if (accuracy >= 0.9 && attempts.length >= 3 && !recentMistake) return "Mastered";
+  if (accuracy < 0.4 && attempts.length >= 2) return "Critical";
+  if (recentMistake) return "Weak";
+  if (accuracy >= 0.7) return "Improving";
+  return "Learning";
+}
+
+function calculateStreak() {
+  const days = new Set(profile().attempts.map((attempt) => attempt.createdAt.slice(0, 10)));
+  let streak = 0;
+  const cursor = new Date();
+  while (days.has(cursor.toISOString().slice(0, 10))) {
+    streak += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return streak;
+}
+
+function renderHistory() {
+  els.historyList.innerHTML = profile().history.slice().reverse().slice(0, 200).map((item) => `
+    <div class="history-row"><strong>${escapeHtml(item.type)}</strong><span>${escapeHtml(item.detail)} · ${formatDate(item.createdAt)}</span></div>
+  `).join("") || `<p class="muted">No history yet.</p>`;
+}
+
+function addHistory(type, detail) {
+  profile().history.push({ type, detail: String(detail || ""), createdAt: new Date().toISOString() });
+}
+
+function manualBackup() {
+  state.backups.push({ id: `backup-${Date.now()}`, createdAt: new Date().toISOString(), data: JSON.stringify(state) });
+  addHistory("backup.created", "Manual backup");
+  saveState();
+  alert("Backup created.");
+}
+
+function restoreLatestBackup() {
+  const latest = state.backups[state.backups.length - 1];
+  if (!latest) {
+    alert("No backup found.");
+    return;
+  }
+  try {
+    const parsed = JSON.parse(latest.data);
+    if (!parsed || typeof parsed !== "object" || !parsed.profiles) {
+      throw new Error("Backup data looks corrupted.");
+    }
+    state = parsed;
+    // Always stay bound to the currently signed-in Google account, even if
+    // this backup happened to be made under a different one on this browser.
+    activeProfileId = currentSession.user.id;
+    state.activeProfileId = activeProfileId;
+    ensureProfile(currentSession);
+    practiceSession = null;
+    practiceIndex = 0;
+    activeQuiz = null;
+    persistActiveQuiz();
+    saveState();
+    renderAll();
+    alert("Restored latest backup.");
+  } catch (error) {
+    alert(`Could not restore backup: ${error.message}`);
+  }
+}
+
+function clearLocalData() {
+  if (!confirm("Clear this device's local cache? Your Supabase cloud data is not affected and will be pulled back down right after.")) return;
+  localStorage.removeItem(currentStorageKey);
+  localStorage.removeItem(`${currentStorageKey}.activeQuiz`);
+  state = loadState();
+  activeProfileId = currentSession.user.id;
+  ensureProfile(currentSession);
+  practiceSession = null;
+  practiceIndex = 0;
+  activeQuiz = null;
+  renderAll();
+  pullProfileFromCloud();
+}
+
+function getProgressDateRange() {
+  const from = els.progressFromDate.value ? new Date(`${els.progressFromDate.value}T00:00:00`) : null;
+  const to = els.progressToDate.value ? new Date(`${els.progressToDate.value}T23:59:59`) : null;
+  return { from, to };
+}
+
+function isWithinProgressRange(value, range) {
+  const time = new Date(value).getTime();
+  if (!Number.isFinite(time)) return false;
+  if (range.from && time < range.from.getTime()) return false;
+  if (range.to && time > range.to.getTime()) return false;
+  return true;
+}
+
+function buildProgressExportPayload() {
+  const range = getProgressDateRange();
+  const currentProfile = profile();
+  const attempts = currentProfile.attempts.filter((attempt) => isWithinProgressRange(attempt.createdAt, range));
+  const history = currentProfile.history.filter((item) => isWithinProgressRange(item.createdAt, range));
+  const questionIds = [...new Set(attempts.map((attempt) => attempt.questionId))];
+  const questions = questionIds.reduce((acc, id) => {
+    const question = state.questions[id];
+    if (!question) return acc;
+    acc[id] = {
+      id: question.id,
+      source: question.source,
+      chapter: question.chapter,
+      questionNumber: question.questionNumber,
+      correctAnswer: question.correctAnswer,
+      difficulty: question.difficulty,
+      tags: question.tags,
+      status: getStatus(id),
+      explanation: question.explanation
+    };
+    return acc;
+  }, {});
+  const correct = attempts.filter((attempt) => attempt.correct).length;
+  const skipped = attempts.filter((attempt) => !attempt.answer).length;
+  const totalTime = attempts.reduce((sum, attempt) => sum + (attempt.timeSpent || 0), 0);
+
+  return {
+    exportedAt: new Date().toISOString(),
+    profile: {
+      id: currentProfile.id,
+      name: currentProfile.name
+    },
+    dateRange: {
+      from: els.progressFromDate.value || "",
+      to: els.progressToDate.value || ""
+    },
+    summary: {
+      attempts: attempts.length,
+      correct,
+      incorrect: attempts.length - correct - skipped,
+      skipped,
+      accuracy: attempts.length ? Math.round((correct / attempts.length) * 100) : 0,
+      totalStudySeconds: totalTime,
+      averageSecondsPerAttempt: attempts.length ? Math.round(totalTime / attempts.length) : 0,
+      dueReviews: getDueReviews().length
+    },
+    topicStats: topicStatsFromAttempts(attempts),
+    attempts,
+    history,
+    questions
+  };
+}
+
+function topicStatsFromAttempts(attempts) {
+  const byTag = {};
+  attempts.forEach((attempt) => {
+    const question = state.questions[attempt.questionId];
+    if (!question) return;
+    question.tags.forEach((tag) => {
+      byTag[tag] ||= { tag, total: 0, correct: 0, accuracy: 0 };
+      byTag[tag].total += 1;
+      if (attempt.correct) byTag[tag].correct += 1;
+    });
+  });
+  return Object.values(byTag)
+    .map((item) => ({ ...item, accuracy: Math.round((item.correct / item.total) * 100) }))
+    .sort((a, b) => a.accuracy - b.accuracy || b.total - a.total);
+}
+
+function buildProgressPrompt() {
+  const payload = buildProgressExportPayload();
+  return `Analyze this MCQ Mastery OS progress export.
+
+Task:
+- Summarize performance for the selected date range.
+- Identify strongest and weakest topics.
+- Point out repeated mistakes, skipped-question patterns, and slow areas.
+- Recommend a focused study plan for the next 7 days.
+- Keep the response practical, concise, and exam-oriented.
+
+Progress export JSON:
+${JSON.stringify(payload, null, 2)}`;
+}
+
+function renderProgressPrompt() {
+  if (!els.progressPromptOutput) return;
+  els.progressPromptOutput.value = buildProgressPrompt();
+}
+
+function exportProgress() {
+  const payload = {
+    ...buildProgressExportPayload(),
+    aiPrompt: buildProgressPrompt()
+  };
+  downloadJson(payload, `${profile().name.replace(/\W+/g, "-").toLowerCase()}-progress-export.json`);
+}
+
+function exportProfile() {
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    profile: profile(),
+    analytics: {
+      topicStats: topicStats(),
+      dueReviews: getDueReviews(),
+      questionStatuses: Object.keys(state.questions).reduce((acc, id) => {
+        acc[id] = getStatus(id);
+        return acc;
+      }, {})
+    }
+  };
+  downloadJson(payload, `${profile().name.replace(/\W+/g, "-").toLowerCase()}-mcq-mastery-export.json`);
+}
+
+function downloadJson(payload, filename) {
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function copyPrompt(textarea, message) {
+  if (!textarea.value.trim()) return;
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(textarea.value).then(
+      () => alert(message),
+      () => legacyCopy(textarea, message)
+    );
+  } else {
+    legacyCopy(textarea, message);
+  }
+}
+
+function legacyCopy(textarea, message) {
+  textarea.select();
+  const copied = document.execCommand("copy");
+  if (copied) alert(message);
+  else alert("Select the prompt text and copy it manually.");
+}
+
+function tagPill(tag) {
+  return `<span class="tag">${escapeHtml(tag)}</span>`;
+}
+
+function shuffle(items) {
+  return items.map((item) => [Math.random(), item]).sort((a, b) => a[0] - b[0]).map(([, item]) => item);
+}
+
+function formatDate(value) {
+  return new Date(value).toLocaleString();
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+    </script>
+  </body>
+</html>
