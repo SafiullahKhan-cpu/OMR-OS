@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>MCQ Mastery OS</title>
+    <title>KMU MDCAT OMR OS</title>
     <style>
 :root {
   color-scheme: light;
@@ -480,13 +480,13 @@ textarea {
     <div id="authGate" class="auth-gate">
       <div class="auth-card">
         <div class="brand">
-          <span class="brand-mark">OMR</span>
+          <span class="brand-mark">KMU</span>
           <div>
-            <strong>MCQ Mastery OS</strong>
-            <small>Study operating system</small>
+            <strong>KMU MDCAT 2026 OS</strong>
+            <small>PMDC Curriculum Aligned</small>
           </div>
         </div>
-        <p class="muted">Sign in with Google to load your questions and progress. There is no guest
+        <p class="muted">Sign in with Google to load your MDCAT questions and progress. There is no guest
           mode - everything is tied to your Google account and synced automatically.</p>
         <button id="googleLoginBtn" class="wide">Continue with Google</button>
         <p id="authGateStatus" class="muted auth-status"></p>
@@ -496,10 +496,10 @@ textarea {
     <div class="app-shell hidden" id="appShell">
       <aside class="sidebar" aria-label="Primary">
         <div class="brand">
-          <span class="brand-mark">OMR</span>
+          <span class="brand-mark">KMU</span>
           <div>
-            <strong>MCQ Mastery OS</strong>
-            <small>Study operating system</small>
+            <strong>KMU MDCAT 2026 OS</strong>
+            <small>PMDC Curriculum Aligned</small>
           </div>
         </div>
 
@@ -523,7 +523,7 @@ textarea {
       <main class="workspace">
         <header class="topbar">
           <div class="search-wrap">
-            <input id="globalSearch" type="search" placeholder="Search source, chapter, tag, notes, status...">
+            <input id="globalSearch" type="search" placeholder="Search PMDC subjects, chapters, tags...">
           </div>
           <div class="topbar-actions">
             <button id="themeToggle" class="secondary">Toggle Theme</button>
@@ -571,8 +571,8 @@ textarea {
         <section id="import" class="view">
           <div class="panel import-panel">
             <div class="panel-head">
-              <h2>Import Questions</h2>
-              <button id="sampleImportBtn" class="secondary">Load Sample</button>
+              <h2>Import MDCAT Questions</h2>
+              <button id="sampleImportBtn" class="secondary">Load PMDC Sample</button>
             </div>
             <div id="dropZone" class="drop-zone">
               <strong>Drop JSON here</strong>
@@ -582,7 +582,7 @@ textarea {
             <textarea id="jsonInput" spellcheck="false" placeholder='Paste JSON array or {"questions":[...]}'></textarea>
             <div class="prompt-tools">
               <div class="panel-head">
-                <h2>AI Import Prompts</h2>
+                <h2>AI Import Prompts (PMDC Aligned)</h2>
                 <button id="copyImportPromptBtn" class="secondary" type="button">Copy Prompt</button>
               </div>
               <div class="actions-row">
@@ -592,11 +592,11 @@ textarea {
               <textarea id="importPromptOutput" class="prompt-output" readonly spellcheck="false" placeholder="Choose a prompt, then paste it into your AI chat."></textarea>
             </div>
             <div class="form-grid">
-              <label>Chunk Name<input id="chunkName" type="text" placeholder="Lippincott Biochemistry Chapter 3"></label>
-              <label>Folder<input id="chunkFolder" type="text" placeholder="Biochemistry/Glycolysis"></label>
+              <label>Chunk Name<input id="chunkName" type="text" placeholder="Biology - Cell Structure"></label>
+              <label>Folder<input id="chunkFolder" type="text" placeholder="Biology"></label>
               <label>Version<input id="chunkVersion" type="text" value="1.0.0"></label>
-              <label>Description<input id="chunkDescription" type="text" placeholder="Short description"></label>
-              <label>Resource Link (optional)<input id="chunkResourceLink" type="url" placeholder="https://drive.google.com/... or a book/PDF link"></label>
+              <label>Description<input id="chunkDescription" type="text" placeholder="Aligned with PMDC Syllabus"></label>
+              <label>Resource Link (optional)<input id="chunkResourceLink" type="url" placeholder="https://drive.google.com/..."></label>
             </div>
             <div class="actions-row">
               <button id="validateImportBtn">Validate Import</button>
@@ -609,7 +609,7 @@ textarea {
         <section id="library" class="view">
           <div class="panel">
             <div class="panel-head">
-              <h2>Notion-Style Library</h2>
+              <h2>MDCAT Library</h2>
               <button id="newFolderBtn" class="secondary">New Folder</button>
             </div>
             <div id="libraryTree" class="library-tree"></div>
@@ -636,16 +636,25 @@ textarea {
             <h2>Custom Quiz Builder</h2>
             <div class="form-grid">
               <label>Chunk (optional)<select id="quizChunk"><option value="">Any chunk</option></select></label>
-              <label>Source<input id="quizSource" type="text"></label>
-              <label>Chapter<input id="quizChapter" type="text"></label>
-              <label>Tag<input id="quizTag" type="text"></label>
-              <label>Difficulty<select id="quizDifficulty"><option value="">Any</option><option>Easy</option><option>Medium</option><option>Hard</option></select></label>
-              <label>Questions<input id="quizCount" type="number" min="1" value="10"></label>
-              <label>Minutes<input id="quizMinutes" type="number" min="0" value="15"></label>
+              <label>Academy / Paper<select id="quizAcademy"><option value="">All Academies</option></select></label>
+              <label>Subject<select id="quizSource">
+                <option value="">Any Subject</option>
+                <option value="Biology">Biology</option>
+                <option value="Chemistry">Chemistry</option>
+                <option value="Physics">Physics</option>
+                <option value="English">English</option>
+                <option value="Logical Reasoning">Logical Reasoning</option>
+              </select></label>
+              <label>Chapter<input id="quizChapter" type="text" placeholder="e.g. Force and Motion"></label>
+              <label>Subtopic/Tag<input id="quizTag" type="text" placeholder="e.g. Projectile Motion"></label>
+              <label>Difficulty<select id="quizDifficulty"><option value="">Any</option><option>Easy</option><option>Moderate</option><option>Difficult</option></select></label>
+              <label>Questions Count<input id="quizCount" type="number" min="1" value="50"></label>
+              <label>Minutes<input id="quizMinutes" type="number" min="0" value="50"></label>
             </div>
             <label class="check-row"><input id="quizRandom" type="checkbox" checked> Random order</label>
             <div class="actions-row">
-              <button id="startQuizBtn">Start Quiz</button>
+              <button id="startQuizBtn">Start Custom Quiz</button>
+              <button id="startMdcatBtn" class="secondary" style="border-color: var(--primary); color: var(--primary);">Start MDCAT Mock (180 Qs, 3 Hrs)</button>
               <button id="submitQuizBtn" class="secondary" disabled>Submit</button>
               <span id="quizTimer" class="timer"></span>
             </div>
@@ -723,17 +732,11 @@ textarea {
     <script>
 const STORAGE_PREFIX = "mcqMasteryOs.v2";
 const ANSWERS = ["A", "B", "C", "D", "E"];
-const DIFFICULTIES = new Set(["Easy", "Medium", "Hard"]);
+// Updated to PMDC difficulty standards
+const DIFFICULTIES = new Set(["Easy", "Moderate", "Difficult"]);
 let currentStorageKey = null; // set once we know who's signed in: `${STORAGE_PREFIX}:${uid}`
 
 // ---- Auth + Cloud Sync (Supabase, Google sign-in required) ----
-// EDIT THE TWO LINES BELOW with your own Supabase project's values, found
-// on your project's Settings -> API page. The anon key is *meant* to be
-// public/shipped in frontend code like this - it does not grant access to
-// data by itself. Every table's Row Level Security policy (see schema.sql)
-// only allows a row to be read/written by the signed-in Google user who
-// owns it (auth.uid() = user_id), so there is no shared/anonymous access
-// at all - each Google account only ever sees its own data.
 const SUPABASE_URL = "https://fskctubmjdsgefnyynzz.supabase.co/";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZza2N0dWJtamRzZ2Vmbnl5bnp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxNjkwMTEsImV4cCI6MjA5ODc0NTAxMX0.GNX5yeAeNYdTvJ8J-0a2QkC2SK4Y_UgNBF1ZDHHSYC8";
 let cloudSyncing = false;
@@ -753,32 +756,47 @@ function getSupabaseClient() {
   return supabaseClient;
 }
 
+// Updated Sample Questions precisely matching PMDC MDCAT Curriculum Syllabus
 const sampleQuestions = [
   {
-    id: "BIO-GLY-125",
-    source: "Lippincott Biochemistry",
-    edition: "8th Edition",
-    chapter: "Glycolysis",
-    page: 32,
-    questionNumber: 125,
+    id: "BIO-CELL-001",
+    source: "Biology",
+    edition: "KIPS Practice Test",
+    chapter: "Cell Structure and Function",
+    page: 1,
+    questionNumber: 1,
     correctAnswer: "D",
-    explanation: "Phosphofructokinase-1 is the rate-limiting enzyme of glycolysis.",
-    difficulty: "Medium",
-    tags: ["Biochemistry", "Metabolism", "Glycolysis"],
+    explanation: "According to the fluid mosaic model of cell membranes, phospholipids and proteins are free to move laterally within the lipid bilayer.",
+    difficulty: "Moderate",
+    tags: ["Biology", "Cell Structure", "Organelles"],
     imageUrl: "",
     createdAt: ""
   },
   {
-    id: "PHY-CVS-042",
-    source: "Guyton Physiology",
-    edition: "14th Edition",
-    chapter: "Cardiac Output",
-    page: 244,
-    questionNumber: 42,
+    id: "CHEM-GAS-014",
+    source: "Chemistry",
+    edition: "STEP Practice Test",
+    chapter: "Gases",
+    page: 25,
+    questionNumber: 14,
     correctAnswer: "B",
-    explanation: "Venous return is the primary determinant of cardiac output under steady-state conditions.",
-    difficulty: "Hard",
-    tags: ["Physiology", "CVS", "Cardiac Output"],
+    explanation: "At standard temperature and pressure (STP), 1 mole of any ideal gas occupies 22.4 liters. This is derived from the ideal gas law PV=nRT.",
+    difficulty: "Easy",
+    tags: ["Chemistry", "Gases", "Ideal Gas Equation"],
+    imageUrl: "",
+    createdAt: ""
+  },
+  {
+    id: "PHY-FM-022",
+    source: "Physics",
+    edition: "PMDC Past Paper",
+    chapter: "Force and Motion",
+    page: 45,
+    questionNumber: 22,
+    correctAnswer: "C",
+    explanation: "For a projectile launched from the ground, the horizontal component of velocity (VH) remains constant in the absence of air resistance because there is no horizontal acceleration.",
+    difficulty: "Difficult",
+    tags: ["Physics", "Force and Motion", "Projectile Motion"],
     imageUrl: "",
     createdAt: ""
   }
@@ -789,7 +807,7 @@ let state = null;
 let activeProfileId = null;
 let validatedImport = null;
 let practiceIndex = 0;
-let practiceSession = null; // { chunkId, ids } when practicing a curated subset of a chunk
+let practiceSession = null; 
 let activeQuiz = null;
 let quizTimerHandle = null;
 let chunkPickerChunkId = null;
@@ -881,8 +899,6 @@ async function handleAuthenticated(session) {
   renderAll();
   restoreActiveQuiz();
 
-  // Pull anything already synced from another device, then push anything
-  // created locally (e.g. while briefly offline) before this login resolved.
   await pullProfileFromCloud();
   await syncProfileToCloud();
   startAutoSync();
@@ -904,10 +920,6 @@ function handleSignedOut() {
 
 function startAutoSync() {
   stopAutoSync();
-  // Automatic background sync: every mutating action already pushes
-  // immediately (see the syncProfileToCloud() calls throughout this file),
-  // so this interval's job is just to pull in anything saved from a
-  // *different* signed-in device/tab without requiring a manual click.
   autoSyncHandle = setInterval(() => {
     if (document.visibilityState === "visible") pullProfileFromCloud();
   }, 60000);
@@ -947,8 +959,8 @@ function bindEvents() {
   els.exportProfileBtn.addEventListener("click", exportProfile);
   els.sampleImportBtn.addEventListener("click", () => {
     els.jsonInput.value = JSON.stringify(sampleQuestions, null, 2);
-    els.chunkName.value = "Sample Medical Mastery Chunk";
-    els.chunkFolder.value = "Samples/Foundation";
+    els.chunkName.value = "PMDC Syllabus Mock Sample";
+    els.chunkFolder.value = "MDCAT Core Subjects";
     els.chunkResourceLink.value = "";
   });
   els.questionPromptBtn.addEventListener("click", () => setImportPrompt("questions"));
@@ -967,6 +979,7 @@ function bindEvents() {
     renderPractice();
   });
   els.startQuizBtn.addEventListener("click", startQuiz);
+  if (els.startMdcatBtn) els.startMdcatBtn.addEventListener("click", startMdcatMock); // Added MDCAT Mock Binding
   els.submitQuizBtn.addEventListener("click", submitQuiz);
   els.buildPlanBtn.addEventListener("click", renderStudyPlan);
   els.backupBtn.addEventListener("click", manualBackup);
@@ -1070,7 +1083,7 @@ async function syncProfileToCloud() {
         question_number: question.questionNumber,
         correct_answer: question.correctAnswer,
         explanation: question.explanation,
-        difficulty: question.difficulty || "Medium",
+        difficulty: question.difficulty || "Moderate", 
         tags: question.tags || [],
         image_url: question.imageUrl || "",
         updated_at: new Date().toISOString()
@@ -1156,9 +1169,6 @@ function mergeBootstrapIntoState(bootstrap) {
   current.syncedChunkIds ||= [];
   current.syncedAttemptIds ||= [];
 
-  // Supabase's jsonb columns (tags, question_ids) already come back as real
-  // JS arrays via supabase-js, unlike the JSON-string columns the old Sheets
-  // backend used, so no JSON.parse step is needed here anymore.
   (bootstrap.chunks || []).forEach((cloudChunk) => {
     const id = cloudChunk.chunk_id;
     if (!current.syncedChunkIds.includes(id)) current.syncedChunkIds.push(id);
@@ -1300,56 +1310,70 @@ function onDrop(event) {
   reader.readAsText(file);
 }
 
+// Updated setImportPrompt to force PMDC curriculum alignment and include the complete syllabus mapping
 function setImportPrompt(kind) {
   const rawInput = els.jsonInput.value.trim();
+  const PMDC_SYLLABUS = `
+--- PMDC 2025/2026 Topics & Subtopics Map ---
+BIOLOGY: Acellular Life (Viruses, AIDS), Biological Molecules (Water, Carbs, Proteins, Lipids, RNA, DNA), Cell Structure & Function (Organelles, Prokaryote/Eukaryote), Coordination & Control (Receptors, Neurons, Reflexes, Brain), Enzymes (Action, Factors, Inhibitors), Evolution (Lamarckism, Darwinism), Reproduction (Male/Female systems, Menstrual cycle, STDs), Support & Movement (Skeleton, Muscles, Joints), Inheritance (Mendel's laws, Linkage, X-linked), Circulation (Heart, Blood Vessels, Lymphatic), Immunity, Respiration, Digestion, Homeostasis (Kidney, Thermoregulation), Biotechnology.
+CHEMISTRY: Fundamental Concepts (Moles, Yield, Limiting Reactants), Atomic Structure (Quantum, Orbitals, Configuration), Gases (Gas Laws, Ideal Gas), Liquids (Properties, Vapor Pressure, Hydrogen Bonding), Solids (Crystals, Lattice), Chemical Equilibrium (Le Chatelier, Buffers, Solubility), Reaction Kinetics (Rate, Order, Activation Energy), Thermochemistry (Enthalpy, Hess's Law), Electrochemistry (Redox, SHE), Chemical Bonding (VSEPR, Hybridization), s & p Block, Transition Elements, Organic Principles (Isomerism), Hydrocarbons (Alkanes, Alkenes, Alkynes, Benzene), Alkyl Halides, Alcohols & Phenols, Aldehydes & Ketones, Carboxylic Acids, Macromolecules (Proteins), Industrial Chemistry.
+PHYSICS: Vectors & Equilibrium, Force & Motion (Projectile, Newton's Laws, Collision), Work & Energy, Rotational & Circular Motion, Fluid Dynamics (Bernoulli, Continuity), Waves (Sound, Superposition, Stationary, SHM), Thermodynamics (1st Law, Specific Heat), Electrostatics (Coulomb, Field, Potential, Capacitors), Current Electricity (Ohm's Law, Power), Electromagnetism (Magnetic Flux), Electromagnetic Induction (Faraday, Lenz, Transformer), AC (Phase, LCR), Electronics (Rectification, PN), Modern Physics (Quantum), Atomic Spectra, Nuclear Physics (Decay, Half-life).
+ENGLISH: Reading & Thinking, Formal & Lexical Aspects, Writing Skills.
+LOGICAL REASONING: Critical Thinking, Letter/Symbol Series, Logical Deductions, Logical Problems, Course of Action, Cause & Effect.
+`;
+
   const sharedSchema = `Return only valid JSON. Use this exact shape:
 {
   "questions": [
     {
-      "id": "SOURCE-CHAPTER-001",
-      "source": "Book or exam source",
-      "edition": "",
-      "chapter": "Chapter or topic",
+      "id": "BIO-CELL-001",
+      "source": "Biology",
+      "edition": "KIPS Practice Test",
+      "chapter": "Cell Structure and Function",
       "page": "",
       "questionNumber": "1",
       "correctAnswer": "A",
-      "explanation": "Concise explanation in 1-3 sentences.",
-      "difficulty": "Easy",
-      "tags": ["Subject", "System", "Topic"],
+      "explanation": "Concise high-yield explanation in 1-3 sentences.",
+      "difficulty": "Moderate",
+      "tags": ["Biology", "Cell Structure and Function", "Organelles"],
       "imageUrl": ""
     }
   ]
 }
 
-Rules:
-- Do not include question stems or answer options in the JSON.
-- correctAnswer must be one of A, B, C, D, or E.
-- Generate concise, high-yield explanations.
-- Add useful tags for subject, system, chapter, and tested concept.
-- If a field is unknown, use an empty string except difficulty, which must be Easy, Medium, or Hard.
+Rules (PMDC Curriculum Aligned):
+- "source": Must be one of the 5 subjects (Biology, Chemistry, Physics, English, Logical Reasoning).
+- "chapter": MUST exactly match one of the main Topics from the PMDC Syllabus map provided above.
+- "tags": MUST include the specific Subtopic from the map above.
+- "edition": Must be the Academy/Source of the test (e.g., KIPS, STEP, STARS, GRIPS, PMDC Past Paper).
+- correctAnswer must be A, B, C, D, or E.
+- difficulty MUST be Easy, Moderate, or Difficult.
 - Keep ids unique and stable.`;
 
-  const questionsPrompt = `I will provide MCQ question stems with options. Create an import-ready answer key for MCQ Mastery OS.
+  const questionsPrompt = `I will provide MCQ question stems with options. Create an import-ready answer key strictly mapped to the PMDC MDCAT Curriculum.
 
 Task:
 - Determine the correct answer for each question.
 - Write a concise explanation for why the answer is correct.
-- Add clinically/usefully searchable tags.
-- Preserve source, chapter, page, and question number when present.
+- Assign the specific Topic and Subtopic from the PMDC Syllabus below.
+- Assign the Academy name to the "edition" field if known.
+
+${PMDC_SYLLABUS}
 
 ${sharedSchema}
 
 Input questions:
 ${rawInput || "[Paste the questions here]"}`;
 
-  const keyPrompt = `I will provide an answer key, with or without explanations. Convert it into import-ready JSON for MCQ Mastery OS.
+  const keyPrompt = `I will provide an answer key. Convert it into import-ready JSON strictly mapped to the PMDC MDCAT Curriculum.
 
 Task:
 - Use the provided correct answer directly.
-- If explanations are missing, write concise high-yield explanations.
-- If explanations are present, improve them only for clarity and brevity.
-- Add clinically/usefully searchable tags.
-- Preserve source, chapter, page, and question number when present.
+- If explanations are missing, write concise high-yield PMDC-level explanations.
+- Assign the specific Topic and Subtopic from the PMDC Syllabus below.
+- Assign the Academy name to the "edition" field if known.
+
+${PMDC_SYLLABUS}
 
 ${sharedSchema}
 
@@ -1396,8 +1420,13 @@ function validateImport() {
     if (!Array.isArray(question.tags) || !question.tags.length) {
       report.errors.push(`${label}: tags must be a non-empty array`);
     }
-    if (question.difficulty && !DIFFICULTIES.has(question.difficulty)) {
-      report.errors.push(`${label}: invalid difficulty`);
+    // Mapping legacy terms automatically to prevent user frustration
+    let rawDiff = question.difficulty;
+    if (rawDiff === "Medium") rawDiff = "Moderate";
+    if (rawDiff === "Hard") rawDiff = "Difficult";
+    
+    if (rawDiff && !DIFFICULTIES.has(rawDiff)) {
+      report.errors.push(`${label}: invalid difficulty. Must be Easy, Moderate, or Difficult.`);
     }
     if (!String(question.explanation || "").trim()) {
       report.warnings.push(`${label}: empty explanation`);
@@ -1413,16 +1442,21 @@ function validateImport() {
 }
 
 function normalizeQuestion(question) {
+  // Graceful handling of legacy terms
+  let diff = question.difficulty || "Moderate";
+  if (diff === "Medium") diff = "Moderate";
+  if (diff === "Hard") diff = "Difficult";
+
   return {
     id: String(question.id).trim(),
     source: String(question.source).trim(),
-    edition: question.edition || "",
+    edition: String(question.edition || "General Bank").trim(),
     chapter: String(question.chapter).trim(),
     page: question.page || "",
     questionNumber: question.questionNumber,
     correctAnswer: String(question.correctAnswer).toUpperCase(),
     explanation: String(question.explanation || "").trim(),
-    difficulty: question.difficulty || "Medium",
+    difficulty: diff,
     tags: question.tags.map((tag) => String(tag).trim()).filter(Boolean),
     imageUrl: question.imageUrl || "",
     createdAt: question.createdAt || new Date().toISOString()
@@ -1494,7 +1528,7 @@ function upsertFolderPath(path) {
 }
 
 function addFolder() {
-  const path = prompt("Folder path, for example Biochemistry/Glycolysis");
+  const path = prompt("Folder path, for example Biology/Cell Structure");
   if (!path) return;
   upsertFolderPath(path);
   addHistory("folder.created", path);
@@ -1540,7 +1574,7 @@ function renderTopicAnalytics() {
   const stats = topicStats();
   els.topicAnalytics.innerHTML = stats.length
     ? stats.map((item) => `<div class="topic-row"><strong>${escapeHtml(item.tag)}</strong><span>${item.correct}/${item.total} correct · ${item.accuracy}% accuracy</span></div>`).join("")
-    : `<p class="muted">Import and solve questions to build topic analytics.</p>`;
+    : `<p class="muted">Import and solve PMDC aligned questions to build topic analytics.</p>`;
 }
 
 function renderKnowledgeGraph() {
@@ -1561,7 +1595,7 @@ function renderStudyPlan() {
   const plans = [];
   if (due.length) plans.push(`Review ${due.length} due spaced-repetition questions before new practice.`);
   weak.forEach((item) => plans.push(`Target ${item.tag}: attempt 15 questions and revisit explanations for missed items.`));
-  if (!plans.length) plans.push("Import a chunk, solve a short quiz, then this planner will use your weak topics and due reviews.");
+  if (!plans.length) plans.push("Import an MDCAT chunk and solve a short quiz to generate a study plan.");
   els.studyPlan.innerHTML = plans.map((plan) => `<div class="plan-row">${escapeHtml(plan)}</div>`).join("");
 }
 
@@ -1739,17 +1773,29 @@ function matchesQuestion(question, query) {
 function questionRow(question) {
   return `<div class="question-row">
     <strong>${escapeHtml(question.id)} · Q${escapeHtml(question.questionNumber)}</strong>
-    <span>${escapeHtml(question.source)} · ${escapeHtml(question.chapter)} · ${escapeHtml(question.difficulty)} · ${escapeHtml(getStatus(question.id))}</span>
+    <span>${escapeHtml(question.source)} · ${escapeHtml(question.edition)} · ${escapeHtml(question.chapter)} · ${escapeHtml(question.difficulty)} · ${escapeHtml(getStatus(question.id))}</span>
     <div class="tag-list">${question.tags.map(tagPill).join("")}</div>
   </div>`;
 }
 
 function renderPracticeOptions() {
+  // Populate Practice Chunk Dropdown
   els.practiceChunk.innerHTML = state.chunks.map((chunk) => `<option value="${escapeHtml(chunk.id)}">${escapeHtml(chunk.name)}</option>`).join("");
+  
+  // Populate Quiz Chunk Dropdown
   if (els.quizChunk) {
-    const previous = els.quizChunk.value;
+    const previousChunk = els.quizChunk.value;
     els.quizChunk.innerHTML = `<option value="">Any chunk</option>` + state.chunks.map((chunk) => `<option value="${escapeHtml(chunk.id)}">${escapeHtml(chunk.name)}</option>`).join("");
-    if (state.chunks.some((chunk) => chunk.id === previous)) els.quizChunk.value = previous;
+    if (state.chunks.some((chunk) => chunk.id === previousChunk)) els.quizChunk.value = previousChunk;
+  }
+
+  // Dynamically Populate Academies (from edition field)
+  if (els.quizAcademy) {
+    const previousAcademy = els.quizAcademy.value;
+    const academies = new Set();
+    Object.values(state.questions).forEach((q) => { if(q.edition && q.edition !== "General Bank") academies.add(q.edition); });
+    els.quizAcademy.innerHTML = `<option value="">All Academies</option>` + [...academies].map(a => `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join("");
+    if (academies.has(previousAcademy)) els.quizAcademy.value = previousAcademy;
   }
 }
 
@@ -1831,6 +1877,7 @@ function renderPracticeCard(question, positionLabel, inSession) {
       <h3>Question ${escapeHtml(question.questionNumber)}</h3>
       <div class="source-line">
         <span>${escapeHtml(question.source)}</span>
+        <span>${escapeHtml(question.edition)}</span>
         <span>${escapeHtml(question.chapter)}</span>
         <span>Page ${escapeHtml(question.page || "N/A")}</span>
         <span>${escapeHtml(getStatus(question.id))}</span>
@@ -1863,8 +1910,6 @@ function renderPracticeCard(question, positionLabel, inSession) {
 }
 
 function answerPractice(question, answer) {
-  // Bug fix: lock the choices after the first answer so re-clicking a
-  // different option can't log a second attempt/SRS update for the same question.
   const choiceButtons = els.practiceCard.querySelectorAll(".choice");
   choiceButtons.forEach((button) => { button.disabled = true; });
   const skipBtn = els.practiceCard.querySelector("#skipPracticeBtn");
@@ -1895,21 +1940,41 @@ function startQuiz() {
   }
   const questions = Object.values(state.questions).filter((question) => {
     return (!els.quizChunk?.value || question.chunkId === els.quizChunk.value)
-      && (!els.quizSource.value || question.source.toLowerCase().includes(els.quizSource.value.toLowerCase()))
-      && (!els.quizChapter.value || question.chapter.toLowerCase().includes(els.quizChapter.value.toLowerCase()))
-      && (!els.quizTag.value || question.tags.some((tag) => tag.toLowerCase().includes(els.quizTag.value.toLowerCase())))
-      && (!els.quizDifficulty.value || question.difficulty === els.quizDifficulty.value);
+      && (!els.quizAcademy?.value || question.edition === els.quizAcademy.value)
+      && (!els.quizSource?.value || question.source.toLowerCase() === els.quizSource.value.toLowerCase())
+      && (!els.quizChapter?.value || question.chapter.toLowerCase().includes(els.quizChapter.value.toLowerCase()))
+      && (!els.quizTag?.value || question.tags.some((tag) => tag.toLowerCase().includes(els.quizTag.value.toLowerCase())))
+      && (!els.quizDifficulty?.value || question.difficulty === els.quizDifficulty.value);
   });
   const pool = els.quizRandom.checked ? shuffle(questions) : questions;
   const rawCount = Number(els.quizCount.value);
   const count = Number.isFinite(rawCount) && rawCount > 0 ? Math.floor(rawCount) : 10;
   const selected = pool.slice(0, count);
   if (!selected.length) {
-    alert("No questions match this quiz.");
+    alert("No questions match this quiz criteria.");
     return;
   }
   const minutes = Number(els.quizMinutes.value);
   beginQuiz(selected, Number.isFinite(minutes) && minutes > 0 ? minutes : 0, "");
+}
+
+// Added MDCAT Mock Logic (180 questions, 180 Minutes)
+function startMdcatMock() {
+  if (activeQuiz && Object.keys(activeQuiz.answers).length
+      && !confirm("A quiz is already in progress. Starting a new one will discard your unsubmitted answers. Continue?")) {
+    return;
+  }
+  
+  const allQs = Object.values(state.questions);
+  const pool = shuffle(allQs).slice(0, 180); // Grab up to 180 questions
+  
+  if (!pool.length) {
+    alert("Import some questions first to start a mock exam!");
+    return;
+  }
+  
+  // Start quiz with selected pool, exactly 180 minutes (3 hours per PMDC)
+  beginQuiz(pool, 180, "KMU MDCAT 2026 Full Mock (3 Hours)");
 }
 
 function beginQuiz(questions, minutes, label) {
@@ -1936,7 +2001,7 @@ function renderQuizSurface() {
   els.quizSurface.innerHTML = banner + activeQuiz.questions.map((question, index) => `
     <article class="quiz-question">
       <strong>Question ${index + 1}</strong>
-      <div class="source-line"><span>${escapeHtml(question.source)}</span><span>${escapeHtml(question.chapter)}</span><span>Q${escapeHtml(question.questionNumber)}</span></div>
+      <div class="source-line"><span>${escapeHtml(question.source)}</span><span>${escapeHtml(question.edition)}</span><span>${escapeHtml(question.chapter)}</span><span>Q${escapeHtml(question.questionNumber)}</span></div>
       <div class="quiz-options">${ANSWERS.map((answer) => `
         <label><input type="radio" name="${escapeHtml(question.id)}" value="${answer}"> ${answer}</label>
       `).join("")}</div>
@@ -2171,8 +2236,6 @@ function restoreLatestBackup() {
       throw new Error("Backup data looks corrupted.");
     }
     state = parsed;
-    // Always stay bound to the currently signed-in Google account, even if
-    // this backup happened to be made under a different one on this browser.
     activeProfileId = currentSession.user.id;
     state.activeProfileId = activeProfileId;
     ensureProfile(currentSession);
@@ -2287,13 +2350,13 @@ function topicStatsFromAttempts(attempts) {
 
 function buildProgressPrompt() {
   const payload = buildProgressExportPayload();
-  return `Analyze this MCQ Mastery OS progress export.
+  return `Analyze this KMU MDCAT 2026 OS progress export.
 
 Task:
 - Summarize performance for the selected date range.
-- Identify strongest and weakest topics.
+- Identify strongest and weakest PMDC topics.
 - Point out repeated mistakes, skipped-question patterns, and slow areas.
-- Recommend a focused study plan for the next 7 days.
+- Recommend a focused study plan for the next 7 days based on PMDC weightage.
 - Keep the response practical, concise, and exam-oriented.
 
 Progress export JSON:
