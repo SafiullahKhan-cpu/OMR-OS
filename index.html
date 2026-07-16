@@ -1811,8 +1811,14 @@ async function openNote(noteId) {
   if (!note || !currentSession) return;
   // Open the tab synchronously, still inside the click's user-gesture
   // window, so browsers don't treat the later async navigation as a
-  // pop-up and block it.
-  const newTab = window.open("", "_blank", "noopener,noreferrer");
+  // pop-up and block it. NOTE: we deliberately do NOT pass "noopener" or
+  // "noreferrer" here - either one makes window.open() return null by spec,
+  // which would silently break the "newTab.location.href = ..." below and
+  // force a second, later window.open() call that pop-up blockers kill
+  // (it happens after an await, outside the original click's gesture).
+  // We get the same opener-severing safety by nulling newTab.opener below.
+  const newTab = window.open("", "_blank");
+  if (newTab) newTab.opener = null;
   try {
     const sb = getSupabaseClient();
     const { data, error } = await sb.storage.from("notes").createSignedUrl(note.storagePath, 600);
@@ -1828,16 +1834,16 @@ async function openNote(noteId) {
       if (!response.ok) throw new Error(`Could not fetch note (${response.status}).`);
       const html = await response.text();
       const blobUrl = URL.createObjectURL(new Blob([html], { type: "text/html" }));
-      if (newTab) newTab.location.href = blobUrl;
-      else window.open(blobUrl, "_blank", "noopener,noreferrer");
+      if (newTab && !newTab.closed) newTab.location.href = blobUrl;
+      else window.open(blobUrl, "_blank");
       setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
-    } else if (newTab) {
+    } else if (newTab && !newTab.closed) {
       newTab.location.href = data.signedUrl;
     } else {
-      window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+      window.open(data.signedUrl, "_blank");
     }
   } catch (error) {
-    if (newTab) newTab.close();
+    if (newTab && !newTab.closed) newTab.close();
     alert(`Could not open note: ${error.message || error}`);
   }
 }
