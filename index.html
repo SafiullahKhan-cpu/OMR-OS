@@ -1809,12 +1809,35 @@ async function uploadNote() {
 async function openNote(noteId) {
   const note = state.notes.find((item) => item.id === noteId);
   if (!note || !currentSession) return;
+  // Open the tab synchronously, still inside the click's user-gesture
+  // window, so browsers don't treat the later async navigation as a
+  // pop-up and block it.
+  const newTab = window.open("", "_blank", "noopener,noreferrer");
   try {
     const sb = getSupabaseClient();
     const { data, error } = await sb.storage.from("notes").createSignedUrl(note.storagePath, 600);
     if (error) throw error;
-    window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+
+    if (note.type === "html") {
+      // Supabase Storage force-serves .html objects as text/plain no matter
+      // what content-type was uploaded with - it's an intentional anti-abuse
+      // measure, not a bug we can fix via upload options. Fetch the raw text
+      // ourselves and hand the browser a same-origin Blob with the correct
+      // MIME type so it renders as an actual webpage instead of raw markup.
+      const response = await fetch(data.signedUrl);
+      if (!response.ok) throw new Error(`Could not fetch note (${response.status}).`);
+      const html = await response.text();
+      const blobUrl = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+      if (newTab) newTab.location.href = blobUrl;
+      else window.open(blobUrl, "_blank", "noopener,noreferrer");
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+    } else if (newTab) {
+      newTab.location.href = data.signedUrl;
+    } else {
+      window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+    }
   } catch (error) {
+    if (newTab) newTab.close();
     alert(`Could not open note: ${error.message || error}`);
   }
 }
