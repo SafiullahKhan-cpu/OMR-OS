@@ -439,8 +439,6 @@ textarea {
 
 .mistake-resource-link { display: inline-block; margin-top: 6px; font-weight: 600; font-size: 0.82rem; }
 
-.note-row { cursor: pointer; }
-.note-row:hover { border-color: var(--primary); }
 .note-type-badge {
   display: inline-block;
   padding: 2px 8px;
@@ -454,6 +452,92 @@ textarea {
 }
 .note-type-badge.html { color: var(--primary); }
 .note-type-badge.image { color: var(--good); }
+
+.drive-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.drive-back-btn { flex: 0 0 auto; }
+.drive-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  flex: 1 1 auto;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+.drive-breadcrumb button {
+  background: none;
+  border: none;
+  padding: 4px 6px;
+  border-radius: 6px;
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+.drive-breadcrumb button:hover { background: var(--surface-2); color: var(--text); }
+.drive-breadcrumb button.current { color: var(--text); cursor: default; }
+.drive-breadcrumb button.current:hover { background: none; }
+.drive-breadcrumb .crumb-sep { color: var(--muted); }
+
+.drive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.drive-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 10px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s ease, transform 0.1s ease, background 0.15s ease;
+}
+.drive-card:hover { border-color: var(--primary); background: var(--surface-2); transform: translateY(-1px); }
+.drive-card-icon { width: 42px; height: 42px; color: var(--muted); }
+.drive-folder-card .drive-card-icon { color: #f2b93d; }
+.drive-file-card.html .drive-card-icon { color: var(--primary); }
+.drive-file-card.image .drive-card-icon { color: var(--good); }
+.drive-card-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.drive-card-meta { font-size: 0.72rem; color: var(--muted); }
+.drive-card-delete {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  line-height: 20px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.85rem;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.drive-card:hover .drive-card-delete { opacity: 1; }
+.drive-card-delete:hover { background: var(--bad); border-color: var(--bad); color: #fff; }
+.drive-empty { grid-column: 1 / -1; color: var(--muted); text-align: center; padding: 24px 0; }
 
 .explanation {
   border-left: 4px solid var(--primary);
@@ -734,12 +818,10 @@ textarea {
           <div class="panel">
             <div class="panel-head">
               <h2>Upload Note / Mind Map</h2>
-              <button id="newNoteFolderBtn" class="secondary" type="button">New Folder</button>
+              <span id="noteUploadTargetLabel" class="muted">Uploading to: Home</span>
             </div>
             <div class="form-grid">
               <label>Name<input id="noteName" type="text" placeholder="Cell Structure - Mind Map"></label>
-              <label>Folder<input id="noteFolder" type="text" placeholder="Biology" list="noteFolderList"></label>
-              <datalist id="noteFolderList"></datalist>
             </div>
             <div class="drop-zone">
               <strong>Choose a PNG or HTML file</strong>
@@ -753,8 +835,12 @@ textarea {
             <p id="noteUploadStatus" class="muted"></p>
           </div>
           <div class="panel">
-            <h2>Notes Library</h2>
-            <div id="notesTree" class="library-tree"></div>
+            <div class="drive-toolbar">
+              <button id="notesBackBtn" class="secondary drive-back-btn" type="button" hidden>&larr; Back</button>
+              <nav id="notesBreadcrumb" class="drive-breadcrumb"></nav>
+              <button id="newNoteFolderBtn" class="secondary" type="button">+ New Folder</button>
+            </div>
+            <div id="notesTree" class="drive-grid"></div>
           </div>
         </section>
 
@@ -891,6 +977,7 @@ let validatedImport = null;
 let practiceJumpId = null;
 let practiceSession = null; 
 let noteUploading = false;
+let notesCurrentPath = "";
 let activeQuiz = null;
 let quizTimerHandle = null;
 let chunkPickerChunkId = null;
@@ -1004,6 +1091,7 @@ function handleSignedOut() {
   activeQuiz = null;
   practiceSession = null;
   practiceJumpId = null;
+  notesCurrentPath = "";
   clearInterval(quizTimerHandle);
   showAuthGate();
   if (els.googleLoginBtn) els.googleLoginBtn.disabled = false;
@@ -1118,8 +1206,13 @@ function bindEvents() {
         deleteNote(deleteBtn.dataset.noteId);
         return;
       }
-      const row = event.target.closest(".note-row");
-      if (row) openNote(row.dataset.noteId);
+      const folderCard = event.target.closest(".drive-folder-card");
+      if (folderCard) {
+        openNoteFolder(folderCard.dataset.folderPath);
+        return;
+      }
+      const fileCard = event.target.closest(".drive-file-card");
+      if (fileCard) openNote(fileCard.dataset.noteId);
     });
   }
 }
@@ -1693,6 +1786,14 @@ function upsertFolderPath(path) {
   });
 }
 
+const NOTE_MAX_BYTES = 20 * 1024 * 1024; // 20 MB client-side guardrail
+
+const DRIVE_ICONS = {
+  folder: `<svg class="drive-card-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 6.5C3 5.67157 3.67157 5 4.5 5H9.17157C9.70201 5 10.2107 5.21071 10.5858 5.58579L12 7H19.5C20.3284 7 21 7.67157 21 8.5V17.5C21 18.3284 20.3284 19 19.5 19H4.5C3.67157 19 3 18.3284 3 17.5V6.5Z" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>`,
+  html: `<svg class="drive-card-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 2H14L19 7V21C19 21.5523 18.5523 22 18 22H6C5.44772 22 5 21.5523 5 21V3C5 2.44772 5.44772 2 6 2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M14 2V7H19" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><text x="12" y="17.5" font-size="6.5" font-weight="700" text-anchor="middle" fill="currentColor">HTML</text></svg>`,
+  image: `<svg class="drive-card-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 2H14L19 7V21C19 21.5523 18.5523 22 18 22H6C5.44772 22 5 21.5523 5 21V3C5 2.44772 5.44772 2 6 2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M14 2V7H19" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="10" cy="13.5" r="1.4" fill="currentColor"/><path d="M6.5 19L10.5 15L13 17.2L15.5 14.5L17.5 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+};
+
 function addFolder() {
   const path = prompt("Folder path, for example Biology/Cell Structure");
   if (!path) return;
@@ -1702,14 +1803,44 @@ function addFolder() {
   renderLibrary();
 }
 
-const NOTE_MAX_BYTES = 20 * 1024 * 1024; // 20 MB client-side guardrail
-
 function addNoteFolder() {
-  const path = prompt("Folder path, for example Biology/Mind Maps");
-  if (!path) return;
+  const name = prompt("Folder name" + (notesCurrentPath ? ` (inside "${notesCurrentPath}")` : ""));
+  if (!name || !name.trim()) return;
+  const trimmed = name.trim();
+  if (!notesCurrentPath && trimmed.toLowerCase() === "unfiled") {
+    alert('"Unfiled" is reserved for notes with no folder. Please choose a different name.');
+    return;
+  }
+  const path = notesCurrentPath ? `${notesCurrentPath}/${trimmed}` : trimmed;
   upsertFolderPath(path);
-  if (els.noteFolder) els.noteFolder.value = path;
   saveState();
+  renderNotes();
+}
+
+function directChildFolderPaths(parentPath) {
+  const prefix = parentPath ? `${parentPath}/` : "";
+  const seen = new Set();
+  state.folders.forEach((folder) => {
+    if (prefix && !folder.path.startsWith(prefix)) return;
+    const rest = folder.path.slice(prefix.length);
+    if (!rest) return;
+    seen.add(prefix + rest.split("/")[0]);
+  });
+  if (!parentPath) seen.delete("Unfiled"); // the default bucket is shown as loose files, not its own tile
+  return [...seen].sort((a, b) => a.localeCompare(b));
+}
+
+function notesInFolder(folderPath) {
+  return state.notes.filter((note) => note.folderPath === folderPath);
+}
+
+function notesCountRecursive(folderPath) {
+  const prefix = `${folderPath}/`;
+  return state.notes.filter((note) => note.folderPath === folderPath || note.folderPath.startsWith(prefix)).length;
+}
+
+function openNoteFolder(path) {
+  notesCurrentPath = path;
   renderNotes();
 }
 
@@ -1747,7 +1878,7 @@ async function uploadNote() {
     return;
   }
 
-  const folderPath = els.noteFolder.value.trim() || "Unfiled";
+  const folderPath = notesCurrentPath || "Unfiled";
   const noteId = `note-${Date.now()}-${Math.random().toString(16).slice(2)}`;
   const ext = type === "image" ? "png" : "html";
   const storagePath = `${currentSession.user.id}/${noteId}.${ext}`;
@@ -1789,7 +1920,7 @@ async function uploadNote() {
     }, { onConflict: "note_id" });
     if (rowError) throw rowError;
 
-    upsertFolderPath(folderPath);
+    if (notesCurrentPath) upsertFolderPath(notesCurrentPath);
     state.notes.push(note);
     addHistory("note.uploaded", note.name);
     saveState();
@@ -1883,7 +2014,7 @@ async function pullNotesFromCloud() {
       createdAt: row.created_at,
       updatedAt: row.updated_at
     }));
-    state.notes.forEach((note) => upsertFolderPath(note.folderPath));
+    state.notes.forEach((note) => { if (note.folderPath !== "Unfiled") upsertFolderPath(note.folderPath); });
     saveState();
     renderNotes();
   } catch (error) {
@@ -1891,33 +2022,57 @@ async function pullNotesFromCloud() {
   }
 }
 
+function renderNotesBreadcrumb() {
+  if (!els.notesBreadcrumb) return;
+  const segments = notesCurrentPath ? notesCurrentPath.split("/") : [];
+  let built = "";
+  const crumbs = [`<button type="button" data-path="" class="${notesCurrentPath ? "" : "current"}">Home</button>`];
+  segments.forEach((segment, index) => {
+    built = built ? `${built}/${segment}` : segment;
+    const isLast = index === segments.length - 1;
+    crumbs.push(`<span class="crumb-sep">/</span><button type="button" data-path="${escapeHtml(built)}" class="${isLast ? "current" : ""}">${escapeHtml(segment)}</button>`);
+  });
+  els.notesBreadcrumb.innerHTML = crumbs.join("");
+  els.notesBreadcrumb.querySelectorAll("button").forEach((button) => {
+    button.addEventListener("click", () => openNoteFolder(button.dataset.path));
+  });
+  if (els.notesBackBtn) {
+    els.notesBackBtn.hidden = !notesCurrentPath;
+    els.notesBackBtn.onclick = () => {
+      const parts = notesCurrentPath.split("/");
+      parts.pop();
+      openNoteFolder(parts.join("/"));
+    };
+  }
+}
+
 function renderNotes() {
   if (!els.notesTree) return;
-  if (els.noteFolderList) {
-    const paths = [...new Set(state.folders.map((folder) => folder.path))].sort();
-    els.noteFolderList.innerHTML = paths.map((path) => `<option value="${escapeHtml(path)}">`).join("");
-  }
   updateNoteUploadButtonState();
+  if (els.noteUploadTargetLabel) {
+    els.noteUploadTargetLabel.textContent = `Uploading to: ${notesCurrentPath ? notesCurrentPath.replace(/\//g, " / ") : "Home"}`;
+  }
+  renderNotesBreadcrumb();
 
-  const byFolder = state.notes.reduce((acc, note) => {
-    acc[note.folderPath] ||= [];
-    acc[note.folderPath].push(note);
-    return acc;
-  }, {});
+  const folderCards = directChildFolderPaths(notesCurrentPath).map((path) => {
+    const name = path.split("/").pop();
+    const count = notesCountRecursive(path);
+    return `<div class="drive-card drive-folder-card" data-folder-path="${escapeHtml(path)}" title="${escapeHtml(path)}">
+      ${DRIVE_ICONS.folder}
+      <span class="drive-card-name">${escapeHtml(name)}</span>
+      <span class="drive-card-meta">${count} item${count === 1 ? "" : "s"}</span>
+    </div>`;
+  }).join("");
 
-  els.notesTree.innerHTML = Object.keys(byFolder).length
-    ? Object.entries(byFolder).map(([folder, notes]) => {
-      const rows = notes.map((note) => `
-        <div class="question-row note-row" data-note-id="${escapeHtml(note.id)}" title="Open in a new tab">
-          <div class="chunk-card-head">
-            <strong>${escapeHtml(note.name)}<span class="note-type-badge ${escapeHtml(note.type)}">${note.type === "image" ? "PNG" : "HTML"}</span></strong>
-            <button class="secondary note-delete-btn" type="button" data-note-id="${escapeHtml(note.id)}">Delete</button>
-          </div>
-          <span>${note.sizeBytes ? `${Math.round(note.sizeBytes / 1024)} KB` : ""} &middot; ${formatDate(note.createdAt)}</span>
-        </div>`).join("");
-      return `<section class="folder-node"><strong>${escapeHtml(folder)}</strong>${rows}</section>`;
-    }).join("")
-    : `<p class="muted">No notes uploaded yet. Upload a PNG or HTML one-pager above.</p>`;
+  const currentFiles = notesInFolder(notesCurrentPath || "Unfiled").map((note) => `
+    <div class="drive-card drive-file-card ${escapeHtml(note.type)}" data-note-id="${escapeHtml(note.id)}" title="Open &quot;${escapeHtml(note.name)}&quot; in a new tab">
+      <button class="drive-card-delete note-delete-btn" type="button" data-note-id="${escapeHtml(note.id)}" title="Delete">&times;</button>
+      ${DRIVE_ICONS[note.type] || DRIVE_ICONS.html}
+      <span class="drive-card-name">${escapeHtml(note.name)}</span>
+      <span class="drive-card-meta">${note.sizeBytes ? `${Math.round(note.sizeBytes / 1024)} KB &middot; ` : ""}${formatDate(note.createdAt)}</span>
+    </div>`).join("");
+
+  els.notesTree.innerHTML = (folderCards + currentFiles) || `<p class="drive-empty">This folder is empty. Upload a PNG or HTML one-pager, or create a subfolder.</p>`;
 }
 
 function renderDashboard() {
@@ -2746,6 +2901,7 @@ function restoreLatestBackup() {
     ensureProfile(currentSession);
     practiceSession = null;
     practiceJumpId = null;
+    notesCurrentPath = "";
     activeQuiz = null;
     persistActiveQuiz();
     saveState();
@@ -2765,6 +2921,7 @@ function clearLocalData() {
   ensureProfile(currentSession);
   practiceSession = null;
   practiceJumpId = null;
+  notesCurrentPath = "";
   activeQuiz = null;
   renderAll();
   pullProfileFromCloud();
