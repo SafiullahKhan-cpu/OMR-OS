@@ -56,21 +56,30 @@ button {
   background: var(--primary);
   color: white;
   min-height: 40px;
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 0 14px;
   cursor: pointer;
+  font-weight: 600;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.05s ease, box-shadow 0.15s ease;
 }
 
 button:hover { background: var(--primary-2); }
-button:disabled { opacity: 0.5; cursor: not-allowed; }
+button:active { transform: translateY(1px); }
+button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 30%, transparent);
+  border-color: var(--primary);
+}
 
 .secondary {
   background: var(--surface);
   color: var(--text);
   border-color: var(--border);
+  font-weight: 600;
 }
 
-.secondary:hover { background: var(--surface-2); }
+.secondary:hover { background: var(--surface-2); border-color: var(--primary); }
 .danger { background: var(--bad); border-color: var(--bad); }
 .wide { width: 100%; }
 
@@ -174,11 +183,23 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   background: transparent;
   color: var(--text);
   border-color: transparent;
+  font-weight: 600;
+  border-left: 3px solid transparent;
+  border-radius: 8px;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, padding-left 0.15s ease;
 }
 
-.nav-item.active, .nav-item:hover {
+.nav-item:hover {
   background: var(--surface-2);
-  border-color: var(--border);
+  border-color: transparent;
+  padding-left: 18px;
+}
+
+.nav-item.active {
+  background: color-mix(in srgb, var(--primary) 12%, var(--surface));
+  border-color: transparent;
+  border-left-color: var(--primary);
+  color: var(--primary);
 }
 
 .workspace {
@@ -205,10 +226,11 @@ input, select, textarea {
   width: 100%;
   min-height: 40px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 8px;
   background: var(--surface);
   color: var(--text);
   padding: 9px 10px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 textarea {
@@ -224,13 +246,14 @@ textarea {
 .panel {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: 12px;
+  padding: 18px;
   box-shadow: var(--shadow);
 }
 
 .panel h2 {
   font-size: 1.05rem;
+  font-weight: 700;
   margin: 0 0 12px;
 }
 
@@ -253,7 +276,8 @@ textarea {
 .metric {
   padding: 16px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-top: 3px solid var(--primary);
+  border-radius: 10px;
   background: var(--surface);
   box-shadow: var(--shadow);
 }
@@ -354,23 +378,22 @@ textarea {
 .warn { color: var(--warn); }
 .bad { color: var(--bad); }
 
-.library-tree, .question-table, .review-list, .history-list, .topic-list, .recommendations {
+.question-table, .review-list, .history-list, .topic-list, .recommendations {
   display: grid;
   gap: 10px;
 }
 
-.folder-node, .question-row, .review-row, .history-row, .topic-row, .plan-row {
+.question-row, .review-row, .history-row, .topic-row, .plan-row {
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 12px;
   background: var(--surface);
 }
 
-.folder-node strong, .question-row strong, .review-row strong { display: block; }
+.question-row strong, .review-row strong { display: block; }
 .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .tag { border: 1px solid var(--border); border-radius: 999px; padding: 3px 8px; color: var(--muted); font-size: 0.78rem; }
 
-.chunk-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .resource-link { font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
 .chunk-picker-list { display: grid; gap: 6px; max-height: 360px; overflow-y: auto; padding: 4px; border: 1px solid var(--border); border-radius: 8px; }
 .chunk-picker-list .check-row { border-bottom: 1px solid var(--border); padding: 6px 4px; margin: 0; }
@@ -537,6 +560,9 @@ textarea {
 }
 .drive-card:hover .drive-card-delete { opacity: 1; }
 .drive-card-delete:hover { background: var(--bad); border-color: var(--bad); color: #fff; }
+.drive-card-link { opacity: 1; text-decoration: none; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; }
+.drive-card-link:hover { background: var(--primary); border-color: var(--primary); color: #fff; }
+.drive-file-card.chunk .drive-card-icon { color: var(--accent); }
 .drive-empty { grid-column: 1 / -1; color: var(--muted); text-align: center; padding: 24px 0; }
 
 .explanation {
@@ -742,9 +768,13 @@ textarea {
           <div class="panel">
             <div class="panel-head">
               <h2>MDCAT Library</h2>
-              <button id="newFolderBtn" class="secondary">New Folder</button>
             </div>
-            <div id="libraryTree" class="library-tree"></div>
+            <div class="drive-toolbar">
+              <button id="libraryBackBtn" class="secondary drive-back-btn" type="button" hidden>&larr; Back</button>
+              <nav id="libraryBreadcrumb" class="drive-breadcrumb"></nav>
+              <button id="newFolderBtn" class="secondary" type="button">+ New Folder</button>
+            </div>
+            <div id="libraryTree" class="drive-grid"></div>
           </div>
           <div class="panel">
             <h2>Global Results</h2>
@@ -978,6 +1008,7 @@ let practiceJumpId = null;
 let practiceSession = null; 
 let noteUploading = false;
 let notesCurrentPath = "";
+let libraryCurrentPath = "";
 let activeQuiz = null;
 let quizTimerHandle = null;
 let chunkPickerChunkId = null;
@@ -1062,6 +1093,7 @@ async function handleAuthenticated(session) {
   currentStorageKey = `${STORAGE_PREFIX}:${activeProfileId}`;
   state = loadState();
   ensureProfile(session);
+  migrateFolderScopes();
 
   if (els.authGate) els.authGate.classList.add("hidden");
   if (els.appShell) els.appShell.classList.remove("hidden");
@@ -1092,6 +1124,7 @@ function handleSignedOut() {
   practiceSession = null;
   practiceJumpId = null;
   notesCurrentPath = "";
+  libraryCurrentPath = "";
   clearInterval(quizTimerHandle);
   showAuthGate();
   if (els.googleLoginBtn) els.googleLoginBtn.disabled = false;
@@ -1171,10 +1204,13 @@ function bindEvents() {
   els.exportProgressBtn.addEventListener("click", exportProgress);
   els.progressFromDate.addEventListener("change", renderProgressPrompt);
   els.progressToDate.addEventListener("change", renderProgressPrompt);
-  els.newFolderBtn.addEventListener("click", addFolder);
+  els.newFolderBtn.addEventListener("click", addLibraryFolder);
   els.libraryTree.addEventListener("click", (event) => {
-    const button = event.target.closest(".chunk-solve-btn");
-    if (button) openChunkPicker(button.dataset.chunkId);
+    if (event.target.closest(".drive-card-link")) return; // let the resource link navigate normally
+    const folderCard = event.target.closest(".drive-folder-card");
+    if (folderCard) { openLibraryFolder(folderCard.dataset.folderPath); return; }
+    const chunkCard = event.target.closest(".drive-file-card.chunk");
+    if (chunkCard) openChunkPicker(chunkCard.dataset.chunkId);
   });
   if (els.quizChunk) {
     els.quizChunk.addEventListener("change", () => {
@@ -1402,7 +1438,7 @@ function mergeBootstrapIntoState(bootstrap) {
       createdAt: cloudChunk.created_at,
       versions: []
     });
-    upsertFolderPath(cloudChunk.folder_path);
+    upsertFolderPath(cloudChunk.folder_path, "library");
   });
 
   (bootstrap.questions || []).forEach((cloudQuestion) => {
@@ -1759,7 +1795,7 @@ function saveImport() {
     state.questions[question.id] = { ...question, chunkId };
   });
   state.chunks.push(chunk);
-  upsertFolderPath(folderPath);
+  upsertFolderPath(folderPath, "library");
   addHistory("import.chunk", `${chunk.name}: ${validatedImport.length} questions`);
   validatedImport = null;
   els.saveImportBtn.disabled = true;
@@ -1775,15 +1811,34 @@ function saveImport() {
   syncProfileToCloud();
 }
 
-function upsertFolderPath(path) {
+function upsertFolderPath(path, scope) {
   const parts = path.split("/").map((part) => part.trim()).filter(Boolean);
   let current = "";
   parts.forEach((part) => {
     current = current ? `${current}/${part}` : part;
-    if (!state.folders.some((folder) => folder.path === current)) {
-      state.folders.push({ id: `folder-${Date.now()}-${current}`, path: current, name: part, icon: "[]", archived: false });
+    if (!state.folders.some((folder) => folder.path === current && folder.scope === scope)) {
+      state.folders.push({ id: `folder-${Date.now()}-${Math.random().toString(16).slice(2)}`, path: current, name: part, icon: "[]", archived: false, scope });
     }
   });
+}
+
+// One-time cleanup for folders created before folders were scoped per-module
+// (Library vs Notes shared a single namespace, which is exactly the "library
+// folders showing up in Notes" bug). Infers the right scope from what
+// actually references each path, then re-tags it.
+function migrateFolderScopes() {
+  const legacy = state.folders.filter((folder) => !folder.scope);
+  if (!legacy.length) return;
+  const chunkPaths = state.chunks.map((chunk) => chunk.folderPath);
+  const notePaths = state.notes.map((note) => note.folderPath);
+  const referencesPath = (paths, path) => paths.some((p) => p === path || p.startsWith(`${path}/`));
+  legacy.forEach((folder) => {
+    const usedByNotes = referencesPath(notePaths, folder.path);
+    const usedByLibrary = referencesPath(chunkPaths, folder.path);
+    if (usedByNotes) upsertFolderPath(folder.path, "notes");
+    if (usedByLibrary || !usedByNotes) upsertFolderPath(folder.path, "library");
+  });
+  state.folders = state.folders.filter((folder) => folder.scope);
 }
 
 const NOTE_MAX_BYTES = 20 * 1024 * 1024; // 20 MB client-side guardrail
@@ -1791,13 +1846,20 @@ const NOTE_MAX_BYTES = 20 * 1024 * 1024; // 20 MB client-side guardrail
 const DRIVE_ICONS = {
   folder: `<svg class="drive-card-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 6.5C3 5.67157 3.67157 5 4.5 5H9.17157C9.70201 5 10.2107 5.21071 10.5858 5.58579L12 7H19.5C20.3284 7 21 7.67157 21 8.5V17.5C21 18.3284 20.3284 19 19.5 19H4.5C3.67157 19 3 18.3284 3 17.5V6.5Z" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>`,
   html: `<svg class="drive-card-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 2H14L19 7V21C19 21.5523 18.5523 22 18 22H6C5.44772 22 5 21.5523 5 21V3C5 2.44772 5.44772 2 6 2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M14 2V7H19" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><text x="12" y="17.5" font-size="6.5" font-weight="700" text-anchor="middle" fill="currentColor">HTML</text></svg>`,
-  image: `<svg class="drive-card-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 2H14L19 7V21C19 21.5523 18.5523 22 18 22H6C5.44772 22 5 21.5523 5 21V3C5 2.44772 5.44772 2 6 2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M14 2V7H19" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="10" cy="13.5" r="1.4" fill="currentColor"/><path d="M6.5 19L10.5 15L13 17.2L15.5 14.5L17.5 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+  image: `<svg class="drive-card-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 2H14L19 7V21C19 21.5523 18.5523 22 18 22H6C5.44772 22 5 21.5523 5 21V3C5 2.44772 5.44772 2 6 2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M14 2V7H19" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="10" cy="13.5" r="1.4" fill="currentColor"/><path d="M6.5 19L10.5 15L13 17.2L15.5 14.5L17.5 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  chunk: `<svg class="drive-card-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="3" width="14" height="4.5" rx="1.2" stroke="currentColor" stroke-width="1.4"/><rect x="4" y="9.75" width="14" height="4.5" rx="1.2" stroke="currentColor" stroke-width="1.4"/><rect x="4" y="16.5" width="14" height="4.5" rx="1.2" stroke="currentColor" stroke-width="1.4"/><circle cx="15.5" cy="5.25" r="1" fill="currentColor"/><circle cx="15.5" cy="12" r="1" fill="currentColor"/><circle cx="15.5" cy="18.75" r="1" fill="currentColor"/></svg>`
 };
 
-function addFolder() {
-  const path = prompt("Folder path, for example Biology/Cell Structure");
-  if (!path) return;
-  upsertFolderPath(path);
+function addLibraryFolder() {
+  const name = prompt("Folder name" + (libraryCurrentPath ? ` (inside "${libraryCurrentPath}")` : ""));
+  if (!name || !name.trim()) return;
+  const trimmed = name.trim();
+  if (!libraryCurrentPath && trimmed.toLowerCase() === "unfiled") {
+    alert('"Unfiled" is reserved for chunks with no folder. Please choose a different name.');
+    return;
+  }
+  const path = libraryCurrentPath ? `${libraryCurrentPath}/${trimmed}` : trimmed;
+  upsertFolderPath(path, "library");
   addHistory("folder.created", path);
   saveState();
   renderLibrary();
@@ -1812,21 +1874,22 @@ function addNoteFolder() {
     return;
   }
   const path = notesCurrentPath ? `${notesCurrentPath}/${trimmed}` : trimmed;
-  upsertFolderPath(path);
+  upsertFolderPath(path, "notes");
   saveState();
   renderNotes();
 }
 
-function directChildFolderPaths(parentPath) {
+function directChildFolderPaths(scope, parentPath) {
   const prefix = parentPath ? `${parentPath}/` : "";
   const seen = new Set();
   state.folders.forEach((folder) => {
+    if (folder.scope !== scope) return;
     if (prefix && !folder.path.startsWith(prefix)) return;
     const rest = folder.path.slice(prefix.length);
     if (!rest) return;
     seen.add(prefix + rest.split("/")[0]);
   });
-  if (!parentPath) seen.delete("Unfiled"); // the default bucket is shown as loose files, not its own tile
+  if (!parentPath) seen.delete("Unfiled"); // the default bucket is shown as loose items, not its own tile
   return [...seen].sort((a, b) => a.localeCompare(b));
 }
 
@@ -1839,9 +1902,49 @@ function notesCountRecursive(folderPath) {
   return state.notes.filter((note) => note.folderPath === folderPath || note.folderPath.startsWith(prefix)).length;
 }
 
+function chunksInFolder(folderPath) {
+  return state.chunks.filter((chunk) => !chunk.archived && chunk.folderPath === folderPath);
+}
+
+function chunksCountRecursive(folderPath) {
+  const prefix = `${folderPath}/`;
+  return state.chunks.filter((chunk) => !chunk.archived && (chunk.folderPath === folderPath || chunk.folderPath.startsWith(prefix))).length;
+}
+
 function openNoteFolder(path) {
   notesCurrentPath = path;
   renderNotes();
+}
+
+function openLibraryFolder(path) {
+  libraryCurrentPath = path;
+  renderLibrary();
+}
+
+// Shared Drive-style breadcrumb renderer used by both the Library and Notes
+// folder browsers, so their navigation behavior can't drift apart.
+function renderDriveBreadcrumb(currentPath, breadcrumbEl, backBtnEl, onNavigate) {
+  if (!breadcrumbEl) return;
+  const segments = currentPath ? currentPath.split("/") : [];
+  let built = "";
+  const crumbs = [`<button type="button" data-path="" class="${currentPath ? "" : "current"}">Home</button>`];
+  segments.forEach((segment, index) => {
+    built = built ? `${built}/${segment}` : segment;
+    const isLast = index === segments.length - 1;
+    crumbs.push(`<span class="crumb-sep">/</span><button type="button" data-path="${escapeHtml(built)}" class="${isLast ? "current" : ""}">${escapeHtml(segment)}</button>`);
+  });
+  breadcrumbEl.innerHTML = crumbs.join("");
+  breadcrumbEl.querySelectorAll("button").forEach((button) => {
+    button.addEventListener("click", () => onNavigate(button.dataset.path));
+  });
+  if (backBtnEl) {
+    backBtnEl.hidden = !currentPath;
+    backBtnEl.onclick = () => {
+      const parts = currentPath.split("/");
+      parts.pop();
+      onNavigate(parts.join("/"));
+    };
+  }
 }
 
 function updateNoteUploadButtonState() {
@@ -1920,7 +2023,7 @@ async function uploadNote() {
     }, { onConflict: "note_id" });
     if (rowError) throw rowError;
 
-    if (notesCurrentPath) upsertFolderPath(notesCurrentPath);
+    if (notesCurrentPath) upsertFolderPath(notesCurrentPath, "notes");
     state.notes.push(note);
     addHistory("note.uploaded", note.name);
     saveState();
@@ -2014,35 +2117,11 @@ async function pullNotesFromCloud() {
       createdAt: row.created_at,
       updatedAt: row.updated_at
     }));
-    state.notes.forEach((note) => { if (note.folderPath !== "Unfiled") upsertFolderPath(note.folderPath); });
+    state.notes.forEach((note) => { if (note.folderPath !== "Unfiled") upsertFolderPath(note.folderPath, "notes"); });
     saveState();
     renderNotes();
   } catch (error) {
     setNoteUploadStatus(`Could not load notes from cloud: ${error.message || error}`);
-  }
-}
-
-function renderNotesBreadcrumb() {
-  if (!els.notesBreadcrumb) return;
-  const segments = notesCurrentPath ? notesCurrentPath.split("/") : [];
-  let built = "";
-  const crumbs = [`<button type="button" data-path="" class="${notesCurrentPath ? "" : "current"}">Home</button>`];
-  segments.forEach((segment, index) => {
-    built = built ? `${built}/${segment}` : segment;
-    const isLast = index === segments.length - 1;
-    crumbs.push(`<span class="crumb-sep">/</span><button type="button" data-path="${escapeHtml(built)}" class="${isLast ? "current" : ""}">${escapeHtml(segment)}</button>`);
-  });
-  els.notesBreadcrumb.innerHTML = crumbs.join("");
-  els.notesBreadcrumb.querySelectorAll("button").forEach((button) => {
-    button.addEventListener("click", () => openNoteFolder(button.dataset.path));
-  });
-  if (els.notesBackBtn) {
-    els.notesBackBtn.hidden = !notesCurrentPath;
-    els.notesBackBtn.onclick = () => {
-      const parts = notesCurrentPath.split("/");
-      parts.pop();
-      openNoteFolder(parts.join("/"));
-    };
   }
 }
 
@@ -2052,9 +2131,9 @@ function renderNotes() {
   if (els.noteUploadTargetLabel) {
     els.noteUploadTargetLabel.textContent = `Uploading to: ${notesCurrentPath ? notesCurrentPath.replace(/\//g, " / ") : "Home"}`;
   }
-  renderNotesBreadcrumb();
+  renderDriveBreadcrumb(notesCurrentPath, els.notesBreadcrumb, els.notesBackBtn, openNoteFolder);
 
-  const folderCards = directChildFolderPaths(notesCurrentPath).map((path) => {
+  const folderCards = directChildFolderPaths("notes", notesCurrentPath).map((path) => {
     const name = path.split("/").pop();
     const count = notesCountRecursive(path);
     return `<div class="drive-card drive-folder-card" data-folder-path="${escapeHtml(path)}" title="${escapeHtml(path)}">
@@ -2156,29 +2235,28 @@ function topicStats() {
 }
 
 function renderLibrary() {
-  const chunksByFolder = state.chunks.reduce((acc, chunk) => {
-    if (chunk.archived) return acc;
-    acc[chunk.folderPath] ||= [];
-    acc[chunk.folderPath].push(chunk);
-    return acc;
-  }, {});
-  els.libraryTree.innerHTML = Object.keys(chunksByFolder).length
-    ? Object.entries(chunksByFolder).map(([folder, chunks]) => {
-      const chunkRows = chunks.map((chunk) => `
-        <div class="question-row">
-          <div class="chunk-card-head">
-            <strong>${escapeHtml(chunk.name)}</strong>
-            ${chunk.resourceLink ? `<a class="resource-link" href="${escapeHtml(chunk.resourceLink)}" target="_blank" rel="noopener noreferrer">Resource &#8599;</a>` : ""}
-          </div>
-          <span>${chunk.questionIds.length} questions &middot; ${escapeHtml(chunk.source)} &middot; v${escapeHtml(chunk.version)}</span>
-          <div class="tag-list">${chunk.tags.map(tagPill).join("")}</div>
-          <div class="actions-row">
-            <button class="secondary chunk-solve-btn" type="button" data-chunk-id="${escapeHtml(chunk.id)}">Solve Chunk</button>
-          </div>
-        </div>`).join("");
-      return `<section class="folder-node"><strong>${escapeHtml(folder)}</strong>${chunkRows}</section>`;
-    }).join("")
-    : `<p class="muted">No chunks imported yet.</p>`;
+  if (!els.libraryTree) return;
+  renderDriveBreadcrumb(libraryCurrentPath, els.libraryBreadcrumb, els.libraryBackBtn, openLibraryFolder);
+
+  const folderCards = directChildFolderPaths("library", libraryCurrentPath).map((path) => {
+    const name = path.split("/").pop();
+    const count = chunksCountRecursive(path);
+    return `<div class="drive-card drive-folder-card" data-folder-path="${escapeHtml(path)}" title="${escapeHtml(path)}">
+      ${DRIVE_ICONS.folder}
+      <span class="drive-card-name">${escapeHtml(name)}</span>
+      <span class="drive-card-meta">${count} chunk${count === 1 ? "" : "s"}</span>
+    </div>`;
+  }).join("");
+
+  const chunkCards = chunksInFolder(libraryCurrentPath || "Unfiled").map((chunk) => `
+    <div class="drive-card drive-file-card chunk" data-chunk-id="${escapeHtml(chunk.id)}" title="Solve &quot;${escapeHtml(chunk.name)}&quot;">
+      ${chunk.resourceLink ? `<a class="drive-card-delete drive-card-link" href="${escapeHtml(chunk.resourceLink)}" target="_blank" rel="noopener noreferrer" title="Open resource">&#8599;</a>` : ""}
+      ${DRIVE_ICONS.chunk}
+      <span class="drive-card-name">${escapeHtml(chunk.name)}</span>
+      <span class="drive-card-meta">${chunk.questionIds.length} question${chunk.questionIds.length === 1 ? "" : "s"} &middot; v${escapeHtml(chunk.version)}</span>
+    </div>`).join("");
+
+  els.libraryTree.innerHTML = (folderCards + chunkCards) || `<p class="drive-empty">No chunks here yet. Import one from the Import tab, or create a subfolder.</p>`;
 }
 
 function openChunkPicker(chunkId) {
@@ -2899,9 +2977,11 @@ function restoreLatestBackup() {
     activeProfileId = currentSession.user.id;
     state.activeProfileId = activeProfileId;
     ensureProfile(currentSession);
+    migrateFolderScopes();
     practiceSession = null;
     practiceJumpId = null;
     notesCurrentPath = "";
+    libraryCurrentPath = "";
     activeQuiz = null;
     persistActiveQuiz();
     saveState();
@@ -2922,6 +3002,7 @@ function clearLocalData() {
   practiceSession = null;
   practiceJumpId = null;
   notesCurrentPath = "";
+  libraryCurrentPath = "";
   activeQuiz = null;
   renderAll();
   pullProfileFromCloud();
