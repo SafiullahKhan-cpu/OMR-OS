@@ -533,6 +533,8 @@ textarea {
 .drive-folder-card .drive-card-icon { color: #f2b93d; }
 .drive-file-card.html .drive-card-icon { color: var(--primary); }
 .drive-file-card.image .drive-card-icon { color: var(--good); }
+.drive-file-card.pdf .drive-card-icon { color: var(--bad); }
+.drive-file-card.other .drive-card-icon { color: var(--muted); }
 .drive-card-name {
   font-weight: 600;
   font-size: 0.85rem;
@@ -564,6 +566,88 @@ textarea {
 .drive-card-link:hover { background: var(--primary); border-color: var(--primary); color: #fff; }
 .drive-file-card.chunk .drive-card-icon { color: var(--accent); }
 .drive-empty { grid-column: 1 / -1; color: var(--muted); text-align: center; padding: 24px 0; }
+
+.note-preview-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 18, 25, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 200;
+}
+.note-preview-overlay.hidden { display: none; }
+
+.note-preview-dialog {
+  width: min(1000px, 100%);
+  height: min(85vh, 800px);
+  background: var(--surface);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.note-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.note-preview-header strong { display: block; font-size: 1rem; }
+.note-preview-header .muted { font-size: 0.8rem; }
+.note-preview-header-actions { display: flex; gap: 8px; flex: 0 0 auto; }
+.note-preview-header-actions a, .note-preview-header-actions button { min-height: 34px; padding: 0 12px; font-size: 0.85rem; }
+
+.note-preview-body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: var(--bg);
+}
+
+.note-preview-content {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.note-preview-content iframe { width: 100%; height: 100%; border: none; background: #fff; border-radius: 8px; }
+.note-preview-content img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; }
+
+.note-preview-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1.4rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-shadow: var(--shadow);
+  z-index: 5;
+}
+.note-preview-nav.prev { left: 14px; }
+.note-preview-nav.next { right: 14px; }
+.note-preview-nav:hover { background: var(--primary); border-color: var(--primary); color: #fff; }
+.note-preview-nav:disabled { opacity: 0.3; cursor: not-allowed; }
+.note-preview-nav:disabled:hover { background: var(--surface); color: var(--text); border-color: var(--border); }
 
 .explanation {
   border-left: 4px solid var(--primary);
@@ -854,9 +938,9 @@ textarea {
               <label>Name<input id="noteName" type="text" placeholder="Cell Structure - Mind Map"></label>
             </div>
             <div class="drop-zone">
-              <strong>Choose a PNG or HTML file</strong>
-              <span>One-page notes, mind maps, or diagrams &middot; .png or .html only</span>
-              <input id="noteFile" type="file" accept=".png,image/png,.html,text/html">
+              <strong>Choose a file</strong>
+              <span>One-page notes, mind maps, or diagrams &middot; PDF, images, HTML, or any other format (up to 20MB)</span>
+              <input id="noteFile" type="file">
             </div>
             <div class="actions-row">
               <button id="uploadNoteBtn" disabled type="button">Upload Note</button>
@@ -871,6 +955,25 @@ textarea {
               <button id="newNoteFolderBtn" class="secondary" type="button">+ New Folder</button>
             </div>
             <div id="notesTree" class="drive-grid"></div>
+          </div>
+          <div id="notePreviewModal" class="note-preview-overlay hidden">
+            <div class="note-preview-dialog">
+              <div class="note-preview-header">
+                <div>
+                  <strong id="notePreviewTitle"></strong>
+                  <span id="notePreviewMeta" class="muted"></span>
+                </div>
+                <div class="note-preview-header-actions">
+                  <a id="notePreviewOpenTab" href="#" target="_blank" rel="noopener noreferrer" class="secondary">Open in New Tab</a>
+                  <button id="notePreviewCloseBtn" class="secondary" type="button">&times; Close</button>
+                </div>
+              </div>
+              <div class="note-preview-body">
+                <button id="notePreviewPrevBtn" class="note-preview-nav prev" type="button" title="Previous note">&#8249;</button>
+                <div id="notePreviewContent" class="note-preview-content"></div>
+                <button id="notePreviewNextBtn" class="note-preview-nav next" type="button" title="Next note">&#8250;</button>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -1248,9 +1351,25 @@ function bindEvents() {
         return;
       }
       const fileCard = event.target.closest(".drive-file-card");
-      if (fileCard) openNote(fileCard.dataset.noteId);
+      if (fileCard) openNotePreview(fileCard.dataset.noteId);
     });
   }
+  if (els.notePreviewPrevBtn) els.notePreviewPrevBtn.addEventListener("click", () => navigateNotePreview(-1));
+  if (els.notePreviewNextBtn) els.notePreviewNextBtn.addEventListener("click", () => navigateNotePreview(1));
+  if (els.notePreviewCloseBtn) els.notePreviewCloseBtn.addEventListener("click", closeNotePreview);
+  if (els.notePreviewModal) {
+    els.notePreviewModal.addEventListener("click", (event) => {
+      if (event.target === els.notePreviewModal) closeNotePreview(); // click on the dimmed backdrop
+    });
+  }
+  document.addEventListener("keydown", (event) => {
+    if (!notePreview || els.notePreviewModal?.classList.contains("hidden")) return;
+    const activeTag = document.activeElement?.tagName;
+    if (activeTag === "INPUT" || activeTag === "TEXTAREA") return;
+    if (event.key === "Escape") closeNotePreview();
+    else if (event.key === "ArrowLeft") navigateNotePreview(-1);
+    else if (event.key === "ArrowRight") navigateNotePreview(1);
+  });
 }
 
 function loadState() {
@@ -1847,6 +1966,8 @@ const DRIVE_ICONS = {
   folder: `<svg class="drive-card-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 6.5C3 5.67157 3.67157 5 4.5 5H9.17157C9.70201 5 10.2107 5.21071 10.5858 5.58579L12 7H19.5C20.3284 7 21 7.67157 21 8.5V17.5C21 18.3284 20.3284 19 19.5 19H4.5C3.67157 19 3 18.3284 3 17.5V6.5Z" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>`,
   html: `<svg class="drive-card-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 2H14L19 7V21C19 21.5523 18.5523 22 18 22H6C5.44772 22 5 21.5523 5 21V3C5 2.44772 5.44772 2 6 2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M14 2V7H19" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><text x="12" y="17.5" font-size="6.5" font-weight="700" text-anchor="middle" fill="currentColor">HTML</text></svg>`,
   image: `<svg class="drive-card-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 2H14L19 7V21C19 21.5523 18.5523 22 18 22H6C5.44772 22 5 21.5523 5 21V3C5 2.44772 5.44772 2 6 2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M14 2V7H19" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="10" cy="13.5" r="1.4" fill="currentColor"/><path d="M6.5 19L10.5 15L13 17.2L15.5 14.5L17.5 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  pdf: `<svg class="drive-card-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 2H14L19 7V21C19 21.5523 18.5523 22 18 22H6C5.44772 22 5 21.5523 5 21V3C5 2.44772 5.44772 2 6 2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M14 2V7H19" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><text x="12" y="17.5" font-size="6.5" font-weight="700" text-anchor="middle" fill="currentColor">PDF</text></svg>`,
+  other: `<svg class="drive-card-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 2H14L19 7V21C19 21.5523 18.5523 22 18 22H6C5.44772 22 5 21.5523 5 21V3C5 2.44772 5.44772 2 6 2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M14 2V7H19" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M8 12.5H16M8 15.5H16M8 18.5H13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`,
   chunk: `<svg class="drive-card-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="3" width="14" height="4.5" rx="1.2" stroke="currentColor" stroke-width="1.4"/><rect x="4" y="9.75" width="14" height="4.5" rx="1.2" stroke="currentColor" stroke-width="1.4"/><rect x="4" y="16.5" width="14" height="4.5" rx="1.2" stroke="currentColor" stroke-width="1.4"/><circle cx="15.5" cy="5.25" r="1" fill="currentColor"/><circle cx="15.5" cy="12" r="1" fill="currentColor"/><circle cx="15.5" cy="18.75" r="1" fill="currentColor"/></svg>`
 };
 
@@ -1956,9 +2077,32 @@ function updateNoteUploadButtonState() {
 
 function detectNoteType(file) {
   const name = (file.name || "").toLowerCase();
-  if (file.type === "image/png" || name.endsWith(".png")) return "image";
-  if (file.type === "text/html" || name.endsWith(".html") || name.endsWith(".htm")) return "html";
-  return null;
+  const ext = name.includes(".") ? name.split(".").pop() : "";
+  const mime = (file.type || "").toLowerCase();
+  if (mime === "application/pdf" || ext === "pdf") return "pdf";
+  if (mime === "text/html" || ext === "html" || ext === "htm") return "html";
+  if (mime.startsWith("image/") || ["png", "jpg", "jpeg", "gif", "webp", "svg", "bmp", "avif"].includes(ext)) return "image";
+  return "other"; // every other format is still accepted, just opened/downloaded as-is
+}
+
+function extractExt(filename) {
+  const match = /\.([a-zA-Z0-9]+)$/.exec(filename || "");
+  return match ? match[1].toLowerCase() : "";
+}
+
+function noteFormatLabel(note) {
+  if (note.type === "html") return "HTML";
+  if (note.type === "pdf") return "PDF";
+  if (note.type === "image") return (extractExt(note.storagePath) || "IMG").toUpperCase();
+  return (extractExt(note.storagePath) || "FILE").toUpperCase();
+}
+
+// Keeps generated Storage object keys safe and readable. Note this is only
+// used to build a human-readable path - it never affects which local/DB
+// record a note maps to.
+function sanitizePathSegment(text) {
+  const cleaned = String(text || "").trim().replace(/[^a-zA-Z0-9 _.-]/g, "_").replace(/\s+/g, " ").slice(0, 80);
+  return cleaned || "untitled";
 }
 
 function setNoteUploadStatus(text) {
@@ -1971,21 +2115,21 @@ async function uploadNote() {
   const name = els.noteName?.value.trim();
   if (!file || !name) return;
 
-  const type = detectNoteType(file);
-  if (!type) {
-    setNoteUploadStatus("Only .png or .html files are supported.");
-    return;
-  }
   if (file.size > NOTE_MAX_BYTES) {
     setNoteUploadStatus(`File is too large (${Math.round(file.size / 1024 / 1024)}MB). Keep notes under 20MB.`);
     return;
   }
 
+  const type = detectNoteType(file);
   const folderPath = notesCurrentPath || "Unfiled";
   const noteId = `note-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-  const ext = type === "image" ? "png" : "html";
-  const storagePath = `${currentSession.user.id}/${noteId}.${ext}`;
-  const mimeType = type === "image" ? "image/png" : "text/html";
+  const ext = extractExt(file.name) || "bin";
+  const mimeType = file.type || (type === "html" ? "text/html" : type === "pdf" ? "application/pdf" : "application/octet-stream");
+  // Object key mirrors "profile / folder path / file" so the file is
+  // browsable that same way directly in the Supabase Storage dashboard,
+  // not just inside this app.
+  const folderKey = folderPath.split("/").map(sanitizePathSegment).join("/");
+  const storagePath = `${currentSession.user.id}/${folderKey}/${noteId}-${sanitizePathSegment(name)}.${ext}`;
 
   noteUploading = true;
   updateNoteUploadButtonState();
@@ -2040,45 +2184,82 @@ async function uploadNote() {
   }
 }
 
-async function openNote(noteId) {
+let notePreview = null; // { ids: [...], index } - ids are the notes in the folder being browsed
+let notePreviewBlobUrl = null;
+let notePreviewToken = 0; // guards against a slow-loading preview clobbering a newer one
+
+function openNotePreview(noteId) {
+  const ids = notesInFolder(notesCurrentPath || "Unfiled").map((note) => note.id);
+  const index = ids.indexOf(noteId);
+  if (index === -1) return;
+  notePreview = { ids, index };
+  renderNotePreview();
+}
+
+function closeNotePreview() {
+  notePreview = null;
+  notePreviewToken += 1;
+  if (notePreviewBlobUrl) { URL.revokeObjectURL(notePreviewBlobUrl); notePreviewBlobUrl = null; }
+  if (els.notePreviewModal) els.notePreviewModal.classList.add("hidden");
+}
+
+function navigateNotePreview(delta) {
+  if (!notePreview) return;
+  const nextIndex = notePreview.index + delta;
+  if (nextIndex < 0 || nextIndex >= notePreview.ids.length) return;
+  notePreview.index = nextIndex;
+  renderNotePreview();
+}
+
+async function renderNotePreview() {
+  if (!notePreview || !els.notePreviewModal) return;
+  const noteId = notePreview.ids[notePreview.index];
   const note = state.notes.find((item) => item.id === noteId);
-  if (!note || !currentSession) return;
-  // Open the tab synchronously, still inside the click's user-gesture
-  // window, so browsers don't treat the later async navigation as a
-  // pop-up and block it. NOTE: we deliberately do NOT pass "noopener" or
-  // "noreferrer" here - either one makes window.open() return null by spec,
-  // which would silently break the "newTab.location.href = ..." below and
-  // force a second, later window.open() call that pop-up blockers kill
-  // (it happens after an await, outside the original click's gesture).
-  // We get the same opener-severing safety by nulling newTab.opener below.
-  const newTab = window.open("", "_blank");
-  if (newTab) newTab.opener = null;
+  if (!note) { closeNotePreview(); return; }
+
+  const myToken = ++notePreviewToken;
+  if (notePreviewBlobUrl) { URL.revokeObjectURL(notePreviewBlobUrl); notePreviewBlobUrl = null; }
+
+  els.notePreviewModal.classList.remove("hidden");
+  if (els.notePreviewTitle) els.notePreviewTitle.textContent = note.name;
+  if (els.notePreviewMeta) els.notePreviewMeta.textContent = `${notePreview.index + 1} of ${notePreview.ids.length} \u00b7 ${noteFormatLabel(note)}`;
+  if (els.notePreviewPrevBtn) els.notePreviewPrevBtn.disabled = notePreview.index === 0;
+  if (els.notePreviewNextBtn) els.notePreviewNextBtn.disabled = notePreview.index === notePreview.ids.length - 1;
+  if (els.notePreviewOpenTab) els.notePreviewOpenTab.removeAttribute("href");
+  if (els.notePreviewContent) els.notePreviewContent.innerHTML = `<p class="muted">Loading&hellip;</p>`;
+
   try {
     const sb = getSupabaseClient();
     const { data, error } = await sb.storage.from("notes").createSignedUrl(note.storagePath, 600);
     if (error) throw error;
+    if (myToken !== notePreviewToken) return; // a newer preview request has since taken over
 
-    if (note.type === "html") {
-      // Supabase Storage force-serves .html objects as text/plain no matter
-      // what content-type was uploaded with - it's an intentional anti-abuse
-      // measure, not a bug we can fix via upload options. Fetch the raw text
-      // ourselves and hand the browser a same-origin Blob with the correct
-      // MIME type so it renders as an actual webpage instead of raw markup.
+    if (note.type === "html" || note.type === "pdf") {
+      // Supabase Storage force-serves .html as text/plain and force-downloads
+      // .pdf via direct signed URLs, regardless of upload content-type - both
+      // are intentional platform behaviors, not something fixable via upload
+      // options. Fetch the bytes ourselves and hand the browser a same-origin
+      // Blob with the correct MIME type so it renders inline either way.
       const response = await fetch(data.signedUrl);
       if (!response.ok) throw new Error(`Could not fetch note (${response.status}).`);
-      const html = await response.text();
-      const blobUrl = URL.createObjectURL(new Blob([html], { type: "text/html" }));
-      if (newTab && !newTab.closed) newTab.location.href = blobUrl;
-      else window.open(blobUrl, "_blank");
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
-    } else if (newTab && !newTab.closed) {
-      newTab.location.href = data.signedUrl;
+      const mime = note.type === "html" ? "text/html" : "application/pdf";
+      const body = note.type === "html" ? await response.text() : await response.arrayBuffer();
+      if (myToken !== notePreviewToken) return;
+      const blobUrl = URL.createObjectURL(new Blob([body], { type: mime }));
+      notePreviewBlobUrl = blobUrl;
+      if (els.notePreviewContent) els.notePreviewContent.innerHTML = `<iframe src="${escapeHtml(blobUrl)}" title="${escapeHtml(note.name)}"></iframe>`;
+      if (els.notePreviewOpenTab) els.notePreviewOpenTab.href = blobUrl;
+    } else if (note.type === "image") {
+      if (els.notePreviewContent) els.notePreviewContent.innerHTML = `<img src="${escapeHtml(data.signedUrl)}" alt="${escapeHtml(note.name)}">`;
+      if (els.notePreviewOpenTab) els.notePreviewOpenTab.href = data.signedUrl;
     } else {
-      window.open(data.signedUrl, "_blank");
+      if (els.notePreviewContent) els.notePreviewContent.innerHTML = `<p class="muted">This file type (${escapeHtml(noteFormatLabel(note))}) can't be previewed here. Use "Open in New Tab" to download or view it.</p>`;
+      if (els.notePreviewOpenTab) els.notePreviewOpenTab.href = data.signedUrl;
     }
   } catch (error) {
-    if (newTab && !newTab.closed) newTab.close();
-    alert(`Could not open note: ${error.message || error}`);
+    if (myToken === notePreviewToken && els.notePreviewContent) {
+      els.notePreviewContent.innerHTML = `<p class="muted">Could not load note: ${escapeHtml(error.message || String(error))}</p>`;
+    }
   }
 }
 
@@ -2144,14 +2325,14 @@ function renderNotes() {
   }).join("");
 
   const currentFiles = notesInFolder(notesCurrentPath || "Unfiled").map((note) => `
-    <div class="drive-card drive-file-card ${escapeHtml(note.type)}" data-note-id="${escapeHtml(note.id)}" title="Open &quot;${escapeHtml(note.name)}&quot; in a new tab">
+    <div class="drive-card drive-file-card ${escapeHtml(note.type)}" data-note-id="${escapeHtml(note.id)}" title="Preview &quot;${escapeHtml(note.name)}&quot;">
       <button class="drive-card-delete note-delete-btn" type="button" data-note-id="${escapeHtml(note.id)}" title="Delete">&times;</button>
-      ${DRIVE_ICONS[note.type] || DRIVE_ICONS.html}
+      ${DRIVE_ICONS[note.type] || DRIVE_ICONS.other}
       <span class="drive-card-name">${escapeHtml(note.name)}</span>
-      <span class="drive-card-meta">${note.sizeBytes ? `${Math.round(note.sizeBytes / 1024)} KB &middot; ` : ""}${formatDate(note.createdAt)}</span>
+      <span class="drive-card-meta">${noteFormatLabel(note)}${note.sizeBytes ? ` &middot; ${Math.round(note.sizeBytes / 1024)} KB` : ""} &middot; ${formatDate(note.createdAt)}</span>
     </div>`).join("");
 
-  els.notesTree.innerHTML = (folderCards + currentFiles) || `<p class="drive-empty">This folder is empty. Upload a PNG or HTML one-pager, or create a subfolder.</p>`;
+  els.notesTree.innerHTML = (folderCards + currentFiles) || `<p class="drive-empty">This folder is empty. Upload a note (any format), or create a subfolder.</p>`;
 }
 
 function renderDashboard() {
