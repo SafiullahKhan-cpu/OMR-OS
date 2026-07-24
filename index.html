@@ -689,6 +689,19 @@ textarea {
 .quiz-options input, .check-row input { width: auto; min-height: auto; }
 .timer { font-weight: 800; color: var(--accent); }
 
+.auto-advance-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+}
+.auto-advance-bar #autoAdvanceLabel { font-weight: 700; color: var(--primary); }
+.session-resumed-banner { background: color-mix(in srgb, var(--primary) 10%, var(--surface)); border-color: var(--primary); }
+
 .graph {
   display: grid;
   gap: 8px;
@@ -986,6 +999,17 @@ textarea {
 
         <section id="settings" class="view">
           <div class="panel">
+            <div class="panel-head">
+              <h2>Practice Preferences</h2>
+            </div>
+            <label class="check-row"><input id="autoAdvanceToggle" type="checkbox"> Auto-advance to the next question after answering</label>
+            <div class="form-grid compact-grid">
+              <label>Auto-advance delay (seconds)<input id="autoAdvanceSeconds" type="number" min="3" max="120" value="10"></label>
+            </div>
+            <label class="check-row"><input id="keyboardShortcutsToggle" type="checkbox"> Enable keyboard shortcuts in Practice (A-E to answer, Enter/Space for next, S to skip)</label>
+            <p class="muted">Auto-advance only applies to OMR Practice mode (not Quiz Builder or MDCAT Mock). You can always click "Stay on this question" to cancel the countdown for a single question.</p>
+          </div>
+          <div class="panel">
             <h2>Backup & Settings</h2>
             <div class="actions-row">
               <button id="backupBtn">Manual Backup</button>
@@ -1116,6 +1140,8 @@ let activeQuiz = null;
 let quizTimerHandle = null;
 let chunkPickerChunkId = null;
 let chunkPickerSelected = new Set();
+let practiceAdvanceHandle = null;
+let practiceAdvanceRemaining = 0;
 
 window.MCQ_MASTERY_APP_STARTED = true;
 
@@ -1197,6 +1223,7 @@ async function handleAuthenticated(session) {
   state = loadState();
   ensureProfile(session);
   migrateFolderScopes();
+  restoreLastPracticeSession();
 
   if (els.authGate) els.authGate.classList.add("hidden");
   if (els.appShell) els.appShell.classList.remove("hidden");
@@ -1229,6 +1256,7 @@ function handleSignedOut() {
   notesCurrentPath = "";
   libraryCurrentPath = "";
   clearInterval(quizTimerHandle);
+  clearAutoAdvanceTimer();
   showAuthGate();
   if (els.googleLoginBtn) els.googleLoginBtn.disabled = false;
 }
@@ -1299,6 +1327,30 @@ function bindEvents() {
   if (els.startMdcatBtn) els.startMdcatBtn.addEventListener("click", startMdcatMock); // Added MDCAT Mock Binding
   els.submitQuizBtn.addEventListener("click", submitQuiz);
   els.buildPlanBtn.addEventListener("click", renderStudyPlan);
+  if (els.autoAdvanceToggle) {
+    els.autoAdvanceToggle.addEventListener("change", () => {
+      ensureSettingsDefaults();
+      profile().settings.autoAdvanceEnabled = els.autoAdvanceToggle.checked;
+      saveState();
+      if (practiceSession) renderPractice();
+    });
+  }
+  if (els.autoAdvanceSeconds) {
+    els.autoAdvanceSeconds.addEventListener("change", () => {
+      ensureSettingsDefaults();
+      const clamped = Math.min(120, Math.max(3, Math.round(Number(els.autoAdvanceSeconds.value) || 10)));
+      els.autoAdvanceSeconds.value = clamped;
+      profile().settings.autoAdvanceSeconds = clamped;
+      saveState();
+    });
+  }
+  if (els.keyboardShortcutsToggle) {
+    els.keyboardShortcutsToggle.addEventListener("change", () => {
+      ensureSettingsDefaults();
+      profile().settings.keyboardShortcuts = els.keyboardShortcutsToggle.checked;
+      saveState();
+    });
+  }
   els.backupBtn.addEventListener("click", manualBackup);
   els.restoreBtn.addEventListener("click", restoreLatestBackup);
   els.clearLocalBtn.addEventListener("click", clearLocalData);
@@ -1369,6 +1421,26 @@ function bindEvents() {
     if (event.key === "Escape") closeNotePreview();
     else if (event.key === "ArrowLeft") navigateNotePreview(-1);
     else if (event.key === "ArrowRight") navigateNotePreview(1);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (!state || !currentSession) return;
+    if (!els.practice || !els.practice.classList.contains("active")) return;
+    if (!profile().settings?.keyboardShortcuts) return;
+    const activeTag = document.activeElement?.tagName;
+    if (activeTag === "INPUT" || activeTag === "TEXTAREA") return;
+    if (!els.practiceCard) return;
+    const key = event.key.length === 1 ? event.key.toUpperCase() : event.key;
+    if (["A", "B", "C", "D", "E"].includes(key)) {
+      const button = els.practiceCard.querySelector(`.choice[data-answer="${key}"]`);
+      if (button && !button.disabled) { button.click(); event.preventDefault(); }
+    } else if (event.key === "Enter" || event.key === " ") {
+      const nextBtn = els.practiceCard.querySelector("#nextPracticeBtn");
+      if (nextBtn && !nextBtn.disabled) { nextBtn.click(); event.preventDefault(); }
+    } else if (key === "S") {
+      const skipBtn = els.practiceCard.querySelector("#skipPracticeBtn");
+      if (skipBtn && !skipBtn.disabled) { skipBtn.click(); event.preventDefault(); }
+    }
   });
 }
 
@@ -1625,8 +1697,26 @@ function createProfile(id, name) {
     bookmarks: {},
     srs: {},
     history: [],
-    settings: {}
+    settings: defaultPracticeSettings()
   };
+}
+
+function defaultPracticeSettings() {
+  return { autoAdvanceEnabled: true, autoAdvanceSeconds: 10, keyboardShortcuts: true };
+}
+
+// Fills in any practice-preference keys missing from an existing profile
+// (e.g. profiles created before these settings existed), without clobbering
+// values the user has already changed.
+function ensureSettingsDefaults() {
+  const current = profile();
+  if (!current) return;
+  current.settings ||= {};
+  const defaults = defaultPracticeSettings();
+  if (current.settings.autoAdvanceEnabled === undefined) current.settings.autoAdvanceEnabled = defaults.autoAdvanceEnabled;
+  const seconds = Number(current.settings.autoAdvanceSeconds);
+  if (!Number.isFinite(seconds) || seconds <= 0) current.settings.autoAdvanceSeconds = defaults.autoAdvanceSeconds;
+  if (current.settings.keyboardShortcuts === undefined) current.settings.keyboardShortcuts = defaults.keyboardShortcuts;
 }
 
 function ensureProfile(session) {
@@ -1637,6 +1727,7 @@ function ensureProfile(session) {
     state.activeProfileId = activeProfileId;
     saveState();
   }
+  ensureSettingsDefaults();
 }
 
 function profile() {
@@ -1646,15 +1737,26 @@ function profile() {
 function showView(viewId) {
   document.querySelectorAll(".nav-item").forEach((button) => button.classList.toggle("active", button.dataset.view === viewId));
   document.querySelectorAll(".view").forEach((view) => view.classList.toggle("active", view.id === viewId));
+  if (viewId !== "practice") clearAutoAdvanceTimer();
   if (viewId === "practice") renderPractice();
   if (viewId === "review") renderReview();
   if (viewId === "notes") renderNotes();
+  if (viewId === "settings") renderPracticeSettingsUI();
+}
+
+function renderPracticeSettingsUI() {
+  ensureSettingsDefaults();
+  const settings = profile().settings;
+  if (els.autoAdvanceToggle) els.autoAdvanceToggle.checked = !!settings.autoAdvanceEnabled;
+  if (els.autoAdvanceSeconds) els.autoAdvanceSeconds.value = settings.autoAdvanceSeconds;
+  if (els.keyboardShortcutsToggle) els.keyboardShortcutsToggle.checked = !!settings.keyboardShortcuts;
 }
 
 function renderAll() {
   renderDashboard();
   renderLibrary();
   renderSearchResults();
+  renderPracticeSettingsUI();
   renderPracticeOptions();
   renderPractice();
   renderReview();
@@ -2353,7 +2455,7 @@ function renderDashboard() {
 function renderHeatmap() {
   const counts = new Map();
   profile().attempts.forEach((attempt) => {
-    const day = attempt.createdAt.slice(0, 10);
+    const day = localDayKey(attempt.createdAt);
     counts.set(day, (counts.get(day) || 0) + 1);
   });
   const today = new Date();
@@ -2361,7 +2463,7 @@ function renderHeatmap() {
   for (let i = 181; i >= 0; i -= 1) {
     const date = new Date(today);
     date.setDate(today.getDate() - i);
-    const key = date.toISOString().slice(0, 10);
+    const key = localDayKey(date);
     const count = counts.get(key) || 0;
     const level = count >= 20 ? 3 : count >= 8 ? 2 : count > 0 ? 1 : 0;
     cells.push(`<span class="heat-cell" data-level="${level}" title="${key}: ${count} attempts"></span>`);
@@ -2616,23 +2718,130 @@ function renderPractice() {
   startPracticeSession(chunk.id, chunk.name, chunk.questionIds);
 }
 
+// --- Practice-session persistence -----------------------------------------
+// Practice progress is archived to localStorage per chunk (keyed by chunkId),
+// separately from the in-memory `practiceSession`. This means:
+//   - Refreshing the page mid-session restores exactly where you left off.
+//   - Switching to a different chunk and back does NOT lose progress on
+//     either chunk - each chunk keeps its own saved queue/status.
+// A session is only cleared from the archive once it's actually completed
+// (or the person explicitly restarts it), matching "saved until the chunk
+// is completed".
+function practiceArchiveKey() {
+  return `${currentStorageKey}.practiceProgress`;
+}
+
+function loadPracticeArchive() {
+  try {
+    const raw = localStorage.getItem(practiceArchiveKey());
+    const parsed = raw ? JSON.parse(raw) : null;
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function savePracticeArchive(archive) {
+  try {
+    localStorage.setItem(practiceArchiveKey(), JSON.stringify(archive));
+  } catch {
+    // Storage can fail (quota, private mode, etc.) - practice still works
+    // in-memory for the rest of this tab session, it just won't survive a refresh.
+  }
+}
+
+function persistPracticeSession() {
+  if (!currentStorageKey) return;
+  const archive = loadPracticeArchive();
+  if (practiceSession) {
+    archive[practiceSession.chunkId] = {
+      ids: practiceSession.ids,
+      queue: practiceSession.queue,
+      status: practiceSession.status,
+      firstTryCorrect: practiceSession.firstTryCorrect,
+      attemptsThisSession: practiceSession.attemptsThisSession,
+      chunkName: practiceSession.chunkName,
+      jumpId: practiceJumpId,
+      updatedAt: new Date().toISOString()
+    };
+    archive.__lastActiveChunkId = practiceSession.chunkId;
+  }
+  savePracticeArchive(archive);
+}
+
+function clearPracticeArchiveEntry(chunkId) {
+  const archive = loadPracticeArchive();
+  delete archive[chunkId];
+  if (archive.__lastActiveChunkId === chunkId) delete archive.__lastActiveChunkId;
+  savePracticeArchive(archive);
+}
+
+// Runs once at load/login: resumes whichever chunk practice was last active
+// in, so a page refresh (or reopening the app) never silently discards
+// in-progress practice.
+function restoreLastPracticeSession() {
+  if (!currentStorageKey) return;
+  const archive = loadPracticeArchive();
+  const lastId = archive.__lastActiveChunkId;
+  if (!lastId) return;
+  const saved = archive[lastId];
+  if (!saved || !Array.isArray(saved.ids) || !saved.ids.length) return;
+  const cleanIds = saved.ids.filter((id) => state.questions[id]);
+  if (!cleanIds.length) { clearPracticeArchiveEntry(lastId); return; }
+  practiceSession = {
+    chunkId: lastId,
+    chunkName: saved.chunkName || "Practice Session",
+    ids: cleanIds,
+    queue: (saved.queue || []).filter((id) => cleanIds.includes(id)),
+    status: saved.status || {},
+    firstTryCorrect: saved.firstTryCorrect || {},
+    attemptsThisSession: saved.attemptsThisSession || 0
+  };
+  practiceJumpId = saved.jumpId && cleanIds.includes(saved.jumpId) ? saved.jumpId : null;
+}
+
 // A practice session tracks a fixed list of question ids plus a working "queue".
 // Answering a question correctly removes it from the queue; answering incorrectly
 // pushes it to the back of the queue so it automatically comes back for reattempt
 // later in the same session. The session ends only once every question in it has
 // been most-recently answered correctly (the queue is empty).
-function startPracticeSession(chunkId, chunkName, ids) {
+//
+// By default this RESUMES any saved progress for the chunk (so switching
+// chunks and back, or refreshing, never loses your place). Pass
+// { forceRestart: true } to explicitly wipe progress and start over.
+function startPracticeSession(chunkId, chunkName, ids, opts = {}) {
   const cleanIds = ids.filter((id) => state.questions[id]);
-  practiceSession = {
-    chunkId,
-    chunkName,
-    ids: cleanIds,
-    queue: [...cleanIds],
-    status: {},
-    firstTryCorrect: {},
-    attemptsThisSession: 0
-  };
-  practiceJumpId = null;
+  const archive = opts.forceRestart ? {} : loadPracticeArchive();
+  const saved = opts.forceRestart ? null : archive[chunkId];
+  const sameQuestionSet = saved && Array.isArray(saved.ids)
+    && saved.ids.length === cleanIds.length
+    && saved.ids.every((id) => cleanIds.includes(id));
+
+  if (sameQuestionSet) {
+    practiceSession = {
+      chunkId,
+      chunkName,
+      ids: cleanIds,
+      queue: (saved.queue || []).filter((id) => cleanIds.includes(id)),
+      status: saved.status || {},
+      firstTryCorrect: saved.firstTryCorrect || {},
+      attemptsThisSession: saved.attemptsThisSession || 0
+    };
+    practiceJumpId = saved.jumpId && cleanIds.includes(saved.jumpId) ? saved.jumpId : null;
+  } else {
+    practiceSession = {
+      chunkId,
+      chunkName,
+      ids: cleanIds,
+      queue: [...cleanIds],
+      status: {},
+      firstTryCorrect: {},
+      attemptsThisSession: 0
+    };
+    practiceJumpId = null;
+  }
+  clearAutoAdvanceTimer();
+  persistPracticeSession();
   renderPractice();
 }
 
@@ -2689,6 +2898,7 @@ function renderPracticeProgressBar() {
 }
 
 function renderPracticeSessionSummary(chunk) {
+  clearAutoAdvanceTimer();
   const total = practiceSession.ids.length;
   const firstTryCorrect = Object.values(practiceSession.firstTryCorrect).filter(Boolean).length;
   els.practiceCard.innerHTML = `
@@ -2703,9 +2913,10 @@ function renderPracticeSessionSummary(chunk) {
       <button id="exitSessionBtn" type="button">Exit to Library</button>
     </div>`;
   els.practiceCard.querySelector("#restartSessionBtn").addEventListener("click", () => {
-    startPracticeSession(practiceSession.chunkId, practiceSession.chunkName, practiceSession.ids);
+    startPracticeSession(practiceSession.chunkId, practiceSession.chunkName, practiceSession.ids, { forceRestart: true });
   });
   els.practiceCard.querySelector("#exitSessionBtn").addEventListener("click", () => {
+    clearPracticeArchiveEntry(practiceSession.chunkId);
     practiceSession = null;
     practiceJumpId = null;
     showView("library");
@@ -2713,6 +2924,7 @@ function renderPracticeSessionSummary(chunk) {
 }
 
 function renderPracticeCard(question, positionLabel) {
+  clearAutoAdvanceTimer();
   const resourceLink = getQuestionResourceLink(question);
   els.practiceCard.innerHTML = `
     ${renderPracticeProgressBar()}
@@ -2737,16 +2949,20 @@ function renderPracticeCard(question, positionLabel) {
         <button id="bookmarkBtn" class="secondary">${profile().bookmarks[question.id] ? "Remove Bookmark" : "Bookmark"}</button>
         <button id="skipPracticeBtn" class="secondary">Skip</button>
         <button id="nextPracticeBtn" disabled>Next</button>
+        <button id="exitPracticeBtn" class="secondary" type="button">Save &amp; Exit</button>
       </div>
     </div>`;
   els.practiceCard.querySelectorAll(".progress-num").forEach((button) => button.addEventListener("click", () => {
+    clearAutoAdvanceTimer();
     practiceJumpId = button.dataset.jumpId;
+    persistPracticeSession();
     renderPractice();
   }));
   els.practiceCard.querySelectorAll(".choice").forEach((button) => button.addEventListener("click", () => answerPractice(question, button.dataset.answer)));
   els.practiceCard.querySelector("#saveNoteBtn").addEventListener("click", () => saveNote(question.id, els.practiceCard.querySelector("#practiceNote").value));
   els.practiceCard.querySelector("#bookmarkBtn").addEventListener("click", () => toggleBookmark(question.id));
   els.practiceCard.querySelector("#skipPracticeBtn").addEventListener("click", () => {
+    clearAutoAdvanceTimer();
     addHistory("practice.skipped", question.id);
     saveState();
     if (practiceJumpId) {
@@ -2754,15 +2970,29 @@ function renderPracticeCard(question, positionLabel) {
     } else {
       requeueForReattempt(question.id);
     }
+    persistPracticeSession();
     renderPractice();
   });
   els.practiceCard.querySelector("#nextPracticeBtn").addEventListener("click", () => {
+    clearAutoAdvanceTimer();
     practiceJumpId = null;
+    persistPracticeSession();
     renderPractice();
+  });
+  els.practiceCard.querySelector("#exitPracticeBtn").addEventListener("click", () => {
+    // Progress has already been persisted continuously (every answer/skip/jump),
+    // so leaving mid-session is safe - selecting this chunk again later (or a
+    // page refresh) will resume from exactly this point.
+    clearAutoAdvanceTimer();
+    persistPracticeSession();
+    practiceSession = null;
+    practiceJumpId = null;
+    showView("library");
   });
 }
 
 function answerPractice(question, answer) {
+  clearAutoAdvanceTimer();
   const choiceButtons = els.practiceCard.querySelectorAll(".choice");
   choiceButtons.forEach((button) => { button.disabled = true; });
   const skipBtn = els.practiceCard.querySelector("#skipPracticeBtn");
@@ -2778,6 +3008,7 @@ function answerPractice(question, answer) {
     practiceSession.status[question.id] = correct ? "correct" : "incorrect";
     if (correct) removeFromPracticeQueue(question.id);
     else requeueForReattempt(question.id);
+    persistPracticeSession();
   }
 
   choiceButtons.forEach((button) => {
@@ -2791,7 +3022,8 @@ function answerPractice(question, answer) {
       <p>${escapeHtml(question.explanation)}</p>
       ${question.imageUrl ? `<img src="${escapeHtml(question.imageUrl)}" alt="Explanation image">` : ""}
       <p class="muted">Previous attempts: ${profile().attempts.filter((attempt) => attempt.questionId === question.id).length}</p>
-    </div>`;
+    </div>
+    <div id="autoAdvanceBar" class="auto-advance-bar"></div>`;
   els.practiceCard.querySelectorAll(".progress-num").forEach((button) => {
     const id = button.dataset.jumpId;
     const status = practiceSession?.status[id];
@@ -2801,6 +3033,58 @@ function answerPractice(question, answer) {
   const nextBtn = els.practiceCard.querySelector("#nextPracticeBtn");
   if (nextBtn) nextBtn.disabled = false;
   renderDashboard();
+  renderAutoAdvanceControls();
+}
+
+// --- Auto-advance countdown -------------------------------------------------
+// After a question is answered, optionally counts down (default 10s,
+// configurable in Settings) and then automatically moves to the next
+// question, mirroring the "Next" button. Cancelable per-question via
+// "Stay on this question", and always cleared whenever the question changes,
+// the practice view is left, or the user signs out.
+function renderAutoAdvanceControls() {
+  const bar = els.practiceCard?.querySelector("#autoAdvanceBar");
+  if (!bar) return;
+  ensureSettingsDefaults();
+  if (!profile().settings.autoAdvanceEnabled) {
+    bar.innerHTML = "";
+    return;
+  }
+  bar.innerHTML = `<span id="autoAdvanceLabel"></span><button id="cancelAutoAdvanceBtn" class="secondary" type="button">Stay on this question</button>`;
+  bar.querySelector("#cancelAutoAdvanceBtn").addEventListener("click", () => {
+    clearAutoAdvanceTimer();
+    bar.innerHTML = `<span class="muted">Auto-advance paused for this question.</span>`;
+  });
+  startAutoAdvanceTimer();
+}
+
+function startAutoAdvanceTimer() {
+  clearAutoAdvanceTimer();
+  ensureSettingsDefaults();
+  const seconds = Math.min(120, Math.max(3, Math.round(Number(profile().settings.autoAdvanceSeconds) || 10)));
+  practiceAdvanceRemaining = seconds;
+  updateAutoAdvanceLabel();
+  practiceAdvanceHandle = setInterval(() => {
+    practiceAdvanceRemaining -= 1;
+    if (practiceAdvanceRemaining <= 0) {
+      clearAutoAdvanceTimer();
+      practiceJumpId = null;
+      persistPracticeSession();
+      renderPractice();
+      return;
+    }
+    updateAutoAdvanceLabel();
+  }, 1000);
+}
+
+function updateAutoAdvanceLabel() {
+  const label = els.practiceCard?.querySelector("#autoAdvanceLabel");
+  if (label) label.textContent = `Next question in ${practiceAdvanceRemaining}s\u2026`;
+}
+
+function clearAutoAdvanceTimer() {
+  if (practiceAdvanceHandle) clearInterval(practiceAdvanceHandle);
+  practiceAdvanceHandle = null;
 }
 
 function startQuiz() {
@@ -3116,10 +3400,10 @@ function getStatus(questionId) {
 }
 
 function calculateStreak() {
-  const days = new Set(profile().attempts.map((attempt) => attempt.createdAt.slice(0, 10)));
+  const days = new Set(profile().attempts.map((attempt) => localDayKey(attempt.createdAt)));
   let streak = 0;
   const cursor = new Date();
-  while (days.has(cursor.toISOString().slice(0, 10))) {
+  while (days.has(localDayKey(cursor))) {
     streak += 1;
     cursor.setDate(cursor.getDate() - 1);
   }
@@ -3350,6 +3634,21 @@ function legacyCopy(textarea, message) {
 
 function tagPill(tag) {
   return `<span class="tag">${escapeHtml(tag)}</span>`;
+}
+
+// Returns a YYYY-MM-DD key in the *local* timezone. Attempts are stored with
+// createdAt as a UTC ISO string; naively slicing that string (or calling
+// toISOString() on "today") gives the UTC calendar day, which silently
+// disagrees with the user's local day for anyone outside UTC (e.g. it could
+// mark "yesterday" as today's study day, or vice versa, right around
+// midnight). Streaks and the heatmap both need the same, local, definition
+// of "day" to line up correctly.
+function localDayKey(value) {
+  const date = new Date(value);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function shuffle(items) {
