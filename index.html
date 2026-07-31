@@ -4,9 +4,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>KMU MDCAT OMR OS</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Lora:ital@0;1&display=swap" rel="stylesheet">
     <style>
 :root {
   color-scheme: light;
@@ -652,72 +649,6 @@ textarea {
 .note-preview-nav:disabled { opacity: 0.3; cursor: not-allowed; }
 .note-preview-nav:disabled:hover { background: var(--surface); color: var(--text); border-color: var(--border); }
 
-.analytics-overview-grid {
-  display: grid;
-  grid-template-columns: auto auto 1fr;
-  gap: 24px;
-  align-items: center;
-}
-@media (max-width: 900px) {
-  .analytics-overview-grid { grid-template-columns: 1fr; }
-}
-
-.analytics-donut-block {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-.analytics-donut-caption { font-size: 0.8rem; color: var(--muted); font-weight: 600; }
-
-.analytics-legend {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  max-width: 200px;
-}
-.analytics-legend-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.78rem;
-}
-.analytics-legend-swatch {
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
-  flex: 0 0 auto;
-}
-.analytics-legend-item span.count { color: var(--muted); margin-left: auto; padding-left: 8px; }
-
-.analytics-bars {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.analytics-bar-row { display: flex; flex-direction: column; gap: 4px; }
-.analytics-bar-label {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 8px;
-  font-size: 0.85rem;
-}
-.analytics-bar-label strong { font-weight: 700; }
-.analytics-bar-label span { color: var(--muted); font-size: 0.78rem; white-space: nowrap; }
-.analytics-bar-track {
-  height: 10px;
-  border-radius: 6px;
-  background: var(--surface-2);
-  overflow: hidden;
-}
-.analytics-bar-fill {
-  height: 100%;
-  border-radius: 6px;
-  transition: width 0.4s ease;
-}
-
 .explanation {
   border-left: 4px solid var(--primary);
   padding: 10px 12px;
@@ -758,6 +689,19 @@ textarea {
 .quiz-options input, .check-row input { width: auto; min-height: auto; }
 .timer { font-weight: 800; color: var(--accent); }
 
+.auto-advance-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+}
+.auto-advance-bar #autoAdvanceLabel { font-weight: 700; color: var(--primary); }
+.session-resumed-banner { background: color-mix(in srgb, var(--primary) 10%, var(--surface)); border-color: var(--primary); }
+
 .graph {
   display: grid;
   gap: 8px;
@@ -768,6 +712,203 @@ textarea {
   justify-content: space-between;
   border-bottom: 1px solid var(--border);
   padding: 8px 0;
+}
+
+/* ---------------- Boot Loader ---------------- */
+.boot-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at top, color-mix(in srgb, var(--primary) 14%, var(--bg)) 0%, var(--bg) 65%);
+  padding: 18px;
+  transition: opacity 0.6s ease;
+}
+.boot-loader.boot-fade-out { opacity: 0; pointer-events: none; }
+.boot-loader.hidden { display: none; }
+
+.boot-card {
+  width: min(560px, 100%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 28px 26px 24px;
+  text-align: center;
+  animation: boot-rise 0.6s ease;
+}
+@keyframes boot-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.boot-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.boot-brand strong { display: block; }
+.boot-brand small { color: var(--muted); }
+
+.boot-dua {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-2);
+  padding: 18px 16px;
+  margin-bottom: 18px;
+}
+.boot-dua-arabic {
+  font-size: 1.5rem;
+  line-height: 2.5rem;
+  font-family: "Traditional Arabic", "Scheherazade New", "Amiri", "Noto Naskh Arabic", serif;
+  color: var(--primary-2);
+  margin: 0 0 12px;
+}
+.boot-dua-translit {
+  font-style: italic;
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+.boot-dua-translation {
+  font-size: 0.85rem;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.55;
+}
+.boot-dua-translation span { display: block; margin-top: 6px; color: var(--muted); font-weight: 600; font-size: 0.78rem; }
+
+.boot-progress-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.boot-progress-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  transition: width 5s linear;
+}
+.boot-status { color: var(--muted); font-size: 0.85rem; margin: 0; }
+
+/* ---------------- Analytics Module ---------------- */
+.analytics-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.analytics-toolbar label { display: flex; flex-direction: column; gap: 4px; font-size: 0.8rem; color: var(--muted); font-weight: 600; }
+.analytics-toolbar select { min-width: 200px; }
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+.analytics-grid.two-up { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+
+.chart-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+  padding: 14px;
+}
+.chart-card h3 { margin: 0 0 10px; font-size: 0.95rem; }
+.chart-card .chart-wrap { position: relative; height: 240px; }
+.chart-card .chart-wrap.short { height: 190px; }
+.chart-empty { color: var(--muted); font-size: 0.85rem; text-align: center; padding: 40px 8px; }
+
+.analytics-breakdown-list { display: grid; gap: 8px; }
+.breakdown-row {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: var(--surface);
+  cursor: pointer;
+}
+.breakdown-row.subtopic-row { cursor: default; background: var(--surface-2); border-style: dashed; }
+.breakdown-row-head { display: flex; justify-content: space-between; gap: 10px; align-items: center; font-size: 0.88rem; }
+.breakdown-row-head strong { font-weight: 700; }
+.breakdown-meta { color: var(--muted); font-size: 0.78rem; white-space: nowrap; }
+.breakdown-bar-track { height: 7px; border-radius: 999px; background: var(--surface-2); margin-top: 8px; overflow: hidden; }
+.breakdown-row.subtopic-row .breakdown-bar-track { background: var(--bg); }
+.breakdown-bar-fill { height: 100%; border-radius: 999px; }
+.breakdown-bar-fill.strong { background: var(--good); }
+.breakdown-bar-fill.moderate { background: var(--warn); }
+.breakdown-bar-fill.weak { background: var(--bad); }
+.breakdown-caret { transition: transform 0.15s ease; color: var(--muted); font-size: 0.75rem; }
+.breakdown-row.expanded .breakdown-caret { transform: rotate(90deg); }
+.subtopic-group { display: grid; gap: 6px; margin: 8px 0 4px 14px; }
+
+.accuracy-pill {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.76rem;
+}
+.accuracy-pill.strong { background: rgba(22, 131, 74, 0.15); color: var(--good); }
+.accuracy-pill.moderate { background: rgba(183, 121, 31, 0.15); color: var(--warn); }
+.accuracy-pill.weak { background: rgba(197, 48, 48, 0.15); color: var(--bad); }
+.accuracy-pill.none { background: var(--surface-2); color: var(--muted); }
+
+.subject-summary-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.subject-summary-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  background: var(--surface);
+  text-align: center;
+}
+.subject-summary-card.active-subject { border-color: var(--primary); box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 25%, transparent); }
+.subject-summary-card strong { display: block; font-size: 1.1rem; }
+.subject-summary-card span { color: var(--muted); font-size: 0.76rem; }
+.subject-summary-card button { border: none; background: none; padding: 0; width: 100%; cursor: pointer; color: inherit; font: inherit; }
+
+/* ---------------- Notes: link attachments & folder/file actions ---------------- */
+.note-link-toggle { display: flex; gap: 8px; margin-bottom: 10px; }
+.note-link-toggle button { flex: 1; }
+.note-link-toggle button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.note-type-badge.link { color: var(--accent); }
+.drive-file-card.link .drive-card-icon { color: var(--accent); }
+.drive-card-actions { position: absolute; top: 6px; left: 6px; display: flex; gap: 4px; opacity: 0; transition: opacity 0.15s ease; }
+.drive-card:hover .drive-card-actions { opacity: 1; }
+.drive-card-action-btn {
+  min-height: 26px;
+  width: 26px;
+  padding: 0;
+  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.drive-card-action-btn:hover { background: var(--primary); border-color: var(--primary); color: #fff; }
+.drive-card-action-btn.danger-hover:hover { background: var(--bad); border-color: var(--bad); }
+.rename-input {
+  width: 100%;
+  min-height: 30px;
+  font-size: 0.82rem;
+  padding: 2px 6px;
 }
 
 @media (max-width: 980px) {
@@ -782,155 +923,33 @@ textarea {
   .form-grid, .choices, .quiz-options { grid-template-columns: 1fr; }
   .topbar-actions { width: 100%; }
   .topbar-actions button { flex: 1; }
+  .boot-dua-arabic { font-size: 1.2rem; line-height: 2rem; }
 }
 
-    </style>
-    <style>
-.splash-screen {
-  position: fixed;
-  inset: 0;
-  z-index: 999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background: radial-gradient(circle at 50% 0%, #163a34 0%, #0d211d 55%, #081512 100%);
-  overflow-y: auto;
-  transition: opacity 0.6s ease;
-}
-.splash-screen.splash-hide { opacity: 0; pointer-events: none; }
-
-.splash-card {
-  width: min(640px, 100%);
-  margin: auto;
-  padding: 36px 32px 28px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(212, 175, 55, 0.35);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
-  text-align: center;
-  color: #f4ead0;
-}
-
-.splash-bismillah {
-  font-family: "Amiri", "Traditional Arabic", serif;
-  font-size: 1.6rem;
-  color: #d4af37;
-  direction: rtl;
-  margin-bottom: 6px;
-}
-
-.splash-subtitle {
-  font-family: "Lora", Georgia, serif;
-  font-style: italic;
-  color: #b9c9c2;
-  font-size: 0.85rem;
-  margin: 0 0 22px;
-  letter-spacing: 0.02em;
-}
-
-.splash-verses {
-  list-style: none;
-  margin: 0 0 24px;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  text-align: right;
-  direction: rtl;
-}
-
-.splash-verses li {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 10px;
-  align-items: start;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.18);
-}
-.splash-verses li:last-child { border-bottom: none; padding-bottom: 0; }
-
-.ayah-num {
-  direction: ltr;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 1px solid #d4af37;
-  color: #d4af37;
-  font-size: 0.68rem;
-  font-family: "Lora", Georgia, serif;
-  margin-top: 6px;
-}
-
-.ayah-text-wrap { display: flex; flex-direction: column; gap: 4px; }
-
-.ayah-ar {
-  font-family: "Amiri", "Traditional Arabic", serif;
-  font-size: 1.45rem;
-  line-height: 1.9;
-  color: #f4ead0;
-}
-
-.ayah-en {
-  font-family: "Lora", Georgia, serif;
-  font-style: italic;
-  direction: ltr;
-  text-align: left;
-  font-size: 0.86rem;
-  color: #a9bdb5;
-}
-
-.splash-progress {
-  height: 4px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.12);
-  overflow: hidden;
-  margin-bottom: 10px;
-}
-.splash-progress-bar {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #d4af37, #f4ead0);
-  animation: splashFill 5s linear forwards;
-}
-@keyframes splashFill { from { width: 0%; } to { width: 100%; } }
-
-.splash-loading-text {
-  font-family: "Lora", Georgia, serif;
-  font-size: 0.78rem;
-  color: #8ba39a;
-  letter-spacing: 0.03em;
-  margin: 0;
-}
-
-@media (max-width: 560px) {
-  .splash-card { padding: 26px 18px 22px; }
-  .ayah-ar { font-size: 1.2rem; }
-}
     </style>
   </head>
   <body>
-    <div id="splashScreen" class="splash-screen" role="dialog" aria-label="Surah Ash-Sharh">
-      <div class="splash-card">
-        <div class="splash-bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
-        <p class="splash-subtitle">S&#363;rah Ash-Sharh &middot; Al-Inshir&#257;h &middot; Chapter 94</p>
-        <ol class="splash-verses">
-          <li><span class="ayah-num">1</span><span class="ayah-text-wrap"><span class="ayah-ar">أَلَمْ نَشْرَحْ لَكَ صَدْرَكَ</span><span class="ayah-en">Did We not expand for you your chest?</span></span></li>
-          <li><span class="ayah-num">2</span><span class="ayah-text-wrap"><span class="ayah-ar">وَوَضَعْنَا عَنكَ وِزْرَكَ</span><span class="ayah-en">And We removed from you your burden</span></span></li>
-          <li><span class="ayah-num">3</span><span class="ayah-text-wrap"><span class="ayah-ar">الَّذِي أَنقَضَ ظَهْرَكَ</span><span class="ayah-en">Which had weighed so heavily on your back</span></span></li>
-          <li><span class="ayah-num">4</span><span class="ayah-text-wrap"><span class="ayah-ar">وَرَفَعْنَا لَكَ ذِكْرَكَ</span><span class="ayah-en">And raised high for you your renown</span></span></li>
-          <li><span class="ayah-num">5</span><span class="ayah-text-wrap"><span class="ayah-ar">فَإِنَّ مَعَ الْعُسْرِ يُسْرًا</span><span class="ayah-en">So indeed, with hardship comes ease</span></span></li>
-          <li><span class="ayah-num">6</span><span class="ayah-text-wrap"><span class="ayah-ar">إِنَّ مَعَ الْعُسْرِ يُسْرًا</span><span class="ayah-en">Indeed, with hardship comes ease</span></span></li>
-          <li><span class="ayah-num">7</span><span class="ayah-text-wrap"><span class="ayah-ar">فَإِذَا فَرَغْتَ فَانصَبْ</span><span class="ayah-en">So when you have finished, strive on</span></span></li>
-          <li><span class="ayah-num">8</span><span class="ayah-text-wrap"><span class="ayah-ar">وَإِلَىٰ رَبِّكَ فَارْغَبْ</span><span class="ayah-en">And to your Lord turn your longing</span></span></li>
-        </ol>
-        <div class="splash-progress"><div class="splash-progress-bar"></div></div>
-        <p class="splash-loading-text">Preparing your MDCAT workspace&hellip;</p>
+    <div id="bootLoader" class="boot-loader" role="status" aria-live="polite">
+      <div class="boot-card">
+        <div class="boot-brand">
+          <span class="brand-mark">KMU</span>
+          <div>
+            <strong>KMU MDCAT 2026 OS</strong>
+            <small>PMDC Curriculum Aligned</small>
+          </div>
+        </div>
+        <div class="boot-dua">
+          <p class="boot-dua-arabic" dir="rtl" lang="ar">
+            أَلَمْ نَشْرَحْ لَكَ صَدْرَكَ﴿١﴾ وَوَضَعْنَا عَنكَ وِزْرَكَ﴿٢﴾ الَّذِي أَنقَضَ ظَهْرَكَ﴿٣﴾ وَرَفَعْنَا لَكَ ذِكْرَكَ﴿٤﴾ فَإِنَّ مَعَ الْعُسْرِ يُسْرًا﴿٥﴾ إِنَّ مَعَ الْعُسْرِ يُسْرًا﴿٦﴾ فَإِذَا فَرَغْتَ فَانصَبْ﴿٧﴾ وَإِلَىٰ رَبِّكَ فَارْغَب﴿٨﴾
+          </p>
+          <p class="boot-dua-translit">Alam nashrah laka sadrak. Wa wada'na 'anka wizrak. Alladhi anqada zahrak. Wa rafa'na laka dhikrak. Fa-inna ma'al-'usri yusra. Inna ma'al-'usri yusra. Fa-idha faraghta fansab. Wa ila rabbika farghab.</p>
+          <p class="boot-dua-translation">"Have We not expanded for you your breast? And removed from you your burden, which had weighed upon your back. And raised high for you your repute. So indeed, with hardship [comes] ease. Indeed, with hardship [comes] ease. So when you have finished [your duties], stand up [for worship]. And to your Lord direct your longing." <span>&mdash; Surah Ash-Sharh (94:1&ndash;8)</span></p>
+        </div>
+        <div class="boot-progress-track"><div id="bootProgressBar" class="boot-progress-bar"></div></div>
+        <p class="boot-status">Preparing your MDCAT workspace&hellip;</p>
       </div>
     </div>
+
     <div id="authGate" class="auth-gate">
       <div class="auth-card">
         <div class="brand">
@@ -964,12 +983,12 @@ textarea {
 
         <nav class="nav-list">
           <button class="nav-item active" data-view="dashboard">Dashboard</button>
+          <button class="nav-item" data-view="analytics">Analytics</button>
           <button class="nav-item" data-view="import">Import</button>
           <button class="nav-item" data-view="library">Library</button>
           <button class="nav-item" data-view="practice">Practice</button>
           <button class="nav-item" data-view="quiz">Quiz Builder</button>
           <button class="nav-item" data-view="review">Review</button>
-          <button class="nav-item" data-view="analytics">Analytics</button>
           <button class="nav-item" data-view="notes">Notes</button>
           <button class="nav-item" data-view="history">History</button>
           <button class="nav-item" data-view="settings">Settings</button>
@@ -1014,13 +1033,74 @@ textarea {
 
           <div class="two-column">
             <section class="panel">
-              <h2>Topic Analytics</h2>
+              <div class="panel-head">
+                <h2>Topic Analytics</h2>
+                <button id="viewFullAnalyticsBtn" class="secondary" type="button">Full Breakdown &rarr;</button>
+              </div>
               <div id="topicAnalytics" class="topic-list"></div>
             </section>
             <section class="panel">
               <h2>Knowledge Graph</h2>
               <div id="knowledgeGraph" class="graph"></div>
             </section>
+          </div>
+        </section>
+
+        <section id="analytics" class="view">
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Performance Analytics</h2>
+              <button id="analyticsRefreshBtn" class="secondary" type="button">Refresh</button>
+            </div>
+            <p class="muted">A full Subject &rarr; Topic &rarr; Subtopic breakdown of every question you've attempted, so you can pinpoint exactly where to focus next.</p>
+            <div id="analyticsSummaryStrip" class="subject-summary-strip"></div>
+            <div class="analytics-toolbar">
+              <label>Subject
+                <select id="analyticsSubjectSelect"></select>
+              </label>
+              <label>Difficulty
+                <select id="analyticsDifficultySelect">
+                  <option value="">All Difficulties</option>
+                  <option value="Easy">Easy</option>
+                  <option value="Moderate">Moderate</option>
+                  <option value="Difficult">Difficult</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <div class="analytics-grid two-up">
+            <div class="chart-card">
+              <h3>Accuracy by Subject</h3>
+              <div id="wrap_chartSubjectAccuracy" class="chart-wrap"><canvas id="chartSubjectAccuracy"></canvas></div>
+            </div>
+            <div class="chart-card">
+              <h3>Question Mix by Subject</h3>
+              <div id="wrap_chartSubjectMix" class="chart-wrap"><canvas id="chartSubjectMix"></canvas></div>
+            </div>
+          </div>
+
+          <div class="analytics-grid two-up">
+            <div class="chart-card">
+              <h3>Overall Correct vs Incorrect</h3>
+              <div id="wrap_chartOverallSplit" class="chart-wrap short"><canvas id="chartOverallSplit"></canvas></div>
+            </div>
+            <div class="chart-card">
+              <h3>Accuracy by Difficulty</h3>
+              <div id="wrap_chartDifficulty" class="chart-wrap short"><canvas id="chartDifficulty"></canvas></div>
+            </div>
+            <div class="chart-card">
+              <h3>Accuracy Trend (Last 30 Days)</h3>
+              <div id="wrap_chartTrend" class="chart-wrap short"><canvas id="chartTrend"></canvas></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Topic &amp; Subtopic Breakdown</h2>
+              <span id="analyticsBreakdownSubject" class="muted"></span>
+            </div>
+            <div id="analyticsTopicBreakdown" class="analytics-breakdown-list"></div>
           </div>
         </section>
 
@@ -1142,58 +1222,31 @@ textarea {
           </div>
         </section>
 
-        <section id="analytics" class="view">
-          <div class="panel">
-            <div class="panel-head">
-              <h2>Overall Performance</h2>
-              <span id="analyticsTotals" class="muted"></span>
-            </div>
-            <div class="analytics-overview-grid">
-              <div class="analytics-donut-block">
-                <div id="analyticsAccuracyDonut"></div>
-                <span class="analytics-donut-caption">Accuracy</span>
-              </div>
-              <div class="analytics-donut-block">
-                <div id="analyticsDistributionDonut"></div>
-                <div id="analyticsDistributionLegend" class="analytics-legend"></div>
-              </div>
-              <div id="analyticsSubjectBars" class="analytics-bars"></div>
-            </div>
-          </div>
-
-          <div class="two-column">
-            <section class="panel">
-              <h2>Weakest Subtopics</h2>
-              <div id="analyticsWeakList" class="analytics-bars"></div>
-            </section>
-            <section class="panel">
-              <h2>Strongest Subtopics</h2>
-              <div id="analyticsStrongList" class="analytics-bars"></div>
-            </section>
-          </div>
-
-          <div class="panel">
-            <div class="panel-head">
-              <h2>Subtopic Breakdown</h2>
-              <select id="analyticsSubjectFilter"><option value="">All Subjects</option></select>
-            </div>
-            <div id="analyticsSubtopicBreakdown" class="analytics-bars"></div>
-          </div>
-        </section>
-
         <section id="notes" class="view">
           <div class="panel">
             <div class="panel-head">
               <h2>Upload Note / Mind Map</h2>
               <span id="noteUploadTargetLabel" class="muted">Uploading to: Home</span>
             </div>
+            <div class="note-link-toggle">
+              <button id="noteModeFileBtn" type="button" class="secondary active">&#128196; Upload File</button>
+              <button id="noteModeLinkBtn" type="button" class="secondary">&#128279; Attach Link</button>
+            </div>
             <div class="form-grid">
               <label>Name<input id="noteName" type="text" placeholder="Cell Structure - Mind Map"></label>
             </div>
-            <div class="drop-zone">
-              <strong>Choose a file</strong>
-              <span>One-page notes, mind maps, or diagrams &middot; PDF, images, HTML, or any other format (up to 20MB)</span>
-              <input id="noteFile" type="file">
+            <div id="noteFileFields">
+              <div class="drop-zone">
+                <strong>Choose a file</strong>
+                <span>One-page notes, mind maps, or diagrams &middot; PDF, images, HTML, or any other format (up to 20MB)</span>
+                <input id="noteFile" type="file">
+              </div>
+            </div>
+            <div id="noteLinkFields" class="hidden">
+              <div class="form-grid">
+                <label>Link URL<input id="noteLinkUrl" type="url" placeholder="https://drive.google.com/... or any link"></label>
+              </div>
+              <p class="muted">Attach a Google Drive, OneDrive, Dropbox, YouTube, or any other link instead of uploading a file. It opens in a new tab from Notes, just like an uploaded file.</p>
             </div>
             <div class="actions-row">
               <button id="uploadNoteBtn" disabled type="button">Upload Note</button>
@@ -1205,6 +1258,7 @@ textarea {
             <div class="drive-toolbar">
               <button id="notesBackBtn" class="secondary drive-back-btn" type="button" hidden>&larr; Back</button>
               <nav id="notesBreadcrumb" class="drive-breadcrumb"></nav>
+              <input id="notesSearch" type="search" placeholder="Search this folder..." style="max-width:220px;">
               <button id="newNoteFolderBtn" class="secondary" type="button">+ New Folder</button>
             </div>
             <div id="notesTree" class="drive-grid"></div>
@@ -1238,6 +1292,17 @@ textarea {
         </section>
 
         <section id="settings" class="view">
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Practice Preferences</h2>
+            </div>
+            <label class="check-row"><input id="autoAdvanceToggle" type="checkbox"> Auto-advance to the next question after answering</label>
+            <div class="form-grid compact-grid">
+              <label>Auto-advance delay (seconds)<input id="autoAdvanceSeconds" type="number" min="3" max="120" value="10"></label>
+            </div>
+            <label class="check-row"><input id="keyboardShortcutsToggle" type="checkbox"> Enable keyboard shortcuts in Practice (A-E to answer, Enter/Space for next, S to skip)</label>
+            <p class="muted">Auto-advance only applies to OMR Practice mode (not Quiz Builder or MDCAT Mock). You can always click "Stay on this question" to cancel the countdown for a single question.</p>
+          </div>
           <div class="panel">
             <h2>Backup & Settings</h2>
             <div class="actions-row">
@@ -1283,6 +1348,8 @@ textarea {
 
     <!-- Supabase client (only used if you turn on Cloud Sync in Settings) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <!-- Chart.js powers the Analytics tab (subject/topic/subtopic charts) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
     <script>
 const STORAGE_PREFIX = "mcqMasteryOs.v2";
 const ANSWERS = ["A", "B", "C", "D", "E"];
@@ -1369,29 +1436,44 @@ let activeQuiz = null;
 let quizTimerHandle = null;
 let chunkPickerChunkId = null;
 let chunkPickerSelected = new Set();
+let practiceAdvanceHandle = null;
+let practiceAdvanceRemaining = 0;
+let noteInputMode = "file"; // "file" | "link"
+const chartInstances = {}; // Chart.js instances, keyed by canvas id, for the Analytics tab
+let analyticsSubjectFilter = "";
+let analyticsDifficultyFilter = "";
+const expandedAnalyticsTopics = new Set(); // topic keys currently expanded in the breakdown list
 
 window.MCQ_MASTERY_APP_STARTED = true;
+
+// ---- Boot loader: a 5-second splash (Surah Ash-Sharh) shown on every launch,
+// independent of how long auth/session restoration actually takes. It always
+// runs for at least BOOT_MIN_MS so the recitation has time to be read, then
+// fades out to reveal whatever boot() has settled into underneath (the
+// sign-in screen or the app shell).
+const BOOT_MIN_MS = 5000;
+function runBootLoader() {
+  const loader = document.getElementById("bootLoader");
+  const bar = document.getElementById("bootProgressBar");
+  if (!loader) return;
+  // Kick the width transition off on the next frame so the 0% -> 100%
+  // animation actually plays instead of snapping straight to 100%.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      if (bar) bar.style.width = "100%";
+    });
+  });
+  setTimeout(() => {
+    loader.classList.add("boot-fade-out");
+    setTimeout(() => loader.classList.add("hidden"), 650);
+  }, BOOT_MIN_MS);
+}
+runBootLoader();
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", boot);
 } else {
   boot();
-}
-
-// Splash screen: shown on every launch for a fixed 5 seconds, independent of
-// how long sign-in/data loading actually takes (that work proceeds in
-// parallel via boot() above, so by the time the splash fades the app is
-// usually already ready underneath it).
-function dismissSplash() {
-  const splash = document.getElementById("splashScreen");
-  if (!splash) return;
-  splash.classList.add("splash-hide");
-  setTimeout(() => splash.remove(), 650);
-}
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", () => setTimeout(dismissSplash, 5000));
-} else {
-  setTimeout(dismissSplash, 5000);
 }
 
 async function boot() {
@@ -1466,6 +1548,7 @@ async function handleAuthenticated(session) {
   state = loadState();
   ensureProfile(session);
   migrateFolderScopes();
+  restoreLastPracticeSession();
 
   if (els.authGate) els.authGate.classList.add("hidden");
   if (els.appShell) els.appShell.classList.remove("hidden");
@@ -1498,6 +1581,7 @@ function handleSignedOut() {
   notesCurrentPath = "";
   libraryCurrentPath = "";
   clearInterval(quizTimerHandle);
+  clearAutoAdvanceTimer();
   showAuthGate();
   if (els.googleLoginBtn) els.googleLoginBtn.disabled = false;
 }
@@ -1568,6 +1652,40 @@ function bindEvents() {
   if (els.startMdcatBtn) els.startMdcatBtn.addEventListener("click", startMdcatMock); // Added MDCAT Mock Binding
   els.submitQuizBtn.addEventListener("click", submitQuiz);
   els.buildPlanBtn.addEventListener("click", renderStudyPlan);
+  if (els.viewFullAnalyticsBtn) els.viewFullAnalyticsBtn.addEventListener("click", () => showView("analytics"));
+  if (els.analyticsRefreshBtn) els.analyticsRefreshBtn.addEventListener("click", renderAnalytics);
+  if (els.analyticsSubjectSelect) {
+    els.analyticsSubjectSelect.addEventListener("change", () => {
+      analyticsSubjectFilter = els.analyticsSubjectSelect.value;
+      renderAnalyticsBreakdown(computeAnalytics(analyticsDifficultyFilter));
+      renderAnalyticsSummaryStrip(computeAnalytics(analyticsDifficultyFilter));
+    });
+  }
+  if (els.analyticsDifficultySelect) els.analyticsDifficultySelect.addEventListener("change", renderAnalytics);
+  if (els.autoAdvanceToggle) {
+    els.autoAdvanceToggle.addEventListener("change", () => {
+      ensureSettingsDefaults();
+      profile().settings.autoAdvanceEnabled = els.autoAdvanceToggle.checked;
+      saveState();
+      if (practiceSession) renderPractice();
+    });
+  }
+  if (els.autoAdvanceSeconds) {
+    els.autoAdvanceSeconds.addEventListener("change", () => {
+      ensureSettingsDefaults();
+      const clamped = Math.min(120, Math.max(3, Math.round(Number(els.autoAdvanceSeconds.value) || 10)));
+      els.autoAdvanceSeconds.value = clamped;
+      profile().settings.autoAdvanceSeconds = clamped;
+      saveState();
+    });
+  }
+  if (els.keyboardShortcutsToggle) {
+    els.keyboardShortcutsToggle.addEventListener("change", () => {
+      ensureSettingsDefaults();
+      profile().settings.keyboardShortcuts = els.keyboardShortcutsToggle.checked;
+      saveState();
+    });
+  }
   els.backupBtn.addEventListener("click", manualBackup);
   els.restoreBtn.addEventListener("click", restoreLatestBackup);
   els.clearLocalBtn.addEventListener("click", clearLocalData);
@@ -1593,10 +1711,13 @@ function bindEvents() {
   if (els.cloudPullBtn) els.cloudPullBtn.addEventListener("click", () => pullProfileFromCloud());
   if (els.practiceMistakesBtn) els.practiceMistakesBtn.addEventListener("click", practiceMistakes);
   if (els.practiceDueBtn) els.practiceDueBtn.addEventListener("click", practiceDueReviews);
-  if (els.analyticsSubjectFilter) els.analyticsSubjectFilter.addEventListener("change", renderAnalytics);
 
   if (els.newNoteFolderBtn) els.newNoteFolderBtn.addEventListener("click", addNoteFolder);
   if (els.refreshNotesBtn) els.refreshNotesBtn.addEventListener("click", () => pullNotesFromCloud());
+  if (els.noteModeFileBtn) els.noteModeFileBtn.addEventListener("click", () => setNoteInputMode("file"));
+  if (els.noteModeLinkBtn) els.noteModeLinkBtn.addEventListener("click", () => setNoteInputMode("link"));
+  if (els.noteLinkUrl) els.noteLinkUrl.addEventListener("input", updateNoteUploadButtonState);
+  if (els.notesSearch) els.notesSearch.addEventListener("input", renderNotes);
   if (els.noteName) els.noteName.addEventListener("input", updateNoteUploadButtonState);
   if (els.noteFile) {
     els.noteFile.addEventListener("change", () => {
@@ -1613,6 +1734,30 @@ function bindEvents() {
       if (deleteBtn) {
         event.stopPropagation();
         deleteNote(deleteBtn.dataset.noteId);
+        return;
+      }
+      const renameNoteBtn = event.target.closest(".note-rename-btn");
+      if (renameNoteBtn) {
+        event.stopPropagation();
+        renameNote(renameNoteBtn.dataset.noteId);
+        return;
+      }
+      const moveNoteBtn = event.target.closest(".note-move-btn");
+      if (moveNoteBtn) {
+        event.stopPropagation();
+        moveNote(moveNoteBtn.dataset.noteId);
+        return;
+      }
+      const renameFolderBtn = event.target.closest(".folder-rename-btn");
+      if (renameFolderBtn) {
+        event.stopPropagation();
+        renameFolder("notes", renameFolderBtn.dataset.folderPath);
+        return;
+      }
+      const deleteFolderBtn = event.target.closest(".folder-delete-btn");
+      if (deleteFolderBtn) {
+        event.stopPropagation();
+        deleteFolder("notes", deleteFolderBtn.dataset.folderPath);
         return;
       }
       const folderCard = event.target.closest(".drive-folder-card");
@@ -1639,6 +1784,26 @@ function bindEvents() {
     if (event.key === "Escape") closeNotePreview();
     else if (event.key === "ArrowLeft") navigateNotePreview(-1);
     else if (event.key === "ArrowRight") navigateNotePreview(1);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (!state || !currentSession) return;
+    if (!els.practice || !els.practice.classList.contains("active")) return;
+    if (!profile().settings?.keyboardShortcuts) return;
+    const activeTag = document.activeElement?.tagName;
+    if (activeTag === "INPUT" || activeTag === "TEXTAREA") return;
+    if (!els.practiceCard) return;
+    const key = event.key.length === 1 ? event.key.toUpperCase() : event.key;
+    if (["A", "B", "C", "D", "E"].includes(key)) {
+      const button = els.practiceCard.querySelector(`.choice[data-answer="${key}"]`);
+      if (button && !button.disabled) { button.click(); event.preventDefault(); }
+    } else if (event.key === "Enter" || event.key === " ") {
+      const nextBtn = els.practiceCard.querySelector("#nextPracticeBtn");
+      if (nextBtn && !nextBtn.disabled) { nextBtn.click(); event.preventDefault(); }
+    } else if (key === "S") {
+      const skipBtn = els.practiceCard.querySelector("#skipPracticeBtn");
+      if (skipBtn && !skipBtn.disabled) { skipBtn.click(); event.preventDefault(); }
+    }
   });
 }
 
@@ -1895,8 +2060,26 @@ function createProfile(id, name) {
     bookmarks: {},
     srs: {},
     history: [],
-    settings: {}
+    settings: defaultPracticeSettings()
   };
+}
+
+function defaultPracticeSettings() {
+  return { autoAdvanceEnabled: true, autoAdvanceSeconds: 10, keyboardShortcuts: true };
+}
+
+// Fills in any practice-preference keys missing from an existing profile
+// (e.g. profiles created before these settings existed), without clobbering
+// values the user has already changed.
+function ensureSettingsDefaults() {
+  const current = profile();
+  if (!current) return;
+  current.settings ||= {};
+  const defaults = defaultPracticeSettings();
+  if (current.settings.autoAdvanceEnabled === undefined) current.settings.autoAdvanceEnabled = defaults.autoAdvanceEnabled;
+  const seconds = Number(current.settings.autoAdvanceSeconds);
+  if (!Number.isFinite(seconds) || seconds <= 0) current.settings.autoAdvanceSeconds = defaults.autoAdvanceSeconds;
+  if (current.settings.keyboardShortcuts === undefined) current.settings.keyboardShortcuts = defaults.keyboardShortcuts;
 }
 
 function ensureProfile(session) {
@@ -1907,6 +2090,7 @@ function ensureProfile(session) {
     state.activeProfileId = activeProfileId;
     saveState();
   }
+  ensureSettingsDefaults();
 }
 
 function profile() {
@@ -1916,23 +2100,34 @@ function profile() {
 function showView(viewId) {
   document.querySelectorAll(".nav-item").forEach((button) => button.classList.toggle("active", button.dataset.view === viewId));
   document.querySelectorAll(".view").forEach((view) => view.classList.toggle("active", view.id === viewId));
+  if (viewId !== "practice") clearAutoAdvanceTimer();
   if (viewId === "practice") renderPractice();
   if (viewId === "review") renderReview();
   if (viewId === "notes") renderNotes();
+  if (viewId === "settings") renderPracticeSettingsUI();
   if (viewId === "analytics") renderAnalytics();
+}
+
+function renderPracticeSettingsUI() {
+  ensureSettingsDefaults();
+  const settings = profile().settings;
+  if (els.autoAdvanceToggle) els.autoAdvanceToggle.checked = !!settings.autoAdvanceEnabled;
+  if (els.autoAdvanceSeconds) els.autoAdvanceSeconds.value = settings.autoAdvanceSeconds;
+  if (els.keyboardShortcutsToggle) els.keyboardShortcutsToggle.checked = !!settings.keyboardShortcuts;
 }
 
 function renderAll() {
   renderDashboard();
   renderLibrary();
   renderSearchResults();
+  renderPracticeSettingsUI();
   renderPracticeOptions();
   renderPractice();
   renderReview();
   renderNotes();
-  renderAnalytics();
   renderHistory();
   renderProgressPrompt();
+  if (els.analytics?.classList.contains("active")) renderAnalytics();
 }
 
 function toggleTheme() {
@@ -1940,6 +2135,10 @@ function toggleTheme() {
   addHistory("settings.theme", state.theme);
   saveState();
   applyTheme();
+  // Chart.js bakes theme colors into each chart instance at draw time, so a
+  // light/dark toggle needs a full redraw - otherwise charts silently keep
+  // the old theme's colors until the next unrelated re-render.
+  if (els.analytics?.classList.contains("active")) renderAnalytics();
 }
 
 function applyTheme() {
@@ -2240,7 +2439,8 @@ const DRIVE_ICONS = {
   image: `<svg class="drive-card-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 2H14L19 7V21C19 21.5523 18.5523 22 18 22H6C5.44772 22 5 21.5523 5 21V3C5 2.44772 5.44772 2 6 2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M14 2V7H19" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="10" cy="13.5" r="1.4" fill="currentColor"/><path d="M6.5 19L10.5 15L13 17.2L15.5 14.5L17.5 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   pdf: `<svg class="drive-card-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 2H14L19 7V21C19 21.5523 18.5523 22 18 22H6C5.44772 22 5 21.5523 5 21V3C5 2.44772 5.44772 2 6 2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M14 2V7H19" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><text x="12" y="17.5" font-size="6.5" font-weight="700" text-anchor="middle" fill="currentColor">PDF</text></svg>`,
   other: `<svg class="drive-card-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 2H14L19 7V21C19 21.5523 18.5523 22 18 22H6C5.44772 22 5 21.5523 5 21V3C5 2.44772 5.44772 2 6 2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M14 2V7H19" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M8 12.5H16M8 15.5H16M8 18.5H13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`,
-  chunk: `<svg class="drive-card-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="3" width="14" height="4.5" rx="1.2" stroke="currentColor" stroke-width="1.4"/><rect x="4" y="9.75" width="14" height="4.5" rx="1.2" stroke="currentColor" stroke-width="1.4"/><rect x="4" y="16.5" width="14" height="4.5" rx="1.2" stroke="currentColor" stroke-width="1.4"/><circle cx="15.5" cy="5.25" r="1" fill="currentColor"/><circle cx="15.5" cy="12" r="1" fill="currentColor"/><circle cx="15.5" cy="18.75" r="1" fill="currentColor"/></svg>`
+  chunk: `<svg class="drive-card-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="3" width="14" height="4.5" rx="1.2" stroke="currentColor" stroke-width="1.4"/><rect x="4" y="9.75" width="14" height="4.5" rx="1.2" stroke="currentColor" stroke-width="1.4"/><rect x="4" y="16.5" width="14" height="4.5" rx="1.2" stroke="currentColor" stroke-width="1.4"/><circle cx="15.5" cy="5.25" r="1" fill="currentColor"/><circle cx="15.5" cy="12" r="1" fill="currentColor"/><circle cx="15.5" cy="18.75" r="1" fill="currentColor"/></svg>`,
+  link: `<svg class="drive-card-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 14.5L14.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M11 7.5L12.4 6.1C13.8 4.7 16 4.7 17.4 6.1C18.8 7.5 18.8 9.7 17.4 11.1L16 12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M13 16.5L11.6 17.9C10.2 19.3 8 19.3 6.6 17.9C5.2 16.5 5.2 14.3 6.6 12.9L8 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`
 };
 
 function addLibraryFolder() {
@@ -2295,6 +2495,173 @@ function notesCountRecursive(folderPath) {
   return state.notes.filter((note) => note.folderPath === folderPath || note.folderPath.startsWith(prefix)).length;
 }
 
+// Every path under (and including) folderPath, deepest-first, so callers
+// that delete/rename can safely process children before parents.
+function allNotesFolderPaths(folderPath) {
+  const prefix = `${folderPath}/`;
+  return state.folders
+    .filter((folder) => folder.scope === "notes" && (folder.path === folderPath || folder.path.startsWith(prefix)))
+    .map((folder) => folder.path)
+    .sort((a, b) => b.length - a.length);
+}
+
+// Renames a Notes folder (leaf segment only) and cascades the new path to
+// every nested subfolder and every note filed inside it - locally and in
+// Supabase - so nothing is silently orphaned under the old path.
+async function renameFolder(scope, oldPath) {
+  const segments = oldPath.split("/");
+  const oldName = segments[segments.length - 1];
+  const parent = segments.slice(0, -1).join("/");
+  const newName = prompt(`Rename folder "${oldName}" to:`, oldName);
+  if (!newName || !newName.trim() || newName.trim() === oldName) return;
+  const trimmed = newName.trim();
+  if (!parent && trimmed.toLowerCase() === "unfiled") {
+    alert('"Unfiled" is reserved. Please choose a different name.');
+    return;
+  }
+  const newPath = parent ? `${parent}/${trimmed}` : trimmed;
+  if (state.folders.some((folder) => folder.scope === scope && folder.path === newPath)) {
+    alert(`A folder named "${trimmed}" already exists here.`);
+    return;
+  }
+
+  const affectedFolders = allNotesFolderPaths(oldPath); // deepest-first, includes oldPath itself
+  const remapPath = (path) => (path === oldPath ? newPath : newPath + path.slice(oldPath.length));
+
+  if (scope === "notes") {
+    const affectedNotes = state.notes.filter((note) => note.folderPath === oldPath || note.folderPath.startsWith(`${oldPath}/`));
+    if (affectedNotes.length && currentSession) {
+      try {
+        const sb = getSupabaseClient();
+        await Promise.all(affectedNotes.map((note) => {
+          const remapped = remapPath(note.folderPath);
+          return sb.from("notes").update({ folder_path: remapped, updated_at: new Date().toISOString() }).eq("note_id", note.id);
+        }));
+      } catch (error) {
+        alert(`Could not rename folder in the cloud: ${error.message || error}. Nothing was changed.`);
+        return;
+      }
+    }
+    affectedNotes.forEach((note) => { note.folderPath = remapPath(note.folderPath); });
+  }
+
+  affectedFolders.forEach((path) => {
+    const folder = state.folders.find((item) => item.scope === scope && item.path === path);
+    if (!folder) return;
+    folder.path = remapPath(path);
+    folder.name = folder.path.split("/").pop();
+  });
+
+  if (scope === "notes" && (notesCurrentPath === oldPath || notesCurrentPath.startsWith(`${oldPath}/`))) {
+    notesCurrentPath = remapPath(notesCurrentPath);
+  }
+
+  addHistory("folder.renamed", `${oldPath} -> ${newPath}`);
+  saveState();
+  if (scope === "notes") renderNotes(); else renderLibrary();
+}
+
+// Deletes a Notes folder and everything inside it (subfolders + notes,
+// including their Storage objects for real file uploads - link notes have
+// none to remove). Confirms with an exact item count first since this is
+// irreversible.
+async function deleteFolder(scope, folderPath) {
+  if (scope !== "notes") return; // only Notes folders support delete for now
+  const affectedFolders = allNotesFolderPaths(folderPath);
+  const affectedNotes = state.notes.filter((note) => note.folderPath === folderPath || note.folderPath.startsWith(`${folderPath}/`));
+  const name = folderPath.split("/").pop();
+  const itemSummary = [
+    affectedFolders.length > 1 ? `${affectedFolders.length - 1} subfolder(s)` : "",
+    `${affectedNotes.length} note(s)`
+  ].filter(Boolean).join(" and ");
+  if (!confirm(`Delete folder "${name}"? This permanently deletes ${itemSummary} inside it. This cannot be undone.`)) return;
+
+  if (currentSession && affectedNotes.length) {
+    try {
+      const sb = getSupabaseClient();
+      const storageKeys = affectedNotes.filter((note) => note.type !== "link").map((note) => note.storagePath);
+      if (storageKeys.length) await sb.storage.from("notes").remove(storageKeys);
+      await sb.from("notes").delete().in("note_id", affectedNotes.map((note) => note.id));
+    } catch (error) {
+      alert(`Could not delete everything in the cloud: ${error.message || error}. Some items may remain - try again or delete them individually.`);
+      return;
+    }
+  }
+
+  const noteIds = new Set(affectedNotes.map((note) => note.id));
+  state.notes = state.notes.filter((note) => !noteIds.has(note.id));
+  const folderPathSet = new Set(affectedFolders);
+  state.folders = state.folders.filter((folder) => !(folder.scope === "notes" && folderPathSet.has(folder.path)));
+
+  if (notesCurrentPath === folderPath || notesCurrentPath.startsWith(`${folderPath}/`)) {
+    notesCurrentPath = folderPath.split("/").slice(0, -1).join("/");
+  }
+
+  addHistory("folder.deleted", folderPath);
+  saveState();
+  renderNotes();
+}
+
+async function renameNote(noteId) {
+  const note = state.notes.find((item) => item.id === noteId);
+  if (!note) return;
+  const newName = prompt("Rename note to:", note.name);
+  if (!newName || !newName.trim() || newName.trim() === note.name) return;
+  const trimmed = newName.trim();
+  try {
+    if (currentSession) {
+      const sb = getSupabaseClient();
+      const { error } = await sb.from("notes").update({ name: trimmed, updated_at: new Date().toISOString() }).eq("note_id", noteId);
+      if (error) throw error;
+    }
+    note.name = trimmed;
+    note.updatedAt = new Date().toISOString();
+    addHistory("note.renamed", trimmed);
+    saveState();
+    renderNotes();
+  } catch (error) {
+    alert(`Could not rename note: ${error.message || error}`);
+  }
+}
+
+// Moves a note to another Notes folder. Offers a numbered list of every
+// existing Notes folder (plus Home) so the destination can't be mistyped;
+// typing a brand-new name creates that folder on the fly, same as
+// addNoteFolder().
+async function moveNote(noteId) {
+  const note = state.notes.find((item) => item.id === noteId);
+  if (!note) return;
+  const options = ["Home", ...state.folders.filter((folder) => folder.scope === "notes").map((folder) => folder.path).sort((a, b) => a.localeCompare(b))];
+  const listing = options.map((path, index) => `${index + 1}. ${path}`).join("\n");
+  const choice = prompt(`Move "${note.name}" to which folder?\n\nEnter a number, or type a new folder path:\n${listing}`, "1");
+  if (choice === null || !choice.trim()) return;
+  const trimmed = choice.trim();
+  const index = Number(trimmed);
+  let targetPath;
+  if (Number.isInteger(index) && index >= 1 && index <= options.length) {
+    targetPath = options[index - 1] === "Home" ? "Unfiled" : options[index - 1];
+  } else {
+    targetPath = trimmed.toLowerCase() === "home" ? "Unfiled" : trimmed.replace(/^\/+|\/+$/g, "");
+  }
+  if (!targetPath || targetPath === note.folderPath) return;
+
+  try {
+    if (currentSession) {
+      const sb = getSupabaseClient();
+      const { error } = await sb.from("notes").update({ folder_path: targetPath, updated_at: new Date().toISOString() }).eq("note_id", noteId);
+      if (error) throw error;
+    }
+    if (targetPath !== "Unfiled") upsertFolderPath(targetPath, "notes");
+    note.folderPath = targetPath;
+    note.updatedAt = new Date().toISOString();
+    addHistory("note.moved", `${note.name} -> ${targetPath}`);
+    saveState();
+    renderNotes();
+  } catch (error) {
+    alert(`Could not move note: ${error.message || error}`);
+  }
+}
+
 function chunksInFolder(folderPath) {
   return state.chunks.filter((chunk) => !chunk.archived && chunk.folderPath === folderPath);
 }
@@ -2340,11 +2707,26 @@ function renderDriveBreadcrumb(currentPath, breadcrumbEl, backBtnEl, onNavigate)
   }
 }
 
+function setNoteInputMode(mode) {
+  noteInputMode = mode;
+  if (els.noteModeFileBtn) els.noteModeFileBtn.classList.toggle("active", mode === "file");
+  if (els.noteModeLinkBtn) els.noteModeLinkBtn.classList.toggle("active", mode === "link");
+  if (els.noteFileFields) els.noteFileFields.classList.toggle("hidden", mode !== "file");
+  if (els.noteLinkFields) els.noteLinkFields.classList.toggle("hidden", mode !== "link");
+  if (els.uploadNoteBtn) els.uploadNoteBtn.textContent = mode === "link" ? "Attach Link" : "Upload Note";
+  updateNoteUploadButtonState();
+}
+
 function updateNoteUploadButtonState() {
   if (!els.uploadNoteBtn) return;
-  const hasFile = !!(els.noteFile && els.noteFile.files[0]);
   const hasName = !!(els.noteName && els.noteName.value.trim());
-  els.uploadNoteBtn.disabled = !(hasFile && hasName && currentSession && !noteUploading);
+  if (noteInputMode === "link") {
+    const hasUrl = !!(els.noteLinkUrl && cleanResourceLinkSilent(els.noteLinkUrl.value));
+    els.uploadNoteBtn.disabled = !(hasUrl && hasName && currentSession && !noteUploading);
+  } else {
+    const hasFile = !!(els.noteFile && els.noteFile.files[0]);
+    els.uploadNoteBtn.disabled = !(hasFile && hasName && currentSession && !noteUploading);
+  }
 }
 
 function detectNoteType(file) {
@@ -2363,6 +2745,7 @@ function extractExt(filename) {
 }
 
 function noteFormatLabel(note) {
+  if (note.type === "link") return "LINK";
   if (note.type === "html") return "HTML";
   if (note.type === "pdf") return "PDF";
   if (note.type === "image") return (extractExt(note.storagePath) || "IMG").toUpperCase();
@@ -2382,6 +2765,7 @@ function setNoteUploadStatus(text) {
 }
 
 async function uploadNote() {
+  if (noteInputMode === "link") return attachNoteLink();
   if (!currentSession) { setNoteUploadStatus("Sign in to upload notes."); return; }
   const file = els.noteFile?.files[0];
   const name = els.noteName?.value.trim();
@@ -2456,6 +2840,73 @@ async function uploadNote() {
   }
 }
 
+// Attaches a Google Drive / OneDrive / Dropbox / YouTube / any other link as
+// a "note" instead of uploading a file. No Supabase Storage object is
+// created for links - the URL itself is stored in the same storage_path
+// column a real upload would use (kept as a plain string, never treated as
+// a Storage object key for type: "link"), so no schema change is needed.
+async function attachNoteLink() {
+  if (!currentSession) { setNoteUploadStatus("Sign in to attach links."); return; }
+  const name = els.noteName?.value.trim();
+  const rawUrl = els.noteLinkUrl?.value.trim();
+  if (!name || !rawUrl) return;
+  const url = sanitizeResourceLink(rawUrl);
+  if (!url) return; // sanitizeResourceLink already alerted why
+
+  const folderPath = notesCurrentPath || "Unfiled";
+  const noteId = `note-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+  noteUploading = true;
+  updateNoteUploadButtonState();
+  setNoteUploadStatus("Attaching link\u2026");
+  try {
+    const sb = getSupabaseClient();
+    const note = {
+      id: noteId,
+      name,
+      folderPath,
+      type: "link",
+      mimeType: "text/uri-list",
+      storagePath: url,
+      sizeBytes: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    const { error: rowError } = await sb.from("notes").upsert({
+      note_id: note.id,
+      user_id: currentSession.user.id,
+      folder_path: note.folderPath,
+      name: note.name,
+      type: note.type,
+      mime_type: note.mimeType,
+      storage_path: note.storagePath,
+      size_bytes: note.sizeBytes,
+      updated_at: note.updatedAt
+    }, { onConflict: "note_id" });
+    if (rowError) throw rowError;
+
+    if (notesCurrentPath) upsertFolderPath(notesCurrentPath, "notes");
+    state.notes.push(note);
+    addHistory("note.link_attached", note.name);
+    saveState();
+
+    els.noteName.value = "";
+    els.noteLinkUrl.value = "";
+    setNoteUploadStatus(`Attached "${note.name}".`);
+    renderNotes();
+  } catch (error) {
+    setNoteUploadStatus(`Could not attach link: ${error.message || error}`);
+  } finally {
+    noteUploading = false;
+    updateNoteUploadButtonState();
+  }
+}
+
+function noteLinkUrl(note) {
+  return note && note.type === "link" ? note.storagePath : "";
+}
+
 let notePreview = null; // { ids: [...], index } - ids are the notes in the folder being browsed
 let notePreviewBlobUrl = null;
 let notePreviewToken = 0; // guards against a slow-loading preview clobbering a newer one
@@ -2500,6 +2951,24 @@ async function renderNotePreview() {
   if (els.notePreviewOpenTab) els.notePreviewOpenTab.removeAttribute("href");
   if (els.notePreviewContent) els.notePreviewContent.innerHTML = `<p class="muted">Loading&hellip;</p>`;
 
+  // Link-type notes have no Supabase Storage object - the URL lives directly
+  // on the note, so there's nothing to sign or fetch. Most sites (Google
+  // Drive, YouTube, etc.) block being framed, so we show a simple card
+  // instead of trying to iframe an arbitrary external URL.
+  if (note.type === "link") {
+    const url = noteLinkUrl(note);
+    if (els.notePreviewContent) {
+      els.notePreviewContent.innerHTML = `
+        <div class="explanation" style="max-width:420px;">
+          <strong>${escapeHtml(note.name)}</strong>
+          <p class="muted" style="word-break:break-all;">${escapeHtml(url)}</p>
+          <a class="resource-link" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Open Link &#8599;</a>
+        </div>`;
+    }
+    if (els.notePreviewOpenTab) els.notePreviewOpenTab.href = url;
+    return;
+  }
+
   try {
     const sb = getSupabaseClient();
     const { data, error } = await sb.storage.from("notes").createSignedUrl(note.storagePath, 600);
@@ -2541,7 +3010,7 @@ async function deleteNote(noteId) {
   if (!confirm(`Delete "${note.name}"? This cannot be undone.`)) return;
   try {
     const sb = getSupabaseClient();
-    await sb.storage.from("notes").remove([note.storagePath]);
+    if (note.type !== "link") await sb.storage.from("notes").remove([note.storagePath]);
     const { error } = await sb.from("notes").delete().eq("note_id", noteId);
     if (error) throw error;
     state.notes = state.notes.filter((item) => item.id !== noteId);
@@ -2586,25 +3055,42 @@ function renderNotes() {
   }
   renderDriveBreadcrumb(notesCurrentPath, els.notesBreadcrumb, els.notesBackBtn, openNoteFolder);
 
-  const folderCards = directChildFolderPaths("notes", notesCurrentPath).map((path) => {
-    const name = path.split("/").pop();
-    const count = notesCountRecursive(path);
-    return `<div class="drive-card drive-folder-card" data-folder-path="${escapeHtml(path)}" title="${escapeHtml(path)}">
+  const query = (els.notesSearch?.value || "").trim().toLowerCase();
+
+  const folderCards = directChildFolderPaths("notes", notesCurrentPath)
+    .filter((path) => !query || path.split("/").pop().toLowerCase().includes(query))
+    .map((path) => {
+      const name = path.split("/").pop();
+      const count = notesCountRecursive(path);
+      return `<div class="drive-card drive-folder-card" data-folder-path="${escapeHtml(path)}" title="${escapeHtml(path)}">
+      <div class="drive-card-actions">
+        <button class="drive-card-action-btn folder-rename-btn" type="button" data-folder-path="${escapeHtml(path)}" title="Rename folder">&#9998;</button>
+        <button class="drive-card-action-btn danger-hover folder-delete-btn" type="button" data-folder-path="${escapeHtml(path)}" title="Delete folder">&times;</button>
+      </div>
       ${DRIVE_ICONS.folder}
       <span class="drive-card-name">${escapeHtml(name)}</span>
       <span class="drive-card-meta">${count} item${count === 1 ? "" : "s"}</span>
     </div>`;
-  }).join("");
+    }).join("");
 
-  const currentFiles = notesInFolder(notesCurrentPath || "Unfiled").map((note) => `
-    <div class="drive-card drive-file-card ${escapeHtml(note.type)}" data-note-id="${escapeHtml(note.id)}" title="Preview &quot;${escapeHtml(note.name)}&quot;">
+  const currentFiles = notesInFolder(notesCurrentPath || "Unfiled")
+    .filter((note) => !query || note.name.toLowerCase().includes(query))
+    .map((note) => `
+    <div class="drive-card drive-file-card ${escapeHtml(note.type)}" data-note-id="${escapeHtml(note.id)}" title="${note.type === "link" ? "Open" : "Preview"} &quot;${escapeHtml(note.name)}&quot;">
+      <div class="drive-card-actions">
+        <button class="drive-card-action-btn note-rename-btn" type="button" data-note-id="${escapeHtml(note.id)}" title="Rename">&#9998;</button>
+        <button class="drive-card-action-btn note-move-btn" type="button" data-note-id="${escapeHtml(note.id)}" title="Move to folder">&#8677;</button>
+      </div>
       <button class="drive-card-delete note-delete-btn" type="button" data-note-id="${escapeHtml(note.id)}" title="Delete">&times;</button>
       ${DRIVE_ICONS[note.type] || DRIVE_ICONS.other}
       <span class="drive-card-name">${escapeHtml(note.name)}</span>
       <span class="drive-card-meta">${noteFormatLabel(note)}${note.sizeBytes ? ` &middot; ${Math.round(note.sizeBytes / 1024)} KB` : ""} &middot; ${formatDate(note.createdAt)}</span>
     </div>`).join("");
 
-  els.notesTree.innerHTML = (folderCards + currentFiles) || `<p class="drive-empty">This folder is empty. Upload a note (any format), or create a subfolder.</p>`;
+  const empty = query
+    ? `<p class="drive-empty">No folders or notes match "${escapeHtml(els.notesSearch.value.trim())}" in this folder.</p>`
+    : `<p class="drive-empty">This folder is empty. Upload a note (any format), attach a link, or create a subfolder.</p>`;
+  els.notesTree.innerHTML = (folderCards + currentFiles) || empty;
 }
 
 function renderDashboard() {
@@ -2625,7 +3111,7 @@ function renderDashboard() {
 function renderHeatmap() {
   const counts = new Map();
   profile().attempts.forEach((attempt) => {
-    const day = attempt.createdAt.slice(0, 10);
+    const day = localDayKey(attempt.createdAt);
     counts.set(day, (counts.get(day) || 0) + 1);
   });
   const today = new Date();
@@ -2633,7 +3119,7 @@ function renderHeatmap() {
   for (let i = 181; i >= 0; i -= 1) {
     const date = new Date(today);
     date.setDate(today.getDate() - i);
-    const key = date.toISOString().slice(0, 10);
+    const key = localDayKey(date);
     const count = counts.get(key) || 0;
     const level = count >= 20 ? 3 : count >= 8 ? 2 : count > 0 ? 1 : 0;
     cells.push(`<span class="heat-cell" data-level="${level}" title="${key}: ${count} attempts"></span>`);
@@ -2642,9 +3128,14 @@ function renderHeatmap() {
 }
 
 function renderTopicAnalytics() {
-  const stats = topicStats();
-  els.topicAnalytics.innerHTML = stats.length
-    ? stats.map((item) => `<div class="topic-row"><strong>${escapeHtml(item.tag)}</strong><span>${item.correct}/${item.total} correct · ${item.accuracy}% accuracy</span></div>`).join("")
+  // LOOPHOLE FIX: this used to render topicStats(), a flat list mixing
+  // subject-level, topic-level, and subtopic-level tags together (e.g.
+  // "Biology" next to "Organelles" as if they were comparable rows). It now
+  // shows a clean Subject-level rollup via computeAnalytics(); the full
+  // Subject -> Topic -> Subtopic drill-down lives in the Analytics tab.
+  const data = computeAnalytics("");
+  els.topicAnalytics.innerHTML = data.subjects.length
+    ? data.subjects.map((subj) => `<div class="topic-row"><strong>${escapeHtml(subj.label)}</strong><span>${subj.correct}/${subj.total} correct &middot; ${subj.accuracy}% accuracy</span></div>`).join("")
     : `<p class="muted">Import and solve PMDC aligned questions to build topic analytics.</p>`;
 }
 
@@ -2687,163 +3178,415 @@ function topicStats() {
   }));
 }
 
-// ---------------------------------------------------------------------
-// Analytics module: subject -> subtopic (chapter) performance breakdown,
-// rendered as SVG donut/bar charts (no external charting library needed).
-// ---------------------------------------------------------------------
+// ============================================================================
+// Analytics module - Subject -> Topic -> Subtopic breakdown with charts.
+//
+// LOOPHOLE FIX: the original dashboard widget (topicStats/renderTopicAnalytics
+// above) built a single flat list keyed by every raw tag on a question,
+// which silently mixed subject-level tags (e.g. "Biology"), topic-level tags
+// (e.g. "Cell Structure and Function") and subtopic-level tags (e.g.
+// "Organelles") into one undifferentiated list - so "strength/weakness"
+// numbers were not actually comparable across rows. computeAnalytics()
+// below fixes this by grouping strictly by question.source (Subject) and
+// question.chapter (Topic), and only treating tags beyond those two as real
+// Subtopics. It also normalizes casing (e.g. "biology" vs "Biology" from
+// different imports) so the same subject/topic never gets split into two
+// separate buckets.
+// ============================================================================
 
-const ANALYTICS_PALETTE = ["#4f8ff7", "#22a06b", "#e0a72e", "#e05263", "#8a63d2", "#17a2b8", "#f2789f", "#7fb236"];
-
-function accuracyColor(accuracy) {
-  if (accuracy >= 75) return "var(--good)";
-  if (accuracy >= 50) return "#e0a72e";
-  return "var(--bad)";
+function normalizeKey(value) {
+  return String(value || "").trim().toLowerCase();
 }
 
-function analyticsSubjectStats() {
+function withAccuracy(entry) {
+  return { ...entry, accuracy: entry.total ? Math.round((entry.correct / entry.total) * 100) : 0 };
+}
+
+function computeAnalytics(difficultyFilter) {
+  const attempts = profile().attempts;
   const bySubject = {};
-  profile().attempts.forEach((attempt) => {
+  const byDifficulty = {
+    Easy: { total: 0, correct: 0 },
+    Moderate: { total: 0, correct: 0 },
+    Difficult: { total: 0, correct: 0 }
+  };
+  const byDay = {};
+  let overallTotal = 0;
+  let overallCorrect = 0;
+
+  attempts.forEach((attempt) => {
     const question = state.questions[attempt.questionId];
-    if (!question) return;
-    const subject = question.source || "Uncategorized";
-    bySubject[subject] ||= { subject, total: 0, correct: 0 };
-    bySubject[subject].total += 1;
-    if (attempt.correct) bySubject[subject].correct += 1;
+    if (!question) return; // orphaned attempt (question removed) - excluded, same fix philosophy as getDueReviews()
+    const diff = DIFFICULTIES.has(question.difficulty) ? question.difficulty : "Moderate";
+    if (difficultyFilter && diff !== difficultyFilter) return;
+
+    overallTotal += 1;
+    if (attempt.correct) overallCorrect += 1;
+
+    byDifficulty[diff].total += 1;
+    if (attempt.correct) byDifficulty[diff].correct += 1;
+
+    const dayKey = localDayKey(attempt.createdAt);
+    byDay[dayKey] ||= { total: 0, correct: 0 };
+    byDay[dayKey].total += 1;
+    if (attempt.correct) byDay[dayKey].correct += 1;
+
+    const subjectLabel = String(question.source || "General").trim() || "General";
+    const subjectKey = normalizeKey(subjectLabel);
+    bySubject[subjectKey] ||= { key: subjectKey, label: subjectLabel, total: 0, correct: 0, topics: {} };
+    const subj = bySubject[subjectKey];
+    subj.total += 1;
+    if (attempt.correct) subj.correct += 1;
+
+    const topicLabel = String(question.chapter || "General").trim() || "General";
+    const topicKey = normalizeKey(topicLabel);
+    subj.topics[topicKey] ||= { key: topicKey, label: topicLabel, total: 0, correct: 0, subtopics: {} };
+    const topic = subj.topics[topicKey];
+    topic.total += 1;
+    if (attempt.correct) topic.correct += 1;
+
+    const subtopicTags = (question.tags || []).filter((tag) => {
+      const key = normalizeKey(tag);
+      return key && key !== subjectKey && key !== topicKey;
+    });
+    (subtopicTags.length ? subtopicTags : ["Uncategorized"]).forEach((rawTag) => {
+      const label = String(rawTag).trim();
+      const key = normalizeKey(label);
+      topic.subtopics[key] ||= { key, label, total: 0, correct: 0 };
+      topic.subtopics[key].total += 1;
+      if (attempt.correct) topic.subtopics[key].correct += 1;
+    });
   });
-  return Object.values(bySubject)
-    .map((item) => ({ ...item, accuracy: item.total ? Math.round((item.correct / item.total) * 100) : 0 }))
-    .sort((a, b) => b.total - a.total);
-}
 
-function analyticsSubtopicStats(subjectFilter) {
-  const byChapter = {};
-  profile().attempts.forEach((attempt) => {
-    const question = state.questions[attempt.questionId];
-    if (!question) return;
-    if (subjectFilter && question.source !== subjectFilter) return;
-    const key = `${question.source || "Uncategorized"}::${question.chapter || "Unspecified"}`;
-    byChapter[key] ||= { subject: question.source || "Uncategorized", chapter: question.chapter || "Unspecified", total: 0, correct: 0 };
-    byChapter[key].total += 1;
-    if (attempt.correct) byChapter[key].correct += 1;
-  });
-  return Object.values(byChapter).map((item) => ({ ...item, accuracy: item.total ? Math.round((item.correct / item.total) * 100) : 0 }));
-}
+  const subjects = Object.values(bySubject).map((subj) => ({
+    ...withAccuracy(subj),
+    topics: Object.values(subj.topics).map((topic) => ({
+      ...withAccuracy(topic),
+      subtopics: Object.values(topic.subtopics).map(withAccuracy).sort((a, b) => a.accuracy - b.accuracy || b.total - a.total)
+    })).sort((a, b) => a.accuracy - b.accuracy || b.total - a.total)
+  })).sort((a, b) => b.total - a.total);
 
-function renderAccuracyDonut(container, correct, total) {
-  if (!container) return;
-  const size = 150, thickness = 18, r = (size - thickness) / 2, circumference = 2 * Math.PI * r;
-  const pct = total ? correct / total : 0;
-  const dash = pct * circumference;
-  container.innerHTML = `
-    <svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" role="img" aria-label="Overall accuracy ${Math.round(pct * 100)}%">
-      <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--surface-2)" stroke-width="${thickness}"/>
-      <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--good)" stroke-width="${thickness}"
-        stroke-dasharray="${dash} ${circumference - dash}" stroke-linecap="round" transform="rotate(-90 ${size / 2} ${size / 2})"/>
-      <text x="50%" y="47%" text-anchor="middle" font-size="24" font-weight="700" fill="var(--text)">${total ? Math.round(pct * 100) : 0}%</text>
-      <text x="50%" y="64%" text-anchor="middle" font-size="10.5" fill="var(--muted)">${correct}/${total} correct</text>
-    </svg>`;
-}
-
-function renderDistributionDonut(container, legendContainer, segments) {
-  if (!container) return;
-  const size = 150, thickness = 18, r = (size - thickness) / 2, circumference = 2 * Math.PI * r;
-  const total = segments.reduce((sum, seg) => sum + seg.value, 0);
-  if (!total) {
-    container.innerHTML = `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--surface-2)" stroke-width="${thickness}"/></svg>`;
-    if (legendContainer) legendContainer.innerHTML = `<p class="muted">No attempts yet.</p>`;
-    return;
+  const today = new Date();
+  const trend = [];
+  for (let i = 29; i >= 0; i -= 1) {
+    const date = new Date(today);
+    date.setDate(today.getDate() - i);
+    const key = localDayKey(date);
+    const entry = byDay[key] || { total: 0, correct: 0 };
+    trend.push({
+      key,
+      label: `${date.getMonth() + 1}/${date.getDate()}`,
+      total: entry.total,
+      correct: entry.correct,
+      accuracy: entry.total ? Math.round((entry.correct / entry.total) * 100) : null
+    });
   }
-  let offset = 0;
-  const circles = segments.map((seg) => {
-    const frac = seg.value / total;
-    const dash = frac * circumference;
-    const circle = `<circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${seg.color}" stroke-width="${thickness}"
-      stroke-dasharray="${dash} ${circumference - dash}" stroke-dashoffset="${-offset}" transform="rotate(-90 ${size / 2} ${size / 2})"/>`;
-    offset += dash;
-    return circle;
-  }).join("");
-  container.innerHTML = `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" role="img" aria-label="Attempts by subject">${circles}
-    <text x="50%" y="50%" text-anchor="middle" font-size="11" fill="var(--muted)">Study</text>
-    <text x="50%" y="63%" text-anchor="middle" font-size="11" fill="var(--muted)">mix</text></svg>`;
-  if (legendContainer) {
-    legendContainer.innerHTML = segments.map((seg) => `
-      <div class="analytics-legend-item">
-        <span class="analytics-legend-swatch" style="background:${seg.color}"></span>
-        <span>${escapeHtml(seg.label)}</span>
-        <span class="count">${seg.value}</span>
-      </div>`).join("");
-  }
+
+  return {
+    overall: withAccuracy({ total: overallTotal, correct: overallCorrect }),
+    subjects,
+    difficulty: Object.fromEntries(Object.entries(byDifficulty).map(([key, value]) => [key, withAccuracy(value)])),
+    trend
+  };
 }
 
-function renderBarRows(container, rows, emptyText) {
-  if (!container) return;
-  container.innerHTML = rows.length
-    ? rows.map((row) => `
-      <div class="analytics-bar-row">
-        <div class="analytics-bar-label"><strong>${escapeHtml(row.label)}</strong><span>${row.correct}/${row.total} &middot; ${row.accuracy}%</span></div>
-        <div class="analytics-bar-track"><div class="analytics-bar-fill" style="width:${row.accuracy}%;background:${accuracyColor(row.accuracy)}"></div></div>
-      </div>`).join("")
-    : `<p class="muted">${emptyText}</p>`;
+function accuracyTier(accuracy) {
+  return accuracy >= 75 ? "strong" : accuracy >= 50 ? "moderate" : "weak";
+}
+
+function accuracyPill(total, accuracy) {
+  if (!total) return `<span class="accuracy-pill none">No data</span>`;
+  return `<span class="accuracy-pill ${accuracyTier(accuracy)}">${accuracy}%</span>`;
+}
+
+function themeChartColors() {
+  const dark = document.body.classList.contains("dark");
+  return {
+    text: dark ? "#eef4f8" : "#17202a",
+    muted: dark ? "#aab7c4" : "#66758a",
+    grid: dark ? "#2c3946" : "#d9e1ea",
+    surface: dark ? "#171d23" : "#ffffff",
+    good: "#16834a",
+    warn: "#b7791f",
+    bad: "#c53030",
+    palette: ["#116d6e", "#b53d2a", "#b7791f", "#5b8def", "#8e44ad", "#16834a", "#0d5253", "#c53030"]
+  };
+}
+
+function destroyChart(id) {
+  if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
+}
+
+// Guarantees a live <canvas id="canvasId"> exists inside #wrap_<canvasId>,
+// re-creating it if a previous render replaced it with an empty-state
+// message. Returns null if the wrapper isn't in the DOM (view not loaded).
+function ensureChartCanvas(canvasId) {
+  const wrap = document.getElementById(`wrap_${canvasId}`);
+  if (!wrap) return null;
+  let canvas = document.getElementById(canvasId);
+  if (!canvas) {
+    wrap.innerHTML = `<canvas id="${canvasId}"></canvas>`;
+    canvas = document.getElementById(canvasId);
+  }
+  return canvas;
+}
+
+function showChartEmpty(canvasId, message) {
+  destroyChart(canvasId);
+  const wrap = document.getElementById(`wrap_${canvasId}`);
+  if (wrap) wrap.innerHTML = `<p class="chart-empty">${escapeHtml(message)}</p>`;
 }
 
 function renderAnalytics() {
-  if (!els.analyticsAccuracyDonut) return;
-  const attempts = profile().attempts;
-  const totalAttempts = attempts.length;
-  const totalCorrect = attempts.filter((attempt) => attempt.correct).length;
+  if (!els.analytics) return;
+  const difficulty = els.analyticsDifficultySelect?.value || "";
+  analyticsDifficultyFilter = difficulty;
+  const data = computeAnalytics(difficulty);
 
-  if (els.analyticsTotals) {
-    els.analyticsTotals.textContent = totalAttempts
-      ? `${totalAttempts} attempts across ${new Set(attempts.map((a) => state.questions[a.questionId]?.source).filter(Boolean)).size} subjects`
-      : "No attempts recorded yet";
+  renderAnalyticsSummaryStrip(data);
+  populateAnalyticsSubjectSelect(data);
+  renderAnalyticsCharts(data);
+  renderAnalyticsBreakdown(data);
+}
+
+function renderAnalyticsSummaryStrip(data) {
+  if (!els.analyticsSummaryStrip) return;
+  if (!data.subjects.length) {
+    els.analyticsSummaryStrip.innerHTML = `<p class="muted">No attempts yet \u2014 solve some questions in Practice, Quiz Builder, or an MDCAT Mock to populate analytics.</p>`;
+    return;
+  }
+  els.analyticsSummaryStrip.innerHTML = data.subjects.map((subj) => `
+    <div class="subject-summary-card ${subj.key === analyticsSubjectFilter ? "active-subject" : ""}">
+      <button type="button" data-subject-key="${escapeHtml(subj.key)}">
+        <strong>${subj.accuracy}%</strong>
+        <span>${escapeHtml(subj.label)} &middot; ${subj.correct}/${subj.total}</span>
+      </button>
+    </div>`).join("");
+  els.analyticsSummaryStrip.querySelectorAll("button[data-subject-key]").forEach((button) => {
+    button.addEventListener("click", () => {
+      analyticsSubjectFilter = analyticsSubjectFilter === button.dataset.subjectKey ? "" : button.dataset.subjectKey;
+      if (els.analyticsSubjectSelect) els.analyticsSubjectSelect.value = analyticsSubjectFilter;
+      const fresh = computeAnalytics(analyticsDifficultyFilter);
+      renderAnalyticsSummaryStrip(fresh);
+      renderAnalyticsBreakdown(fresh);
+    });
+  });
+}
+
+function populateAnalyticsSubjectSelect(data) {
+  if (!els.analyticsSubjectSelect) return;
+  const previous = analyticsSubjectFilter;
+  const options = [`<option value="">All Subjects</option>`].concat(
+    data.subjects.map((subj) => `<option value="${escapeHtml(subj.key)}">${escapeHtml(subj.label)} (${subj.total})</option>`)
+  );
+  els.analyticsSubjectSelect.innerHTML = options.join("");
+  if (previous && data.subjects.some((subj) => subj.key === previous)) {
+    els.analyticsSubjectSelect.value = previous;
+  } else {
+    analyticsSubjectFilter = "";
+    els.analyticsSubjectSelect.value = "";
+  }
+}
+
+function renderAnalyticsCharts(data) {
+  if (typeof Chart === "undefined") {
+    ["chartSubjectAccuracy", "chartSubjectMix", "chartOverallSplit", "chartDifficulty", "chartTrend"]
+      .forEach((id) => showChartEmpty(id, "Charts need an internet connection to load Chart.js."));
+    return;
+  }
+  const colors = themeChartColors();
+  Chart.defaults.color = colors.muted;
+  Chart.defaults.borderColor = colors.grid;
+  Chart.defaults.font.family = "Inter, ui-sans-serif, system-ui, sans-serif";
+
+  // Accuracy by Subject (bar)
+  if (!data.subjects.length) {
+    showChartEmpty("chartSubjectAccuracy", "No attempts yet.");
+  } else {
+    destroyChart("chartSubjectAccuracy");
+    const canvas = ensureChartCanvas("chartSubjectAccuracy");
+    if (canvas) {
+      chartInstances.chartSubjectAccuracy = new Chart(canvas, {
+        type: "bar",
+        data: {
+          labels: data.subjects.map((s) => s.label),
+          datasets: [{
+            label: "Accuracy %",
+            data: data.subjects.map((s) => s.accuracy),
+            backgroundColor: data.subjects.map((s) => s.accuracy >= 75 ? colors.good : s.accuracy >= 50 ? colors.warn : colors.bad),
+            borderRadius: 6,
+            maxBarThickness: 46
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { beginAtZero: true, max: 100, ticks: { callback: (v) => `${v}%` }, grid: { color: colors.grid } }, x: { grid: { display: false } } },
+          plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => `${ctx.parsed.y}% accuracy (${data.subjects[ctx.dataIndex].correct}/${data.subjects[ctx.dataIndex].total})` } } }
+        }
+      });
+    }
   }
 
-  renderAccuracyDonut(els.analyticsAccuracyDonut, totalCorrect, totalAttempts);
-
-  const subjectStats = analyticsSubjectStats();
-  const distributionSegments = subjectStats.map((item, index) => ({
-    label: item.subject,
-    value: item.total,
-    color: ANALYTICS_PALETTE[index % ANALYTICS_PALETTE.length]
-  }));
-  renderDistributionDonut(els.analyticsDistributionDonut, els.analyticsDistributionLegend, distributionSegments);
-
-  renderBarRows(
-    els.analyticsSubjectBars,
-    subjectStats.map((item) => ({ label: item.subject, correct: item.correct, total: item.total, accuracy: item.accuracy })),
-    "Solve some questions to see subject-level accuracy here."
-  );
-
-  const allSubtopics = analyticsSubtopicStats(null);
-  const qualifying = allSubtopics.filter((item) => item.total >= 3);
-  const rankPool = qualifying.length >= 3 ? qualifying : allSubtopics;
-  const weakest = [...rankPool].sort((a, b) => a.accuracy - b.accuracy).slice(0, 5);
-  const strongest = [...rankPool].sort((a, b) => b.accuracy - a.accuracy).slice(0, 5);
-  renderBarRows(
-    els.analyticsWeakList,
-    weakest.map((item) => ({ label: `${item.subject} \u00b7 ${item.chapter}`, correct: item.correct, total: item.total, accuracy: item.accuracy })),
-    "Not enough attempts yet to identify weak spots."
-  );
-  renderBarRows(
-    els.analyticsStrongList,
-    strongest.map((item) => ({ label: `${item.subject} \u00b7 ${item.chapter}`, correct: item.correct, total: item.total, accuracy: item.accuracy })),
-    "Not enough attempts yet to identify strong spots."
-  );
-
-  if (els.analyticsSubjectFilter) {
-    const previousValue = els.analyticsSubjectFilter.value;
-    const subjects = [...new Set(Object.values(state.questions).map((question) => question.source).filter(Boolean))].sort((a, b) => a.localeCompare(b));
-    els.analyticsSubjectFilter.innerHTML = `<option value="">All Subjects</option>` + subjects.map((subject) => `<option value="${escapeHtml(subject)}">${escapeHtml(subject)}</option>`).join("");
-    if (subjects.includes(previousValue)) els.analyticsSubjectFilter.value = previousValue;
+  // Question Mix by Subject (doughnut/pie)
+  if (!data.subjects.length) {
+    showChartEmpty("chartSubjectMix", "No attempts yet.");
+  } else {
+    destroyChart("chartSubjectMix");
+    const canvas = ensureChartCanvas("chartSubjectMix");
+    if (canvas) {
+      chartInstances.chartSubjectMix = new Chart(canvas, {
+        type: "doughnut",
+        data: {
+          labels: data.subjects.map((s) => s.label),
+          datasets: [{ data: data.subjects.map((s) => s.total), backgroundColor: colors.palette, borderColor: colors.surface, borderWidth: 2 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom", labels: { boxWidth: 12, padding: 10 } } } }
+      });
+    }
   }
 
-  const filterValue = els.analyticsSubjectFilter?.value || "";
-  const breakdown = analyticsSubtopicStats(filterValue || null).sort((a, b) => a.accuracy - b.accuracy);
-  renderBarRows(
-    els.analyticsSubtopicBreakdown,
-    breakdown.map((item) => ({ label: filterValue ? item.chapter : `${item.subject} \u00b7 ${item.chapter}`, correct: item.correct, total: item.total, accuracy: item.accuracy })),
-    "No attempts recorded for this subject yet."
-  );
+  // Overall Correct vs Incorrect (pie)
+  if (!data.overall.total) {
+    showChartEmpty("chartOverallSplit", "No attempts yet.");
+  } else {
+    destroyChart("chartOverallSplit");
+    const canvas = ensureChartCanvas("chartOverallSplit");
+    if (canvas) {
+      const incorrect = data.overall.total - data.overall.correct;
+      chartInstances.chartOverallSplit = new Chart(canvas, {
+        type: "pie",
+        data: {
+          labels: ["Correct", "Incorrect"],
+          datasets: [{ data: [data.overall.correct, incorrect], backgroundColor: [colors.good, colors.bad], borderColor: colors.surface, borderWidth: 2 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom" } } }
+      });
+    }
+  }
+
+  // Accuracy by Difficulty (bar)
+  const diffEntries = Object.entries(data.difficulty);
+  if (!diffEntries.some(([, v]) => v.total > 0)) {
+    showChartEmpty("chartDifficulty", "No attempts yet.");
+  } else {
+    destroyChart("chartDifficulty");
+    const canvas = ensureChartCanvas("chartDifficulty");
+    if (canvas) {
+      chartInstances.chartDifficulty = new Chart(canvas, {
+        type: "bar",
+        data: {
+          labels: diffEntries.map(([label]) => label),
+          datasets: [{
+            label: "Accuracy %",
+            data: diffEntries.map(([, v]) => v.accuracy),
+            backgroundColor: [colors.good, colors.warn, colors.bad],
+            borderRadius: 6,
+            maxBarThickness: 46
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: { y: { beginAtZero: true, max: 100, ticks: { callback: (v) => `${v}%` } }, x: { grid: { display: false } } },
+          plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => `${ctx.parsed.y}% accuracy (${diffEntries[ctx.dataIndex][1].correct}/${diffEntries[ctx.dataIndex][1].total})` } } }
+        }
+      });
+    }
+  }
+
+  // Accuracy Trend, last 30 days (line)
+  if (!data.trend.some((d) => d.total > 0)) {
+    showChartEmpty("chartTrend", "No attempts in the last 30 days.");
+  } else {
+    destroyChart("chartTrend");
+    const canvas = ensureChartCanvas("chartTrend");
+    if (canvas) {
+      chartInstances.chartTrend = new Chart(canvas, {
+        type: "line",
+        data: {
+          labels: data.trend.map((d) => d.label),
+          datasets: [{
+            label: "Accuracy %",
+            data: data.trend.map((d) => d.accuracy),
+            spanGaps: true,
+            borderColor: colors.palette[0],
+            backgroundColor: color_mix_fallback(colors.palette[0]),
+            tension: 0.3,
+            fill: true,
+            pointRadius: 2
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: { y: { beginAtZero: true, max: 100, ticks: { callback: (v) => `${v}%` } }, x: { ticks: { maxTicksLimit: 8 }, grid: { display: false } } },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+  }
+}
+
+// Chart.js area fills need an actual rgba() string, not a CSS color-mix()
+// expression - build a translucent fill from the given hex color.
+function color_mix_fallback(hex) {
+  const clean = hex.replace("#", "");
+  const r = parseInt(clean.substring(0, 2), 16);
+  const g = parseInt(clean.substring(2, 4), 16);
+  const b = parseInt(clean.substring(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, 0.15)`;
+}
+
+function renderAnalyticsBreakdown(data) {
+  if (!els.analyticsTopicBreakdown) return;
+  const subjects = analyticsSubjectFilter ? data.subjects.filter((s) => s.key === analyticsSubjectFilter) : data.subjects;
+  if (els.analyticsBreakdownSubject) {
+    els.analyticsBreakdownSubject.textContent = analyticsSubjectFilter
+      ? (data.subjects.find((s) => s.key === analyticsSubjectFilter)?.label || "")
+      : "All Subjects";
+  }
+  if (!subjects.length) {
+    els.analyticsTopicBreakdown.innerHTML = `<p class="muted">No topic data yet for this filter.</p>`;
+    return;
+  }
+
+  els.analyticsTopicBreakdown.innerHTML = subjects.map((subj) => {
+    const topicsHtml = subj.topics.map((topic) => {
+      const topicKey = `${subj.key}::${topic.key}`;
+      const expanded = expandedAnalyticsTopics.has(topicKey);
+      const subtopicsHtml = topic.subtopics.map((sub) => `
+        <div class="breakdown-row subtopic-row">
+          <div class="breakdown-row-head">
+            <span>${escapeHtml(sub.label)}</span>
+            <span class="breakdown-meta">${sub.correct}/${sub.total} &middot; ${accuracyPill(sub.total, sub.accuracy)}</span>
+          </div>
+          <div class="breakdown-bar-track"><div class="breakdown-bar-fill ${accuracyTier(sub.accuracy)}" style="width:${sub.accuracy}%"></div></div>
+        </div>`).join("");
+      return `
+        <div class="breakdown-row topic-row-toggle ${expanded ? "expanded" : ""}" data-topic-key="${escapeHtml(topicKey)}">
+          <div class="breakdown-row-head">
+            <span><span class="breakdown-caret">&#9656;</span> <strong>${escapeHtml(topic.label)}</strong></span>
+            <span class="breakdown-meta">${topic.correct}/${topic.total} &middot; ${accuracyPill(topic.total, topic.accuracy)}</span>
+          </div>
+          <div class="breakdown-bar-track"><div class="breakdown-bar-fill ${accuracyTier(topic.accuracy)}" style="width:${topic.accuracy}%"></div></div>
+          ${expanded ? `<div class="subtopic-group">${subtopicsHtml}</div>` : ""}
+        </div>`;
+    }).join("");
+    return `
+      <div class="subject-block">
+        ${!analyticsSubjectFilter ? `<h3 style="margin:14px 0 8px;">${escapeHtml(subj.label)} &middot; ${accuracyPill(subj.total, subj.accuracy)}</h3>` : ""}
+        ${topicsHtml}
+      </div>`;
+  }).join("");
+
+  els.analyticsTopicBreakdown.querySelectorAll(".topic-row-toggle").forEach((row) => {
+    row.addEventListener("click", (event) => {
+      if (event.target.closest(".subtopic-row")) return;
+      const key = row.dataset.topicKey;
+      if (expandedAnalyticsTopics.has(key)) expandedAnalyticsTopics.delete(key);
+      else expandedAnalyticsTopics.add(key);
+      renderAnalyticsBreakdown(computeAnalytics(analyticsDifficultyFilter));
+    });
+  });
 }
 
 function renderLibrary() {
@@ -3047,23 +3790,130 @@ function renderPractice() {
   startPracticeSession(chunk.id, chunk.name, chunk.questionIds);
 }
 
+// --- Practice-session persistence -----------------------------------------
+// Practice progress is archived to localStorage per chunk (keyed by chunkId),
+// separately from the in-memory `practiceSession`. This means:
+//   - Refreshing the page mid-session restores exactly where you left off.
+//   - Switching to a different chunk and back does NOT lose progress on
+//     either chunk - each chunk keeps its own saved queue/status.
+// A session is only cleared from the archive once it's actually completed
+// (or the person explicitly restarts it), matching "saved until the chunk
+// is completed".
+function practiceArchiveKey() {
+  return `${currentStorageKey}.practiceProgress`;
+}
+
+function loadPracticeArchive() {
+  try {
+    const raw = localStorage.getItem(practiceArchiveKey());
+    const parsed = raw ? JSON.parse(raw) : null;
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function savePracticeArchive(archive) {
+  try {
+    localStorage.setItem(practiceArchiveKey(), JSON.stringify(archive));
+  } catch {
+    // Storage can fail (quota, private mode, etc.) - practice still works
+    // in-memory for the rest of this tab session, it just won't survive a refresh.
+  }
+}
+
+function persistPracticeSession() {
+  if (!currentStorageKey) return;
+  const archive = loadPracticeArchive();
+  if (practiceSession) {
+    archive[practiceSession.chunkId] = {
+      ids: practiceSession.ids,
+      queue: practiceSession.queue,
+      status: practiceSession.status,
+      firstTryCorrect: practiceSession.firstTryCorrect,
+      attemptsThisSession: practiceSession.attemptsThisSession,
+      chunkName: practiceSession.chunkName,
+      jumpId: practiceJumpId,
+      updatedAt: new Date().toISOString()
+    };
+    archive.__lastActiveChunkId = practiceSession.chunkId;
+  }
+  savePracticeArchive(archive);
+}
+
+function clearPracticeArchiveEntry(chunkId) {
+  const archive = loadPracticeArchive();
+  delete archive[chunkId];
+  if (archive.__lastActiveChunkId === chunkId) delete archive.__lastActiveChunkId;
+  savePracticeArchive(archive);
+}
+
+// Runs once at load/login: resumes whichever chunk practice was last active
+// in, so a page refresh (or reopening the app) never silently discards
+// in-progress practice.
+function restoreLastPracticeSession() {
+  if (!currentStorageKey) return;
+  const archive = loadPracticeArchive();
+  const lastId = archive.__lastActiveChunkId;
+  if (!lastId) return;
+  const saved = archive[lastId];
+  if (!saved || !Array.isArray(saved.ids) || !saved.ids.length) return;
+  const cleanIds = saved.ids.filter((id) => state.questions[id]);
+  if (!cleanIds.length) { clearPracticeArchiveEntry(lastId); return; }
+  practiceSession = {
+    chunkId: lastId,
+    chunkName: saved.chunkName || "Practice Session",
+    ids: cleanIds,
+    queue: (saved.queue || []).filter((id) => cleanIds.includes(id)),
+    status: saved.status || {},
+    firstTryCorrect: saved.firstTryCorrect || {},
+    attemptsThisSession: saved.attemptsThisSession || 0
+  };
+  practiceJumpId = saved.jumpId && cleanIds.includes(saved.jumpId) ? saved.jumpId : null;
+}
+
 // A practice session tracks a fixed list of question ids plus a working "queue".
 // Answering a question correctly removes it from the queue; answering incorrectly
 // pushes it to the back of the queue so it automatically comes back for reattempt
 // later in the same session. The session ends only once every question in it has
 // been most-recently answered correctly (the queue is empty).
-function startPracticeSession(chunkId, chunkName, ids) {
+//
+// By default this RESUMES any saved progress for the chunk (so switching
+// chunks and back, or refreshing, never loses your place). Pass
+// { forceRestart: true } to explicitly wipe progress and start over.
+function startPracticeSession(chunkId, chunkName, ids, opts = {}) {
   const cleanIds = ids.filter((id) => state.questions[id]);
-  practiceSession = {
-    chunkId,
-    chunkName,
-    ids: cleanIds,
-    queue: [...cleanIds],
-    status: {},
-    firstTryCorrect: {},
-    attemptsThisSession: 0
-  };
-  practiceJumpId = null;
+  const archive = opts.forceRestart ? {} : loadPracticeArchive();
+  const saved = opts.forceRestart ? null : archive[chunkId];
+  const sameQuestionSet = saved && Array.isArray(saved.ids)
+    && saved.ids.length === cleanIds.length
+    && saved.ids.every((id) => cleanIds.includes(id));
+
+  if (sameQuestionSet) {
+    practiceSession = {
+      chunkId,
+      chunkName,
+      ids: cleanIds,
+      queue: (saved.queue || []).filter((id) => cleanIds.includes(id)),
+      status: saved.status || {},
+      firstTryCorrect: saved.firstTryCorrect || {},
+      attemptsThisSession: saved.attemptsThisSession || 0
+    };
+    practiceJumpId = saved.jumpId && cleanIds.includes(saved.jumpId) ? saved.jumpId : null;
+  } else {
+    practiceSession = {
+      chunkId,
+      chunkName,
+      ids: cleanIds,
+      queue: [...cleanIds],
+      status: {},
+      firstTryCorrect: {},
+      attemptsThisSession: 0
+    };
+    practiceJumpId = null;
+  }
+  clearAutoAdvanceTimer();
+  persistPracticeSession();
   renderPractice();
 }
 
@@ -3120,6 +3970,7 @@ function renderPracticeProgressBar() {
 }
 
 function renderPracticeSessionSummary(chunk) {
+  clearAutoAdvanceTimer();
   const total = practiceSession.ids.length;
   const firstTryCorrect = Object.values(practiceSession.firstTryCorrect).filter(Boolean).length;
   els.practiceCard.innerHTML = `
@@ -3134,9 +3985,10 @@ function renderPracticeSessionSummary(chunk) {
       <button id="exitSessionBtn" type="button">Exit to Library</button>
     </div>`;
   els.practiceCard.querySelector("#restartSessionBtn").addEventListener("click", () => {
-    startPracticeSession(practiceSession.chunkId, practiceSession.chunkName, practiceSession.ids);
+    startPracticeSession(practiceSession.chunkId, practiceSession.chunkName, practiceSession.ids, { forceRestart: true });
   });
   els.practiceCard.querySelector("#exitSessionBtn").addEventListener("click", () => {
+    clearPracticeArchiveEntry(practiceSession.chunkId);
     practiceSession = null;
     practiceJumpId = null;
     showView("library");
@@ -3144,6 +3996,7 @@ function renderPracticeSessionSummary(chunk) {
 }
 
 function renderPracticeCard(question, positionLabel) {
+  clearAutoAdvanceTimer();
   const resourceLink = getQuestionResourceLink(question);
   els.practiceCard.innerHTML = `
     ${renderPracticeProgressBar()}
@@ -3168,16 +4021,20 @@ function renderPracticeCard(question, positionLabel) {
         <button id="bookmarkBtn" class="secondary">${profile().bookmarks[question.id] ? "Remove Bookmark" : "Bookmark"}</button>
         <button id="skipPracticeBtn" class="secondary">Skip</button>
         <button id="nextPracticeBtn" disabled>Next</button>
+        <button id="exitPracticeBtn" class="secondary" type="button">Save &amp; Exit</button>
       </div>
     </div>`;
   els.practiceCard.querySelectorAll(".progress-num").forEach((button) => button.addEventListener("click", () => {
+    clearAutoAdvanceTimer();
     practiceJumpId = button.dataset.jumpId;
+    persistPracticeSession();
     renderPractice();
   }));
   els.practiceCard.querySelectorAll(".choice").forEach((button) => button.addEventListener("click", () => answerPractice(question, button.dataset.answer)));
   els.practiceCard.querySelector("#saveNoteBtn").addEventListener("click", () => saveNote(question.id, els.practiceCard.querySelector("#practiceNote").value));
   els.practiceCard.querySelector("#bookmarkBtn").addEventListener("click", () => toggleBookmark(question.id));
   els.practiceCard.querySelector("#skipPracticeBtn").addEventListener("click", () => {
+    clearAutoAdvanceTimer();
     addHistory("practice.skipped", question.id);
     saveState();
     if (practiceJumpId) {
@@ -3185,15 +4042,29 @@ function renderPracticeCard(question, positionLabel) {
     } else {
       requeueForReattempt(question.id);
     }
+    persistPracticeSession();
     renderPractice();
   });
   els.practiceCard.querySelector("#nextPracticeBtn").addEventListener("click", () => {
+    clearAutoAdvanceTimer();
     practiceJumpId = null;
+    persistPracticeSession();
     renderPractice();
+  });
+  els.practiceCard.querySelector("#exitPracticeBtn").addEventListener("click", () => {
+    // Progress has already been persisted continuously (every answer/skip/jump),
+    // so leaving mid-session is safe - selecting this chunk again later (or a
+    // page refresh) will resume from exactly this point.
+    clearAutoAdvanceTimer();
+    persistPracticeSession();
+    practiceSession = null;
+    practiceJumpId = null;
+    showView("library");
   });
 }
 
 function answerPractice(question, answer) {
+  clearAutoAdvanceTimer();
   const choiceButtons = els.practiceCard.querySelectorAll(".choice");
   choiceButtons.forEach((button) => { button.disabled = true; });
   const skipBtn = els.practiceCard.querySelector("#skipPracticeBtn");
@@ -3209,6 +4080,7 @@ function answerPractice(question, answer) {
     practiceSession.status[question.id] = correct ? "correct" : "incorrect";
     if (correct) removeFromPracticeQueue(question.id);
     else requeueForReattempt(question.id);
+    persistPracticeSession();
   }
 
   choiceButtons.forEach((button) => {
@@ -3222,7 +4094,8 @@ function answerPractice(question, answer) {
       <p>${escapeHtml(question.explanation)}</p>
       ${question.imageUrl ? `<img src="${escapeHtml(question.imageUrl)}" alt="Explanation image">` : ""}
       <p class="muted">Previous attempts: ${profile().attempts.filter((attempt) => attempt.questionId === question.id).length}</p>
-    </div>`;
+    </div>
+    <div id="autoAdvanceBar" class="auto-advance-bar"></div>`;
   els.practiceCard.querySelectorAll(".progress-num").forEach((button) => {
     const id = button.dataset.jumpId;
     const status = practiceSession?.status[id];
@@ -3232,6 +4105,58 @@ function answerPractice(question, answer) {
   const nextBtn = els.practiceCard.querySelector("#nextPracticeBtn");
   if (nextBtn) nextBtn.disabled = false;
   renderDashboard();
+  renderAutoAdvanceControls();
+}
+
+// --- Auto-advance countdown -------------------------------------------------
+// After a question is answered, optionally counts down (default 10s,
+// configurable in Settings) and then automatically moves to the next
+// question, mirroring the "Next" button. Cancelable per-question via
+// "Stay on this question", and always cleared whenever the question changes,
+// the practice view is left, or the user signs out.
+function renderAutoAdvanceControls() {
+  const bar = els.practiceCard?.querySelector("#autoAdvanceBar");
+  if (!bar) return;
+  ensureSettingsDefaults();
+  if (!profile().settings.autoAdvanceEnabled) {
+    bar.innerHTML = "";
+    return;
+  }
+  bar.innerHTML = `<span id="autoAdvanceLabel"></span><button id="cancelAutoAdvanceBtn" class="secondary" type="button">Stay on this question</button>`;
+  bar.querySelector("#cancelAutoAdvanceBtn").addEventListener("click", () => {
+    clearAutoAdvanceTimer();
+    bar.innerHTML = `<span class="muted">Auto-advance paused for this question.</span>`;
+  });
+  startAutoAdvanceTimer();
+}
+
+function startAutoAdvanceTimer() {
+  clearAutoAdvanceTimer();
+  ensureSettingsDefaults();
+  const seconds = Math.min(120, Math.max(3, Math.round(Number(profile().settings.autoAdvanceSeconds) || 10)));
+  practiceAdvanceRemaining = seconds;
+  updateAutoAdvanceLabel();
+  practiceAdvanceHandle = setInterval(() => {
+    practiceAdvanceRemaining -= 1;
+    if (practiceAdvanceRemaining <= 0) {
+      clearAutoAdvanceTimer();
+      practiceJumpId = null;
+      persistPracticeSession();
+      renderPractice();
+      return;
+    }
+    updateAutoAdvanceLabel();
+  }, 1000);
+}
+
+function updateAutoAdvanceLabel() {
+  const label = els.practiceCard?.querySelector("#autoAdvanceLabel");
+  if (label) label.textContent = `Next question in ${practiceAdvanceRemaining}s\u2026`;
+}
+
+function clearAutoAdvanceTimer() {
+  if (practiceAdvanceHandle) clearInterval(practiceAdvanceHandle);
+  practiceAdvanceHandle = null;
 }
 
 function startQuiz() {
@@ -3452,7 +4377,11 @@ function updateSrs(questionId, correct) {
 function getDueReviews() {
   const now = Date.now();
   return Object.entries(profile().srs)
-    .filter(([, item]) => new Date(item.nextReviewDate).getTime() <= now)
+    // LOOPHOLE FIX: an SRS entry can outlive its question (chunk removed
+    // locally, partial cloud pull, "Clear Local Data", etc.). Without this
+    // check the Dashboard "Due Reviews" count and the SRS queue could show
+    // ghost entries that don't correspond to any real, reviewable question.
+    .filter(([questionId, item]) => state.questions[questionId] && new Date(item.nextReviewDate).getTime() <= now)
     .map(([questionId, item]) => ({ questionId, ...item }));
 }
 
@@ -3547,10 +4476,10 @@ function getStatus(questionId) {
 }
 
 function calculateStreak() {
-  const days = new Set(profile().attempts.map((attempt) => attempt.createdAt.slice(0, 10)));
+  const days = new Set(profile().attempts.map((attempt) => localDayKey(attempt.createdAt)));
   let streak = 0;
   const cursor = new Date();
-  while (days.has(cursor.toISOString().slice(0, 10))) {
+  while (days.has(localDayKey(cursor))) {
     streak += 1;
     cursor.setDate(cursor.getDate() - 1);
   }
@@ -3781,6 +4710,21 @@ function legacyCopy(textarea, message) {
 
 function tagPill(tag) {
   return `<span class="tag">${escapeHtml(tag)}</span>`;
+}
+
+// Returns a YYYY-MM-DD key in the *local* timezone. Attempts are stored with
+// createdAt as a UTC ISO string; naively slicing that string (or calling
+// toISOString() on "today") gives the UTC calendar day, which silently
+// disagrees with the user's local day for anyone outside UTC (e.g. it could
+// mark "yesterday" as today's study day, or vice versa, right around
+// midnight). Streaks and the heatmap both need the same, local, definition
+// of "day" to line up correctly.
+function localDayKey(value) {
+  const date = new Date(value);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function shuffle(items) {
