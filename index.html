@@ -911,6 +911,136 @@ textarea {
   padding: 2px 6px;
 }
 
+/* ==== OMR Sheet Solving Mode ==== */
+.review-row.warn { border-color: var(--warn); }
+
+.omrsheet-stage {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #111;
+  touch-action: none;
+  margin-bottom: 12px;
+}
+
+.omrsheet-stage canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+#omrSheetPrintArea { overflow-x: auto; }
+
+.omrsheet-page {
+  width: 190mm;
+  max-width: 100%;
+  margin: 0 auto 16px;
+  padding: 10mm;
+  background: #fff;
+  color: #000;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.omrsheet-title { font-weight: 800; font-size: 1.05rem; margin: 0 0 4px; }
+
+.omrsheet-topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 0.78rem;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.omrsheet-fields {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+
+.omrsheet-fill {
+  border-bottom: 1px solid #000;
+  min-width: 120px;
+  display: inline-block;
+  padding: 2px 4px;
+}
+
+.omrsheet-instructions { font-size: 0.76rem; color: #333; margin-bottom: 10px; }
+
+.omrsheet-frame {
+  position: relative;
+  width: 100%;
+  height: 225mm;
+  border: 1px solid #000;
+}
+
+.omrsheet-marker {
+  position: absolute;
+  width: 4.5%;
+  aspect-ratio: 1;
+  background: #000;
+  transform: translate(-50%, -50%);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.omrsheet-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 8px;
+  font-weight: 700;
+  color: #000;
+  white-space: nowrap;
+}
+
+.omrsheet-bubble {
+  position: absolute;
+  width: 3.1%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border: 1.3px solid #000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 7px;
+  font-weight: 700;
+  color: #000;
+  background: #fff;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+@media print {
+  body * { visibility: hidden; }
+  #omrSheetPrintArea, #omrSheetPrintArea * { visibility: visible; }
+  #omrSheetPrintArea {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+  .omrsheet-page {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    margin: 0 0 0;
+    break-after: page;
+  }
+  .omrsheet-page:last-child { break-after: auto; }
+  @page { size: A4; margin: 10mm; }
+}
+
 @media (max-width: 980px) {
   .app-shell { grid-template-columns: 1fr; }
   .sidebar { position: static; height: auto; }
@@ -1201,6 +1331,83 @@ textarea {
           </div>
           <div id="quizSurface" class="quiz-surface"></div>
           <div id="quizResult" class="panel hidden"></div>
+
+          <div class="panel" id="omrPanel">
+            <div class="panel-head">
+              <h2>OMR Sheet Mode &mdash; Solve on Paper, Scan to Grade</h2>
+            </div>
+            <p class="muted">Solve this test on paper &mdash; either a sheet printed from here, or your own external/pre-printed OMR sheet &mdash; then photograph it and upload it below. The app reads the marked bubbles, matches them against the answer key, and grades it exactly like an on-screen quiz &mdash; updating your analytics, Mistake Diary, and Spaced Repetition queue.</p>
+            <div class="form-grid compact-grid">
+              <label>Answer Sheet
+                <select id="omrSheetSourceSelect">
+                  <option value="generated">Print This App's OMR Sheet</option>
+                  <option value="nearpeer">Nearpeer / MDCAT Online Response Form (Preset)</option>
+                  <option value="external">I'll Use My Own / External OMR Sheet</option>
+                </select>
+              </label>
+            </div>
+            <div id="omrExternalConfig" class="hidden">
+              <p class="muted" id="omrExternalConfigHint">Describe your own sheet's bubble grid so the scanner knows how to read it &mdash; you'll still line up the corners by hand in the scan step below since there are no marker squares to auto-detect.</p>
+              <div class="form-grid">
+                <label>Options per Question<select id="omrExtOptions"><option value="5">5 (A-E)</option><option value="4">4 (A-D)</option></select></label>
+                <label>Columns of Questions<input id="omrExtCols" type="number" min="1" value="4"></label>
+                <label>Fill Order<select id="omrExtFillOrder">
+                  <option value="col">Down each column, then next column</option>
+                  <option value="row">Left to right across each row</option>
+                </select></label>
+                <label>Questions per Photographed Page<input id="omrExtPerPage" type="number" min="0" value="0" placeholder="0 = all on one page"></label>
+                <label>Number-Label Column Width (%)<input id="omrExtLabelPct" type="number" min="0" max="40" value="18"></label>
+              </div>
+            </div>
+            <div class="actions-row">
+              <button id="genOmrCustomBtn" class="secondary" type="button">Start OMR Test (Custom Quiz Settings Above)</button>
+              <button id="genOmrMdcatBtn" class="secondary" type="button" style="border-color: var(--primary); color: var(--primary);">Start OMR Test (Full MDCAT Mock &mdash; 180 Qs)</button>
+              <button id="discardOmrBtn" class="danger hidden" type="button">Discard OMR Session</button>
+            </div>
+
+            <div id="omrSheetWrap" class="hidden">
+              <div class="actions-row">
+                <button id="printOmrBtn" type="button">Print / Save as PDF</button>
+                <span class="muted" id="omrPageIndicator"></span>
+              </div>
+              <div id="omrSheetPrintArea"></div>
+            </div>
+            <div id="omrExternalNotice" class="hidden">
+              <p class="muted" id="omrPageIndicatorExternal"></p>
+            </div>
+
+            <div id="omrScanWrap" class="hidden">
+              <h2>Scan Completed Sheet<span id="omrScanPageLabel"></span></h2>
+              <div class="drop-zone" id="omrDropZone">
+                <strong>Upload a photo of the filled sheet</strong>
+                <span>Good lighting, flat paper, whole page in frame, camera roughly facing straight-on &middot; JPG or PNG</span>
+                <input id="omrPhotoInput" type="file" accept="image/*" capture="environment">
+              </div>
+              <div id="omrCalibrateWrap" class="hidden">
+                <p class="muted" id="omrCalibrateHint">Drag the four corner handles onto the centers of the four black corner squares on your photo, then analyze. Auto-Detect gives you a starting guess &mdash; fine-tune it if the handles aren't sitting exactly on the squares.</p>
+                <div class="omrsheet-stage" id="omrCalibrateStage">
+                  <canvas id="omrCalibrateCanvas"></canvas>
+                </div>
+                <div class="actions-row">
+                  <button id="omrAutoDetectBtn" class="secondary" type="button">Auto-Detect Corners</button>
+                  <button id="omrAnalyzeBtn" type="button">Analyze Sheet</button>
+                </div>
+              </div>
+              <div id="omrReviewWrap" class="hidden">
+                <h2>Review Detected Answers</h2>
+                <p id="omrReviewSummary" class="muted"></p>
+                <div id="omrReviewList" class="review-list"></div>
+                <div class="form-grid compact-grid">
+                  <label>Time Taken (minutes)<input id="omrTimeTaken" type="number" min="1" value="30"></label>
+                </div>
+                <div class="actions-row">
+                  <button id="omrBackToCalibrateBtn" class="secondary" type="button">&larr; Re-Adjust Corners</button>
+                  <button id="omrNextPageBtn" type="button" class="hidden">Save Page &amp; Scan Next Page &rarr;</button>
+                  <button id="omrConfirmGradeBtn" type="button" class="hidden">Confirm &amp; Grade Test</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
         <section id="review" class="view">
@@ -1433,6 +1640,9 @@ let noteUploading = false;
 let notesCurrentPath = "";
 let libraryCurrentPath = "";
 let activeQuiz = null;
+let omrSession = null;
+let omrScanState = null;
+let omrDragHandle = null;
 let quizTimerHandle = null;
 let chunkPickerChunkId = null;
 let chunkPickerSelected = new Set();
@@ -1562,6 +1772,7 @@ async function handleAuthenticated(session) {
   applyTheme();
   renderAll();
   restoreActiveQuiz();
+  restoreOmrSession();
 
   await pullProfileFromCloud();
   await syncProfileToCloud();
@@ -1576,6 +1787,8 @@ function handleSignedOut() {
   currentStorageKey = null;
   state = null;
   activeQuiz = null;
+  omrSession = null;
+  omrScanState = null;
   practiceSession = null;
   practiceJumpId = null;
   notesCurrentPath = "";
@@ -1805,6 +2018,8 @@ function bindEvents() {
       if (skipBtn && !skipBtn.disabled) { skipBtn.click(); event.preventDefault(); }
     }
   });
+
+  bindOmrEvents();
 }
 
 function loadState() {
@@ -4743,6 +4958,814 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
+
+// =====================================================================
+// ==== OMR Sheet Solving Mode ====
+// Physical-paper testing: generate a printable bubble sheet for a
+// custom quiz or the MDCAT mock, let the user solve it on paper, then
+// read a photo of the filled sheet back in, match it against the
+// answer key, and grade it through the exact same pipeline as an
+// on-screen quiz (recordAttempt / SRS / Mistake Diary / cloud sync).
+//
+// How the scanning works, in short:
+//   1. The printable sheet has 4 solid black squares at the corners of
+//      the bubble grid. Their positions in "template space" are always
+//      exactly (0,0), (1,0), (0,1), (1,1) - a unit square - regardless
+//      of physical page size, because every bubble is placed using the
+//      same xPct/yPct formula (omrBubblePosition) as fractions of that
+//      same square.
+//   2. After a photo is uploaded, the user confirms (or the app
+//      auto-guesses) where those 4 squares ended up in the photo. That
+//      gives 4 point correspondences from the unit square to the photo,
+//      which is enough to solve a projective homography (computeHomography).
+//   3. For every question, each option's known unit-square position is
+//      projected through that homography to find where it lands in the
+//      photo, a small patch is sampled there, and the darkest bubble in
+//      the row (relative to the other options in that same row, which
+//      cancels out most lighting differences) is taken as the mark.
+//   4. Everything is shown in an editable review list before grading,
+//      since this kind of detection is inherently a best-effort read of
+//      a hand-filled paper sheet, not a guaranteed-perfect one.
+// =====================================================================
+
+const OMR_MAX_PER_PAGE = 225; // keeps row pitch readable on one A4 page (see .omrsheet-frame height)
+const OMR_PAD_X = 4;   // % padding from the frame's left/right edges to the bubble content area
+const OMR_PAD_Y = 3;   // % padding from the frame's top/bottom edges to the bubble content area
+const OMR_LABEL_PCT = 18; // % of a column's width reserved for the question-number label
+
+function chooseOmrColumns(n) {
+  if (n <= 15) return 1;
+  if (n <= 40) return 2;
+  if (n <= 75) return 3;
+  if (n <= 120) return 4;
+  return 5;
+}
+
+function buildOmrPages(questions) {
+  const pages = [];
+  for (let start = 0; start < questions.length; start += OMR_MAX_PER_PAGE) {
+    const pageQuestions = questions.slice(start, start + OMR_MAX_PER_PAGE);
+    const cols = chooseOmrColumns(pageQuestions.length);
+    const rows = Math.ceil(pageQuestions.length / cols);
+    pages.push({
+      startIndex: start,
+      questions: pageQuestions,
+      cols,
+      rows,
+      fillOrder: "col",
+      padX: OMR_PAD_X,
+      padY: OMR_PAD_Y,
+      labelPct: OMR_LABEL_PCT,
+      optionCount: ANSWERS.length
+    });
+  }
+  return pages;
+}
+
+// Same idea as buildOmrPages(), but parameterized entirely from a
+// user-described layout instead of this app's own printable template -
+// this is what makes an arbitrary external/pre-printed OMR sheet
+// readable: as long as the person can describe its grid (columns, options
+// per question, fill order, how many questions per photographed page),
+// the exact same homography + sampling pipeline below can read it.
+function buildExternalOmrPages(questions, layout) {
+  const perPage = layout.questionsPerPage > 0 ? layout.questionsPerPage : questions.length;
+  const pages = [];
+  for (let start = 0; start < questions.length; start += perPage) {
+    const pageQuestions = questions.slice(start, start + perPage);
+    const cols = Math.max(1, layout.cols);
+    const rows = Math.ceil(pageQuestions.length / cols);
+    pages.push({
+      startIndex: start,
+      questions: pageQuestions,
+      cols,
+      rows,
+      fillOrder: layout.fillOrder,
+      padX: 0,
+      padY: 0,
+      labelPct: layout.labelPct,
+      optionCount: layout.optionCount
+    });
+  }
+  return pages;
+}
+
+// Fractional (0-100) position of option `optionIndex` in column `colIndex`,
+// row `rowIndex` of a grid with `cols` columns / `rows` rows - relative to
+// the frame's own corners (0,0)-(100,100). Rendering (as left%/top%) and
+// scanning (as u=x/100, v=y/100 fed into the homography) both call this
+// same function so they can never drift apart. padX/padY/labelPct default
+// to this app's own printable template but are overridable per-page for
+// external sheets (see buildExternalOmrPages), whose corners are the
+// outermost bubbles themselves rather than a separate margin.
+function omrBubblePosition(cols, rows, colIndex, rowIndex, optionIndex, optionCount, padX = OMR_PAD_X, padY = OMR_PAD_Y, labelPct = OMR_LABEL_PCT) {
+  const innerWidth = 100 - 2 * padX;
+  const innerHeight = 100 - 2 * padY;
+  const colWidth = innerWidth / cols;
+  const rowHeight = innerHeight / rows;
+  const colX0 = padX + colIndex * colWidth;
+  const rowY0 = padY + rowIndex * rowHeight;
+  const labelWidth = colWidth * (labelPct / 100);
+  const bubblesWidth = colWidth - labelWidth;
+  const cellWidth = bubblesWidth / optionCount;
+  return {
+    xPct: colX0 + labelWidth + (optionIndex + 0.5) * cellWidth,
+    yPct: rowY0 + 0.5 * rowHeight
+  };
+}
+
+function omrLabelPosition(cols, rows, colIndex, rowIndex, padX = OMR_PAD_X, padY = OMR_PAD_Y, labelPct = OMR_LABEL_PCT) {
+  const innerWidth = 100 - 2 * padX;
+  const innerHeight = 100 - 2 * padY;
+  const colWidth = innerWidth / cols;
+  const rowHeight = innerHeight / rows;
+  const colX0 = padX + colIndex * colWidth;
+  const rowY0 = padY + rowIndex * rowHeight;
+  const labelWidth = colWidth * (labelPct / 100);
+  return { xPct: colX0 + labelWidth / 2, yPct: rowY0 + rowHeight / 2 };
+}
+
+// Maps a page-local question index to its (col,row) cell according to that
+// page's fill order - "col" (down each column, then the next column, as on
+// this app's own printed sheet) or "row" (left to right across each row,
+// common on simple external sheets/single lists).
+function omrIndexToCell(i, page) {
+  if (page.fillOrder === "row") {
+    return { col: i % page.cols, row: Math.floor(i / page.cols) };
+  }
+  return { col: Math.floor(i / page.rows), row: i % page.rows };
+}
+
+function renderOmrSheetHtml(session) {
+  return session.pages.map((page, pageIdx) => {
+    const { cols, rows, questions, startIndex, padX, padY, labelPct } = page;
+    const options = ANSWERS.slice(0, page.optionCount || ANSWERS.length);
+    let bubblesHtml = "";
+    for (let i = 0; i < questions.length; i++) {
+      const { col: c, row: r } = omrIndexToCell(i, page);
+      const globalNum = startIndex + i + 1;
+      const labelPos = omrLabelPosition(cols, rows, c, r, padX, padY, labelPct);
+      bubblesHtml += `<span class="omrsheet-label" style="left:${labelPos.xPct}%;top:${labelPos.yPct}%;">${globalNum}</span>`;
+      options.forEach((letter, optIdx) => {
+        const pos = omrBubblePosition(cols, rows, c, r, optIdx, options.length, padX, padY, labelPct);
+        bubblesHtml += `<span class="omrsheet-bubble" style="left:${pos.xPct}%;top:${pos.yPct}%;">${letter}</span>`;
+      });
+    }
+    return `
+      <div class="omrsheet-page">
+        <div class="omrsheet-title">${escapeHtml(session.label)}</div>
+        <div class="omrsheet-topline">
+          <span>Page ${pageIdx + 1} of ${session.pages.length} &middot; Questions ${startIndex + 1}&ndash;${startIndex + questions.length}</span>
+          <span>Session: ${escapeHtml(session.id)}</span>
+        </div>
+        <div class="omrsheet-fields">
+          <span>Name: <span class="omrsheet-fill">&nbsp;</span></span>
+          <span>Date: <span class="omrsheet-fill">&nbsp;</span></span>
+          <span>Roll No: <span class="omrsheet-fill">&nbsp;</span></span>
+        </div>
+        <p class="omrsheet-instructions">Use a dark pencil or pen. Fill each bubble completely and mark only one option per question. Keep this sheet flat and unfolded so it photographs cleanly for scanning.</p>
+        <div class="omrsheet-frame">
+          <span class="omrsheet-marker" style="left:0%;top:0%;"></span>
+          <span class="omrsheet-marker" style="left:100%;top:0%;"></span>
+          <span class="omrsheet-marker" style="left:0%;top:100%;"></span>
+          <span class="omrsheet-marker" style="left:100%;top:100%;"></span>
+          ${bubblesHtml}
+        </div>
+      </div>`;
+  }).join("");
+}
+
+// Known layouts for popular pre-printed OMR sheets, so the person doesn't
+// have to work out columns/options/fill-order by hand. Selecting one of
+// these just pre-fills the same external-layout fields below (still
+// editable) - under the hood it's read exactly like any other external
+// sheet, since there's no fiducial marker to auto-detect on a real printed
+// booklet either way.
+const OMR_SHEET_PRESETS = {
+  // Nearpeer / "MDCAT Online" MCQ's Response Form: 4 answer-grid columns,
+  // A-D (4 options) per question, filled top-to-bottom within a column
+  // before moving to the next one, 180 questions per sheet (matching
+  // Nearpeer's own bubble-sheet booklets and the standard MDCAT paper
+  // length). There's also a separate small Roll No. grid printed at the
+  // top right of that sheet - that box is NOT part of the answer grid, so
+  // it should stay outside the four corner handles when calibrating.
+  nearpeer: { cols: 4, optionCount: 4, fillOrder: "col", questionsPerPage: 180, labelPct: 18 }
+};
+
+function getOmrSheetSourceChoice() {
+  const raw = els.omrSheetSourceSelect ? els.omrSheetSourceSelect.value : "generated";
+  return raw === "nearpeer" ? "external" : raw;
+}
+
+function readExternalOmrLayout(questionCount) {
+  const cols = Math.max(1, Number(els.omrExtCols?.value) || chooseOmrColumns(questionCount));
+  const rawOptionCount = Number(els.omrExtOptions?.value) || ANSWERS.length;
+  const labelPct = Number(els.omrExtLabelPct?.value);
+  return {
+    cols,
+    optionCount: Math.min(ANSWERS.length, Math.max(2, rawOptionCount)),
+    fillOrder: els.omrExtFillOrder?.value === "row" ? "row" : "col",
+    labelPct: Number.isFinite(labelPct) && labelPct >= 0 ? labelPct : OMR_LABEL_PCT,
+    questionsPerPage: Number(els.omrExtPerPage?.value) || 0
+  };
+}
+
+function startOmrSession(questions, label) {
+  const sheetPreset = els.omrSheetSourceSelect ? els.omrSheetSourceSelect.value : "generated";
+  const sheetSource = getOmrSheetSourceChoice();
+  const pages = sheetSource === "external"
+    ? buildExternalOmrPages(questions, readExternalOmrLayout(questions.length))
+    : buildOmrPages(questions);
+  omrSession = {
+    id: `OMR-${Date.now().toString(36).toUpperCase()}`,
+    label,
+    questions,
+    sheetSource,
+    sheetPreset,
+    pages,
+    currentPageIndex: 0,
+    detectedAnswers: {},
+    profileId: activeProfileId,
+    createdAt: new Date().toISOString()
+  };
+  persistOmrSession();
+  if (els.omrTimeTaken) {
+    els.omrTimeTaken.value = questions.length >= 150 ? 180 : Math.max(10, Math.round(questions.length * 1.2));
+  }
+  renderOmrSheetStage();
+  addHistory("omr.sheet_generated", `${label} (${sheetPreset}) \u2014 ${questions.length} questions`);
+  saveState();
+}
+
+// Mirrors the filter logic in startQuiz() so the OMR sheet reflects the
+// same Custom Quiz Builder criteria - kept separate (rather than having
+// startQuiz() call into this) so the existing on-screen quiz flow is left
+// completely untouched.
+function genOmrSheetFromCriteria() {
+  if (omrSession && !confirm("A previous OMR sheet session is in progress. Starting a new one will discard it. Continue?")) return;
+  const questions = Object.values(state.questions).filter((question) => {
+    return (!els.quizChunk?.value || question.chunkId === els.quizChunk.value)
+      && (!els.quizAcademy?.value || question.edition === els.quizAcademy.value)
+      && (!els.quizSource?.value || question.source.toLowerCase() === els.quizSource.value.toLowerCase())
+      && (!els.quizChapter?.value || question.chapter.toLowerCase().includes(els.quizChapter.value.toLowerCase()))
+      && (!els.quizTag?.value || question.tags.some((tag) => tag.toLowerCase().includes(els.quizTag.value.toLowerCase())))
+      && (!els.quizDifficulty?.value || question.difficulty === els.quizDifficulty.value);
+  });
+  const pool = els.quizRandom.checked ? shuffle(questions) : questions;
+  const rawCount = Number(els.quizCount.value);
+  const count = Number.isFinite(rawCount) && rawCount > 0 ? Math.floor(rawCount) : 10;
+  const selected = pool.slice(0, count);
+  if (!selected.length) {
+    alert("No questions match this quiz criteria.");
+    return;
+  }
+  startOmrSession(selected, "Custom OMR Test");
+}
+
+function genOmrMdcatSheet() {
+  if (omrSession && !confirm("A previous OMR sheet session is in progress. Starting a new one will discard it. Continue?")) return;
+  const allQs = Object.values(state.questions);
+  const pool = shuffle(allQs).slice(0, 180);
+  if (!pool.length) {
+    alert("Import some questions first to generate an OMR sheet!");
+    return;
+  }
+  startOmrSession(pool, "KMU MDCAT 2026 Full Mock (OMR Sheet)");
+}
+
+function discardOmrSession() {
+  if (!omrSession) return;
+  if (!confirm("Discard this OMR sheet session? This cannot be undone.")) return;
+  omrSession = null;
+  omrScanState = null;
+  persistOmrSession();
+  renderOmrSheetStage();
+}
+
+function persistOmrSession() {
+  if (!currentStorageKey) return;
+  if (omrSession) {
+    localStorage.setItem(`${currentStorageKey}.omrSession`, JSON.stringify(omrSession));
+  } else {
+    localStorage.removeItem(`${currentStorageKey}.omrSession`);
+  }
+}
+
+function restoreOmrSession() {
+  let raw;
+  try {
+    raw = localStorage.getItem(`${currentStorageKey}.omrSession`);
+  } catch {
+    return;
+  }
+  if (!raw) return;
+  try {
+    const saved = JSON.parse(raw);
+    const stillValid = saved && Array.isArray(saved.questions) && saved.questions.length
+      && saved.questions.every((question) => state.questions[question.id])
+      && (!saved.profileId || saved.profileId === activeProfileId);
+    if (!stillValid) {
+      localStorage.removeItem(`${currentStorageKey}.omrSession`);
+      return;
+    }
+    omrSession = saved;
+    renderOmrSheetStage();
+  } catch {
+    localStorage.removeItem(`${currentStorageKey}.omrSession`);
+  }
+}
+
+function renderOmrSheetStage() {
+  if (!els.omrPanel) return;
+  if (!omrSession) {
+    if (els.omrSheetWrap) els.omrSheetWrap.classList.add("hidden");
+    if (els.omrScanWrap) els.omrScanWrap.classList.add("hidden");
+    if (els.discardOmrBtn) els.discardOmrBtn.classList.add("hidden");
+    if (els.omrSheetPrintArea) els.omrSheetPrintArea.innerHTML = "";
+    return;
+  }
+  if (els.discardOmrBtn) els.discardOmrBtn.classList.remove("hidden");
+  const isGenerated = omrSession.sheetSource !== "external";
+  if (els.omrSheetWrap) els.omrSheetWrap.classList.toggle("hidden", !isGenerated);
+  if (els.omrExternalNotice) els.omrExternalNotice.classList.toggle("hidden", isGenerated);
+  if (els.omrScanWrap) els.omrScanWrap.classList.remove("hidden");
+  const totalPages = omrSession.pages.length;
+  if (isGenerated) {
+    if (els.omrSheetPrintArea) els.omrSheetPrintArea.innerHTML = renderOmrSheetHtml(omrSession);
+    if (els.omrPageIndicator) {
+      els.omrPageIndicator.textContent = `${omrSession.label} \u00b7 ${omrSession.questions.length} questions across ${totalPages} page${totalPages > 1 ? "s" : ""}`;
+    }
+  } else if (els.omrPageIndicatorExternal) {
+    const sheetName = omrSession.sheetPreset === "nearpeer" ? "your Nearpeer / MDCAT Online Response Form" : "your own sheet";
+    els.omrPageIndicatorExternal.textContent = `${omrSession.label} \u00b7 ${omrSession.questions.length} questions across ${totalPages} page${totalPages > 1 ? "s" : ""} on ${sheetName}. Solve it in that same order, then scan below.`;
+  }
+  resetOmrScanStepForCurrentPage();
+}
+
+function resetOmrScanStepForCurrentPage() {
+  omrScanState = null;
+  if (els.omrPhotoInput) els.omrPhotoInput.value = "";
+  if (els.omrCalibrateWrap) els.omrCalibrateWrap.classList.add("hidden");
+  if (els.omrReviewWrap) els.omrReviewWrap.classList.add("hidden");
+  if (els.omrDropZone) els.omrDropZone.classList.remove("hidden");
+  if (!omrSession) return;
+  const isGenerated = omrSession.sheetSource !== "external";
+  if (els.omrAutoDetectBtn) els.omrAutoDetectBtn.classList.toggle("hidden", !isGenerated);
+  if (els.omrCalibrateHint) {
+    els.omrCalibrateHint.textContent = isGenerated
+      ? "Drag the four corner handles onto the centers of the four black corner squares on your photo, then analyze. Auto-Detect gives you a starting guess \u2014 fine-tune it if the handles aren't sitting exactly on the squares."
+      : omrSession.sheetPreset === "nearpeer"
+        ? "This is your Nearpeer / MDCAT Online Response Form, so there are no marker squares to auto-detect. Drag each handle onto the CENTER of the outermost bubble in that corner of the four-column answer grid (top-left = Question 1's option A bubble). Leave the small Roll No. box at the top right out of the corners \u2014 that's separate from the answer grid, then analyze."
+        : "This isn't a sheet generated by this app, so there are no corner squares to auto-detect. Drag each handle onto the CENTER of the outermost bubble in that corner of your grid (e.g. top-left handle = Question 1's first option bubble), then analyze.";
+  }
+  if (!els.omrScanPageLabel) return;
+  const page = omrSession.pages[omrSession.currentPageIndex];
+  const totalPages = omrSession.pages.length;
+  els.omrScanPageLabel.textContent = totalPages > 1
+    ? ` \u2014 Page ${omrSession.currentPageIndex + 1} of ${totalPages} (Questions ${page.startIndex + 1}\u2013${page.startIndex + page.questions.length})`
+    : "";
+}
+
+function printOmrSheet() {
+  window.print();
+}
+
+function toGrayscale(imageData) {
+  const { data, width, height } = imageData;
+  const gray = new Uint8ClampedArray(width * height);
+  for (let i = 0, p = 0; i < data.length; i += 4, p++) {
+    gray[p] = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+  }
+  return gray;
+}
+
+function defaultOmrCorners(w, h) {
+  const mx = w * 0.08, my = h * 0.08;
+  return {
+    tl: { x: mx, y: my },
+    tr: { x: w - mx, y: my },
+    bl: { x: mx, y: h - my },
+    br: { x: w - mx, y: h - my }
+  };
+}
+
+// Best-effort search for the 4 solid corner squares: works on a coarse,
+// downsampled darkness grid (cheap to flood-fill), then keeps the largest
+// roughly-square dark blob found in each quadrant of the photo. This is a
+// starting guess only - the draggable handles are what make the reading
+// reliable when this guess is off.
+function autoDetectOmrCorners(gray, w, h) {
+  const cellSize = Math.max(4, Math.round(Math.min(w, h) / 180));
+  const cols = Math.floor(w / cellSize);
+  const rows = Math.floor(h / cellSize);
+  if (cols < 10 || rows < 10) return null;
+  const cellDark = new Float32Array(cols * rows);
+  for (let cy = 0; cy < rows; cy++) {
+    for (let cx = 0; cx < cols; cx++) {
+      let sum = 0, n = 0;
+      const x0 = cx * cellSize, y0 = cy * cellSize;
+      const yMax = Math.min(h, y0 + cellSize);
+      const xMax = Math.min(w, x0 + cellSize);
+      for (let y = y0; y < yMax; y++) {
+        const rowBase = y * w;
+        for (let x = x0; x < xMax; x++) {
+          sum += gray[rowBase + x];
+          n++;
+        }
+      }
+      cellDark[cy * cols + cx] = n ? sum / n : 255;
+    }
+  }
+  const sortedVals = Array.from(cellDark).sort((a, b) => a - b);
+  const cutoffIdx = Math.max(1, Math.floor(sortedVals.length * 0.08));
+  const threshold = Math.min(120, sortedVals[cutoffIdx]);
+  const visited = new Uint8Array(cols * rows);
+  const blobs = [];
+  for (let start = 0; start < cols * rows; start++) {
+    if (visited[start] || cellDark[start] > threshold) continue;
+    const stack = [start];
+    visited[start] = 1;
+    let minX = cols, maxX = 0, minY = rows, maxY = 0, count = 0;
+    while (stack.length) {
+      const idx = stack.pop();
+      const x = idx % cols, y = Math.floor(idx / cols);
+      count++;
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+      const candidates = [idx - 1, idx + 1, idx - cols, idx + cols];
+      for (const next of candidates) {
+        if (next < 0 || next >= cols * rows) continue;
+        if (Math.abs((next % cols) - x) > 1) continue; // don't wrap across row edges
+        if (visited[next] || cellDark[next] > threshold) continue;
+        visited[next] = 1;
+        stack.push(next);
+      }
+    }
+    const bw = maxX - minX + 1, bh = maxY - minY + 1;
+    const aspect = bw / bh;
+    if (count < 4 || count > (cols * rows) / 6) continue;
+    if (aspect < 0.5 || aspect > 2) continue;
+    blobs.push({ cx: ((minX + maxX + 1) / 2) * cellSize, cy: ((minY + maxY + 1) / 2) * cellSize, area: count });
+  }
+  if (blobs.length < 4) return null;
+  const quadrants = {
+    tl: blobs.filter((b) => b.cx < w * 0.6 && b.cy < h * 0.6),
+    tr: blobs.filter((b) => b.cx > w * 0.4 && b.cy < h * 0.6),
+    bl: blobs.filter((b) => b.cx < w * 0.6 && b.cy > h * 0.4),
+    br: blobs.filter((b) => b.cx > w * 0.4 && b.cy > h * 0.4)
+  };
+  const pick = (list) => list.sort((a, b) => b.area - a.area)[0];
+  const tl = pick(quadrants.tl), tr = pick(quadrants.tr), bl = pick(quadrants.bl), br = pick(quadrants.br);
+  if (!tl || !tr || !bl || !br) return null;
+  return {
+    tl: { x: tl.cx, y: tl.cy },
+    tr: { x: tr.cx, y: tr.cy },
+    bl: { x: bl.cx, y: bl.cy },
+    br: { x: br.cx, y: br.cy }
+  };
+}
+
+function handleOmrPhotoSelected() {
+  const file = els.omrPhotoInput.files && els.omrPhotoInput.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const maxDim = 1500;
+      const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+      const w = Math.max(1, Math.round(img.width * scale));
+      const h = Math.max(1, Math.round(img.height * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, w, h);
+      const imageData = ctx.getImageData(0, 0, w, h);
+      const gray = toGrayscale(imageData);
+      omrScanState = { canvas, width: w, height: h, gray, corners: null, results: null };
+      if (els.omrDropZone) els.omrDropZone.classList.add("hidden");
+      if (els.omrCalibrateWrap) els.omrCalibrateWrap.classList.remove("hidden");
+      if (els.omrReviewWrap) els.omrReviewWrap.classList.add("hidden");
+      const isGenerated = omrSession && omrSession.sheetSource !== "external";
+      omrScanState.corners = (isGenerated && autoDetectOmrCorners(gray, w, h)) || defaultOmrCorners(w, h);
+      drawOmrCalibrationCanvas();
+    };
+    img.onerror = () => alert("Could not load that image. Please try another photo.");
+    img.src = reader.result;
+  };
+  reader.onerror = () => alert("Could not read that file.");
+  reader.readAsDataURL(file);
+}
+
+function drawOmrCalibrationCanvas() {
+  if (!omrScanState || !els.omrCalibrateCanvas) return;
+  const canvas = els.omrCalibrateCanvas;
+  canvas.width = omrScanState.width;
+  canvas.height = omrScanState.height;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(omrScanState.canvas, 0, 0);
+  const { tl, tr, bl, br } = omrScanState.corners;
+  ctx.lineWidth = Math.max(2, canvas.width * 0.003);
+  ctx.strokeStyle = "#2ecc71";
+  ctx.beginPath();
+  ctx.moveTo(tl.x, tl.y);
+  ctx.lineTo(tr.x, tr.y);
+  ctx.lineTo(br.x, br.y);
+  ctx.lineTo(bl.x, bl.y);
+  ctx.closePath();
+  ctx.stroke();
+  const handleRadius = Math.max(10, canvas.width * 0.012);
+  [tl, tr, bl, br].forEach((point) => {
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, handleRadius, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(46, 204, 113, 0.35)";
+    ctx.fill();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "#2ecc71";
+    ctx.stroke();
+  });
+}
+
+function omrCanvasPointFromEvent(evt) {
+  const canvas = els.omrCalibrateCanvas;
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const point = evt.touches && evt.touches[0] ? evt.touches[0] : evt;
+  return { x: (point.clientX - rect.left) * scaleX, y: (point.clientY - rect.top) * scaleY };
+}
+
+function findNearestOmrHandle(point) {
+  if (!omrScanState) return null;
+  const canvas = els.omrCalibrateCanvas;
+  const grabRadius = Math.max(24, canvas.width * 0.05);
+  let nearest = null, nearestDist = Infinity;
+  Object.entries(omrScanState.corners).forEach(([key, c]) => {
+    const dist = Math.hypot(c.x - point.x, c.y - point.y);
+    if (dist < nearestDist) { nearestDist = dist; nearest = key; }
+  });
+  return nearestDist <= grabRadius ? nearest : null;
+}
+
+function bindOmrCalibrationDrag() {
+  const canvas = els.omrCalibrateCanvas;
+  if (!canvas) return;
+  const onDown = (evt) => {
+    if (!omrScanState) return;
+    const handle = findNearestOmrHandle(omrCanvasPointFromEvent(evt));
+    if (handle) {
+      omrDragHandle = handle;
+      evt.preventDefault();
+    }
+  };
+  const onMove = (evt) => {
+    if (!omrDragHandle || !omrScanState) return;
+    evt.preventDefault();
+    const point = omrCanvasPointFromEvent(evt);
+    point.x = Math.max(0, Math.min(omrScanState.width, point.x));
+    point.y = Math.max(0, Math.min(omrScanState.height, point.y));
+    omrScanState.corners[omrDragHandle] = point;
+    drawOmrCalibrationCanvas();
+  };
+  const onUp = () => { omrDragHandle = null; };
+  canvas.addEventListener("mousedown", onDown);
+  canvas.addEventListener("touchstart", onDown, { passive: false });
+  window.addEventListener("mousemove", onMove);
+  window.addEventListener("touchmove", onMove, { passive: false });
+  window.addEventListener("mouseup", onUp);
+  window.addEventListener("touchend", onUp);
+}
+
+function rerunOmrAutoDetect() {
+  if (!omrScanState) return;
+  const detected = autoDetectOmrCorners(omrScanState.gray, omrScanState.width, omrScanState.height);
+  if (detected) {
+    omrScanState.corners = detected;
+    drawOmrCalibrationCanvas();
+  } else {
+    alert("Could not automatically find the corner squares. Please drag the four handles onto them manually.");
+  }
+}
+
+// Solves for a 3x3 projective homography (8 unknowns, h33 fixed at 1) that
+// maps the 4 unit-square corners in srcPts to the 4 detected/confirmed
+// corners in dstPts, via the standard direct-linear-transform equations
+// solved with Gaussian elimination.
+function solveOmrLinearSystem(A, b) {
+  const n = b.length;
+  const M = A.map((row, i) => [...row, b[i]]);
+  for (let col = 0; col < n; col++) {
+    let pivotRow = col, maxVal = Math.abs(M[col][col]);
+    for (let r = col + 1; r < n; r++) {
+      if (Math.abs(M[r][col]) > maxVal) { maxVal = Math.abs(M[r][col]); pivotRow = r; }
+    }
+    if (maxVal < 1e-9) return null;
+    if (pivotRow !== col) { const tmp = M[col]; M[col] = M[pivotRow]; M[pivotRow] = tmp; }
+    const pivot = M[col][col];
+    for (let c = col; c <= n; c++) M[col][c] /= pivot;
+    for (let r = 0; r < n; r++) {
+      if (r === col) continue;
+      const factor = M[r][col];
+      if (!factor) continue;
+      for (let c = col; c <= n; c++) M[r][c] -= factor * M[col][c];
+    }
+  }
+  return M.map((row) => row[n]);
+}
+
+function computeHomography(srcPts, dstPts) {
+  const A = [], b = [];
+  for (let i = 0; i < 4; i++) {
+    const { x: u, y: v } = srcPts[i];
+    const { x, y } = dstPts[i];
+    A.push([u, v, 1, 0, 0, 0, -u * x, -v * x]);
+    b.push(x);
+    A.push([0, 0, 0, u, v, 1, -u * y, -v * y]);
+    b.push(y);
+  }
+  const h = solveOmrLinearSystem(A, b);
+  return h ? [...h, 1] : null;
+}
+
+function applyHomography(h, u, v) {
+  const denom = h[6] * u + h[7] * v + 1;
+  return { x: (h[0] * u + h[1] * v + h[2]) / denom, y: (h[3] * u + h[4] * v + h[5]) / denom };
+}
+
+function analyzeOmrSheet() {
+  if (!omrSession || !omrScanState) return;
+  const page = omrSession.pages[omrSession.currentPageIndex];
+  const { corners, gray, width, height } = omrScanState;
+  const h = computeHomography(
+    [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }],
+    [corners.tl, corners.tr, corners.bl, corners.br]
+  );
+  if (!h) {
+    alert("Those four corners look invalid (too close together or in a line). Please adjust them and try again.");
+    return;
+  }
+  const sampleGray = (x, y, radiusPx) => {
+    const rx = Math.max(1, Math.round(radiusPx));
+    const cx = Math.round(x), cy = Math.round(y);
+    let sum = 0, n = 0;
+    for (let dy = -rx; dy <= rx; dy++) {
+      const yy = cy + dy;
+      if (yy < 0 || yy >= height) continue;
+      const rowBase = yy * width;
+      for (let dx = -rx; dx <= rx; dx++) {
+        if (dx * dx + dy * dy > rx * rx) continue;
+        const xx = cx + dx;
+        if (xx < 0 || xx >= width) continue;
+        sum += gray[rowBase + xx];
+        n++;
+      }
+    }
+    return n ? sum / n : 255;
+  };
+  const options = ANSWERS.slice(0, page.optionCount || ANSWERS.length);
+  const results = [];
+  for (let i = 0; i < page.questions.length; i++) {
+    const { col: c, row: r } = omrIndexToCell(i, page);
+    const question = page.questions[i];
+    const centerPos = omrBubblePosition(page.cols, page.rows, c, r, 0, options.length, page.padX, page.padY, page.labelPct);
+    const neighborPos = omrBubblePosition(page.cols, page.rows, c, r, Math.min(1, options.length - 1), options.length, page.padX, page.padY, page.labelPct);
+    const p0 = applyHomography(h, centerPos.xPct / 100, centerPos.yPct / 100);
+    const p1 = applyHomography(h, neighborPos.xPct / 100, neighborPos.yPct / 100);
+    const radiusPx = Math.max(3, Math.hypot(p1.x - p0.x, p1.y - p0.y) * 0.32 || width * 0.01);
+    const scores = options.map((letter, optIdx) => {
+      const pos = omrBubblePosition(page.cols, page.rows, c, r, optIdx, options.length, page.padX, page.padY, page.labelPct);
+      const pt = applyHomography(h, pos.xPct / 100, pos.yPct / 100);
+      return 255 - sampleGray(pt.x, pt.y, radiusPx); // darkness score, higher = more filled
+    });
+    const sorted = scores.map((s, idx) => ({ s, idx })).sort((a, b2) => b2.s - a.s);
+    const top = sorted[0];
+    const restAvg = sorted.slice(1).reduce((sum, o) => sum + o.s, 0) / Math.max(1, sorted.length - 1);
+    const delta = top.s - restAvg;
+    let answer = "", status = "ok";
+    if (top.s < 55) {
+      status = "blank";
+    } else if (delta < 18) {
+      status = "ambiguous";
+      answer = options[top.idx];
+    } else {
+      answer = options[top.idx];
+    }
+    results.push({ questionId: question.id, questionNumber: page.startIndex + i + 1, answer, status });
+  }
+  omrScanState.results = results;
+  renderOmrReview(results);
+}
+
+function renderOmrReview(results) {
+  if (els.omrCalibrateWrap) els.omrCalibrateWrap.classList.add("hidden");
+  if (els.omrReviewWrap) els.omrReviewWrap.classList.remove("hidden");
+  const blanks = results.filter((r) => r.status === "blank").length;
+  const ambiguous = results.filter((r) => r.status === "ambiguous").length;
+  if (els.omrReviewSummary) {
+    els.omrReviewSummary.textContent = `${results.length} questions read \u00b7 ${blanks} blank \u00b7 ${ambiguous} unclear \u2014 double-check the flagged rows below, then correct anything that's wrong before grading.`;
+  }
+  const reviewPage = omrSession.pages[omrSession.currentPageIndex];
+  const reviewOptions = ANSWERS.slice(0, reviewPage.optionCount || ANSWERS.length);
+  if (els.omrReviewList) {
+    els.omrReviewList.innerHTML = results.map((r) => `
+      <div class="review-row ${r.status !== "ok" ? "warn" : ""}" data-qid="${escapeHtml(r.questionId)}">
+        <strong>Q${r.questionNumber}${r.status === "blank" ? " \u2014 No mark detected" : r.status === "ambiguous" ? " \u2014 Unclear / possible double mark" : ""}</strong>
+        <label>Answer
+          <select class="omr-answer-select">
+            <option value="">Blank / Skip</option>
+            ${reviewOptions.map((letter) => `<option value="${letter}" ${r.answer === letter ? "selected" : ""}>${letter}</option>`).join("")}
+          </select>
+        </label>
+      </div>`).join("");
+  }
+  const isLastPage = omrSession.currentPageIndex === omrSession.pages.length - 1;
+  if (els.omrNextPageBtn) els.omrNextPageBtn.classList.toggle("hidden", isLastPage);
+  if (els.omrConfirmGradeBtn) els.omrConfirmGradeBtn.classList.toggle("hidden", !isLastPage);
+}
+
+function backToOmrCalibrate() {
+  if (els.omrReviewWrap) els.omrReviewWrap.classList.add("hidden");
+  if (els.omrCalibrateWrap) els.omrCalibrateWrap.classList.remove("hidden");
+}
+
+function collectOmrPageAnswers() {
+  const answers = {};
+  if (!els.omrReviewList) return answers;
+  els.omrReviewList.querySelectorAll(".review-row").forEach((row) => {
+    const select = row.querySelector(".omr-answer-select");
+    answers[row.dataset.qid] = select ? select.value : "";
+  });
+  return answers;
+}
+
+function saveOmrPageAndContinue() {
+  Object.assign(omrSession.detectedAnswers, collectOmrPageAnswers());
+  omrSession.currentPageIndex += 1;
+  persistOmrSession();
+  resetOmrScanStepForCurrentPage();
+}
+
+function confirmAndGradeOmr() {
+  Object.assign(omrSession.detectedAnswers, collectOmrPageAnswers());
+  if (activeQuiz && Object.keys(activeQuiz.answers).length
+      && !confirm("An on-screen quiz is also in progress. Grading this OMR sheet will replace it. Continue?")) {
+    return;
+  }
+  const rawMinutes = Number(els.omrTimeTaken?.value);
+  const elapsedMinutes = Number.isFinite(rawMinutes) && rawMinutes > 0 ? rawMinutes : 30;
+  activeQuiz = {
+    startedAt: Date.now() - elapsedMinutes * 60000,
+    endsAt: null,
+    questions: omrSession.questions,
+    answers: omrSession.detectedAnswers,
+    label: `${omrSession.label} (OMR Sheet)`,
+    profileId: activeProfileId
+  };
+  persistActiveQuiz();
+  omrSession = null;
+  omrScanState = null;
+  persistOmrSession();
+  renderOmrSheetStage();
+  submitQuiz();
+}
+
+function bindOmrEvents() {
+  if (els.omrSheetSourceSelect) {
+    els.omrSheetSourceSelect.addEventListener("change", () => {
+      const value = els.omrSheetSourceSelect.value;
+      const isExternalLike = value === "external" || value === "nearpeer";
+      if (els.omrExternalConfig) els.omrExternalConfig.classList.toggle("hidden", !isExternalLike);
+      const preset = OMR_SHEET_PRESETS[value];
+      if (preset) {
+        if (els.omrExtCols) els.omrExtCols.value = preset.cols;
+        if (els.omrExtOptions) els.omrExtOptions.value = preset.optionCount;
+        if (els.omrExtFillOrder) els.omrExtFillOrder.value = preset.fillOrder;
+        if (els.omrExtPerPage) els.omrExtPerPage.value = preset.questionsPerPage;
+        if (els.omrExtLabelPct) els.omrExtLabelPct.value = preset.labelPct;
+      }
+      if (els.omrExternalConfigHint) {
+        els.omrExternalConfigHint.textContent = value === "nearpeer"
+          ? "Pre-filled for the Nearpeer / MDCAT Online Response Form (4 columns, options A-D, 180 questions per sheet, filled down each column). Double-check against your actual copy and adjust if yours differs \u2014 e.g. switch to 5 options if it has an E bubble too."
+          : "Describe your own sheet's bubble grid so the scanner knows how to read it \u2014 you'll still line up the corners by hand in the scan step below since there are no marker squares to auto-detect.";
+      }
+    });
+  }
+  if (els.genOmrCustomBtn) els.genOmrCustomBtn.addEventListener("click", genOmrSheetFromCriteria);
+  if (els.genOmrMdcatBtn) els.genOmrMdcatBtn.addEventListener("click", genOmrMdcatSheet);
+  if (els.discardOmrBtn) els.discardOmrBtn.addEventListener("click", discardOmrSession);
+  if (els.printOmrBtn) els.printOmrBtn.addEventListener("click", printOmrSheet);
+  if (els.omrPhotoInput) els.omrPhotoInput.addEventListener("change", handleOmrPhotoSelected);
+  if (els.omrAutoDetectBtn) els.omrAutoDetectBtn.addEventListener("click", rerunOmrAutoDetect);
+  if (els.omrAnalyzeBtn) els.omrAnalyzeBtn.addEventListener("click", analyzeOmrSheet);
+  if (els.omrBackToCalibrateBtn) els.omrBackToCalibrateBtn.addEventListener("click", backToOmrCalibrate);
+  if (els.omrNextPageBtn) els.omrNextPageBtn.addEventListener("click", saveOmrPageAndContinue);
+  if (els.omrConfirmGradeBtn) els.omrConfirmGradeBtn.addEventListener("click", confirmAndGradeOmr);
+  bindOmrCalibrationDrag();
+}
+// ==== End OMR Sheet Solving Mode ====
 
     </script>
   </body>
